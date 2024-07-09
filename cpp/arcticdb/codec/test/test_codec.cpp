@@ -13,6 +13,7 @@
 #include <arcticdb/util/random.h>
 #include <arcticdb/stream/row_builder.hpp>
 #include <arcticdb/stream/aggregator.hpp>
+#include <arcticdb/codec/default_codecs.hpp>
 #include <arcticdb/codec/typed_block_encoder_impl.hpp>
 
 #include <gtest/gtest.h>
@@ -510,4 +511,48 @@ TEST(Segment, RoundtripTimeseriesDescriptorWriteToBufferV2) {
     decode_v2(unserialized, unserialized.header(), decoded, unserialized.descriptor());
     ASSERT_EQ(decoded.index_descriptor().total_rows(), 23);
     ASSERT_EQ(decoded, copy);
+}
+
+TEST(Segment, ColumnNamesProduceDifferentHashes) {
+    const auto stream_desc_1 = stream_descriptor(StreamId{"thing"}, RowCountIndex{}, {
+        scalar_field(DataType::UINT8, "ints1"),
+        scalar_field(DataType::UINT8, "ints2"),
+        scalar_field(DataType::UINT8, "ints3"),
+        scalar_field(DataType::UINT8, "ints4"),
+        scalar_field(DataType::UINT8, "ints5")
+    });
+
+    SegmentInMemory in_mem_seg_1{stream_desc_1.clone()};
+
+    in_mem_seg_1.set_scalar(0, uint8_t(0));
+    in_mem_seg_1.set_scalar(1, uint8_t(1));
+    in_mem_seg_1.set_scalar(2, uint8_t(2));
+    in_mem_seg_1.set_scalar(3, uint8_t(3));
+    in_mem_seg_1.set_scalar(4, uint8_t(4));
+    in_mem_seg_1.end_row();
+
+    const auto stream_desc_2 = stream_descriptor(StreamId{"thing"}, RowCountIndex{}, {
+        scalar_field(DataType::UINT8, "ints6"),
+        scalar_field(DataType::UINT8, "ints7"),
+        scalar_field(DataType::UINT8, "ints8"),
+        scalar_field(DataType::UINT8, "ints9"),
+        scalar_field(DataType::UINT8, "ints10")
+    });
+
+    SegmentInMemory in_mem_seg_2{stream_desc_1.clone()};
+
+    in_mem_seg_2.set_scalar(0, uint8_t(0));
+    in_mem_seg_2.set_scalar(1, uint8_t(1));
+    in_mem_seg_2.set_scalar(2, uint8_t(2));
+    in_mem_seg_2.set_scalar(3, uint8_t(3));
+    in_mem_seg_2.set_scalar(4, uint8_t(4));
+    in_mem_seg_2.end_row();
+
+    auto seg_1 = encode_v1(std::move(in_mem_seg_1), codec::default_lz4_codec());
+    auto seg_2 = encode_v2(std::move(in_mem_seg_2), codec::default_lz4_codec());
+
+    auto hash_1 = get_segment_hash(seg_1);
+    auto hash_2 = get_segment_hash(seg_2);
+
+    ASSERT_NE(hash_1, hash_2);
 }

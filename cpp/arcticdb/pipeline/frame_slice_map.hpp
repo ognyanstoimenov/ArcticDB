@@ -17,19 +17,23 @@ struct ContextData {
 };
 
 struct FrameSliceMap {
-    ankerl::unordered_dense::map<std::string_view, std::map<RowRange, ContextData>> columns_;
+//ankerl::unordered_dense::map<std::string_view, std::map<RowRange, ContextData>> columns_;
+    std::unordered_map<std::string_view, std::map<RowRange, ContextData>> columns_;
     std::shared_ptr<PipelineContext> context_;
 
     FrameSliceMap(std::shared_ptr<PipelineContext> context, bool dynamic_schema) :
         context_(std::move(context)) {
-
+        ARCTICDB_TRACE(log::version(), "FrameSliceMap constructing map from {} context rows", context_->slice_and_keys_.size());
+        size_t count = 0;
+        size_t total = 0;
         for (const auto &context_row: *context_) {
             const auto& row_range = context_row.slice_and_key().slice_.row_range;
-
             const auto& fields = context_row.descriptor().fields();
+            total += fields.size();
+            ARCTICDB_TRACE(log::version(), "Slice {} has {} fields: {} total", count++, fields.size(), total);
             for(const auto& field : folly::enumerate(fields)) {
                 if (!context_->is_in_filter_columns_set(field->name())) {
-                    ARCTICDB_DEBUG(log::version(), "{} not present in filtered columns, skipping", field->name());
+                    ARCTICDB_TRACE(log::version(), "{} not present in filtered columns, skipping", field->name());
                     continue;
                 }
 
@@ -47,20 +51,22 @@ struct FrameSliceMap {
                         const Field& global_field = descriptor.field(global_field_idx);
                         const entity::DataType global_field_type = global_field.type().data_type();
                         if(!is_sequence_type(global_field_type)) {
-                            ARCTICDB_DEBUG(log::version(), "{} not a string type in dynamic schema, skipping", field->name());
+                            ARCTICDB_TRACE(log::version(), "{} not a string type in dynamic schema, skipping", field->name());
                             continue;
                         }
                     } else {
-                        ARCTICDB_DEBUG(log::version(), "{} not a string type in dynamic schema, skipping", field->name());
+                        ARCTICDB_TRACE(log::version(), "{} not a string type in dynamic schema, skipping", field->name());
                         continue;
                     }
                 }
 
+                ARCTICDB_TRACE(log::version(), "Writing column data for field {}", field->name());
                 auto& column = columns_[field->name()];
                 ContextData data{context_row.index_, field.index};
                 column.insert(std::make_pair(row_range, data));
             }
         }
+        ARCTICDB_TRACE(log::version(), "Constructed frame slice map with {} fields", columns_.size());
     }
 };
 
