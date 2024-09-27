@@ -140,6 +140,14 @@ public:
         cursor_.reset();
     }
 
+    uint8_t* bytes_at(size_t bytes) {
+        return &buffer_[bytes];
+    }
+
+    const uint8_t* bytes_at(size_t bytes) const {
+        return &buffer_[bytes];
+    }
+
     void clear() {
         buffer_.clear();
         cursor_.reset();

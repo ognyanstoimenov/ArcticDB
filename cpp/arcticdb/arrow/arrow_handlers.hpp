@@ -15,7 +15,7 @@ namespace arcticdb {
 struct ArrowStringHandler {
     void handle_type(
         const uint8_t *&data,
-        ChunkedBuffer& dest_buffer,
+        Column& dest_column,
         const EncodedFieldImpl &field,
         const ColumnMapping& m,
         const DecodePathData& shared_data,

@@ -14,7 +14,6 @@
 #include <arcticdb/pipeline/read_pipeline.hpp>
 #include <arcticdb/async/task_scheduler.hpp>
 #include <arcticdb/async/tasks.hpp>
-#include <arcticdb/util/key_utils.hpp>
 #include <arcticdb/util/optional_defaults.hpp>
 #include <arcticdb/util/name_validation.hpp>
 #include <arcticdb/stream/append_map.hpp>
@@ -177,22 +176,6 @@ bool is_before(const IndexRange& a, const IndexRange& b) {
 
 bool is_after(const IndexRange& a, const IndexRange& b) {
     return a.end_ > b.end_;
-}
-
-template <class KeyContainer>
-    void ensure_keys_line_up(const KeyContainer& slice_and_keys) {
-    std::optional<size_t> start;
-    std::optional<size_t> end;
-    SliceAndKey prev{};
-    for(const auto& sk : slice_and_keys) {
-        util::check(!start || sk.slice_.row_range.first == end.value(),
-                    "Can't update as there is a sorting mismatch at key {} relative to previous key {} - expected index {} got {}",
-                    sk, prev, end.value(), start.value_or(0));
-
-        start = sk.slice_.row_range.first;
-        end = sk.slice_.row_range.second;
-        prev = sk;
-    }
 }
 
 inline std::pair<std::vector<SliceAndKey>, std::vector<SliceAndKey>> intersecting_segments(
@@ -1014,7 +997,7 @@ void check_incompletes_index_ranges_dont_overlap(const std::shared_ptr<PipelineC
 }
 
 void copy_frame_data_to_buffer(
-        const SegmentInMemory& destination,
+        SegmentInMemory& destination,
         size_t target_index,
         SegmentInMemory& source,
         size_t source_index,
@@ -1028,19 +1011,18 @@ void copy_frame_data_to_buffer(
     }
     auto& src_column = source.column(static_cast<position_t>(source_index));
     auto& dst_column = destination.column(static_cast<position_t>(target_index));
-    auto& buffer = dst_column.data().buffer();
     auto dst_rawtype_size = data_type_size(dst_column.type(), output_format, DataTypeMode::EXTERNAL);
     auto offset = dst_rawtype_size * (row_range.first - destination.offset());
     auto total_size = dst_rawtype_size * num_rows;
-    buffer.assert_size(offset + total_size);
+    dst_column.assert_size(offset + total_size);
 
     auto src_data = src_column.data();
-    auto dst_ptr = buffer.data() + offset;
+    auto dst_ptr = dst_column.bytes_at(offset);
 
     auto type_promotion_error_msg = fmt::format("Can't promote type {} to type {} in field {}",
                                                 src_column.type(), dst_column.type(), destination.field(target_index).name());
     if(auto handler = get_type_handler(output_format, src_column.type(), dst_column.type()); handler) {
-        handler->convert_type(src_column, buffer, num_rows, offset, src_column.type(), dst_column.type(), shared_data, handler_data, source.string_pool_ptr());
+        handler->convert_type(src_column, dst_column, num_rows, offset, src_column.type(), dst_column.type(), shared_data, handler_data, source.string_pool_ptr());
     } else if (is_empty_type(src_column.type().data_type())) {
         dst_column.type().visit_tag([&](auto dst_desc_tag) {
             util::default_initialize<decltype(dst_desc_tag)>(dst_ptr, num_rows * dst_rawtype_size);

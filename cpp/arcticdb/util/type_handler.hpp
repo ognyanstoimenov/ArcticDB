@@ -37,7 +37,7 @@ struct ITypeHandler {
         /// @param[in] dest_bytes Size of dest in bytes
         void handle_type(
             const uint8_t*& source,
-            ChunkedBuffer& dest_buffer,
+            Column& dest_column,
             const EncodedFieldImpl& encoded_field_info,
             const ColumnMapping& mapping,
             const DecodePathData& shared_data,
@@ -48,7 +48,7 @@ struct ITypeHandler {
             folly::poly_call<0>(
                 *this,
                 source,
-                dest_buffer,
+                dest_column,
                 encoded_field_info,
                 mapping,
                 shared_data,
@@ -64,15 +64,15 @@ struct ITypeHandler {
 
         void convert_type(
             const Column& source_column,
-            ChunkedBuffer& dest_buffer,
+            Column& dest_column,
             size_t num_rows,
             size_t offset_bytes,
             TypeDescriptor source_type_desc,
             TypeDescriptor dest_type_desc,
             const DecodePathData& shared_data,
             std::any& handler_data,
-            const std::shared_ptr<StringPool>& string_pool) {
-            folly::poly_call<1>(*this, source_column, dest_buffer, num_rows, offset_bytes, source_type_desc, dest_type_desc, shared_data, handler_data, string_pool);
+            const std::shared_ptr<StringPool>& string_pool) const {
+            folly::poly_call<1>(*this, source_column, dest_column, num_rows, offset_bytes, source_type_desc, dest_type_desc, shared_data, handler_data, string_pool);
         }
 
         void default_initialize(ChunkedBuffer& buffer, size_t offset, size_t byte_size, const DecodePathData& shared_data, std::any& handler_data) const {

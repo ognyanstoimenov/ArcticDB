@@ -237,7 +237,7 @@ void decode_index_field(
 
 void decode_or_expand(
     const uint8_t*& data,
-    Column& desc_column,
+    Column& dest_column,
     const EncodedFieldImpl& encoded_field_info,
     const DecodePathData& shared_data,
     std::any& handler_data,
@@ -246,9 +246,9 @@ void decode_or_expand(
     const std::shared_ptr<StringPool>& string_pool,
     OutputFormat output_format) {
     if(auto handler = get_type_handler(output_format, m.source_type_desc_, m.dest_type_desc_); handler) {
-        handler->handle_type(data, dest_buffer, encoded_field_info, m, shared_data, handler_data, encoding_version, string_pool);
+        handler->handle_type(data, dest_column, encoded_field_info, m, shared_data, handler_data, encoding_version, string_pool);
     } else {
-        auto* dest = dest_buffer.data() + m.offset_bytes_;  // TODO only works with contiguous data
+        auto* dest = dest_column.bytes_at(m.offset_bytes_);
         const auto dest_bytes = m.dest_bytes_;
         std::optional<util::BitMagic> bv;
         if (encoded_field_info.has_ndarray() && encoded_field_info.ndarray().sparse_map_bytes() > 0) {
@@ -444,6 +444,53 @@ void check_mapping_type_compatibility(const ColumnMapping& m) {
     );
 }
 
+// If the source and destination types are different, then sizeof(destination type) >= sizeof(source type)
+// We have decoded the column of source type directly onto the output buffer above
+// We therefore need to iterate backwards through the source values, static casting them to the destination
+// type to avoid overriding values we haven't cast yet.
+template <typename SourceType, typename DestinationType>
+void promote_integral_type(
+    const ColumnMapping& m,
+    const ReadOptions& read_options,
+    Column& column) {
+    const auto src_data_type_size = data_type_size(m.source_type_desc_, read_options.output_format(), DataTypeMode::INTERNAL);
+    const auto dest_data_type_size = data_type_size(m.dest_type_desc_, read_options.output_format(), DataTypeMode::INTERNAL);
+
+    const auto src_ptr_offset = src_data_type_size * (m.num_rows_ - 1);
+    const auto dest_ptr_offset = dest_data_type_size * (m.num_rows_ - 1);
+
+    auto src_ptr = reinterpret_cast<SourceType*>(column.bytes_at(src_ptr_offset));
+    auto dest_ptr = reinterpret_cast<DestinationType*>(column.bytes_at(dest_ptr_offset));
+    for (auto i = 0u; i < m.num_rows_; ++i) {
+        *dest_ptr-- = static_cast<DestinationType>(*src_ptr--);
+    }
+}
+
+bool source_is_empty(const ColumnMapping& m) {
+    return is_empty_type(m.source_type_desc_.data_type());
+}
+
+void handle_type_promotion(
+    const ColumnMapping& m,
+    const DecodePathData& shared_data,
+    const ReadOptions& read_options,
+    Column& column
+    ) {
+    if (!trivially_compatible_types(m.source_type_desc_, m.dest_type_desc_) && !source_is_empty(m)) {
+        m.dest_type_desc_.visit_tag([&column, &m, shared_data, &read_options] (auto dest_desc_tag) {
+            using DestinationType =  typename decltype(dest_desc_tag)::DataTypeTag::raw_type;
+            m.source_type_desc_.visit_tag([&column, &m, &read_options] (auto src_desc_tag ) {
+                using SourceType =  typename decltype(src_desc_tag)::DataTypeTag::raw_type;
+                if constexpr(std::is_arithmetic_v<SourceType> && std::is_arithmetic_v<DestinationType>) {
+                    promote_integral_type<SourceType, DestinationType>(m, read_options, column);
+                } else {
+                    util::raise_rte("Can't promote type {} to type {} in field {}", m.source_type_desc_, m.dest_type_desc_, m.frame_field_descriptor_.name());
+                }
+            });
+        });
+    }
+}
+
 void decode_into_frame_dynamic(
     SegmentInMemory& frame,
     PipelineContextRow& context,
@@ -488,20 +535,8 @@ void decode_into_frame_dynamic(
             auto& column = frame.column(static_cast<position_t>(dst_col));
             ColumnMapping m{frame, dst_col, field_col, context, read_options.output_format()};
             check_mapping_type_compatibility(m);
+            util::check(data != end || source_is_empty(m), "Reached end of input block with {} fields to decode", field_count - field_col);
 
-            ARCTICDB_TRACE(
-                log::storage(),
-                "Creating data slice at {} with total size {} ({} rows)",
-                m.offset_bytes_,
-                m.dest_bytes_,
-                context.slice_and_key().slice_.row_range.diff()
-            );
-            const bool source_is_empty = is_empty_type(m.source_type_desc_.data_type());
-            util::check(
-                data != end || source_is_empty,
-                "Reached end of input block with {} fields to decode",
-                field_count - field_col
-            );
             decode_or_expand(
                 data,
                 column,
@@ -514,30 +549,7 @@ void decode_into_frame_dynamic(
                 read_options.output_format_
             );
 
-            if (!trivially_compatible_types(m.source_type_desc_, m.dest_type_desc_) && !source_is_empty) {
-                m.dest_type_desc_.visit_tag([&column, &m, shared_data, &read_options] (auto dest_desc_tag) {
-                    using DestinationType =  typename decltype(dest_desc_tag)::DataTypeTag::raw_type;
-                    m.source_type_desc_.visit_tag([&buffer, &m, &read_options] (auto src_desc_tag ) {
-                        using SourceType =  typename decltype(src_desc_tag)::DataTypeTag::raw_type;
-                        if constexpr(std::is_arithmetic_v<SourceType> && std::is_arithmetic_v<DestinationType>) {
-                            // If the source and destination types are different, then sizeof(destination type) >= sizeof(source type)
-                            // We have decoded the column of source type directly onto the output buffer above
-                            // We therefore need to iterate backwards through the source values, static casting them to the destination
-                            // type to avoid overriding values we haven't cast yet.
-                            const auto src_ptr_offset = data_type_size(m.source_type_desc_, read_options.output_format(), DataTypeMode::INTERNAL) * (m.num_rows_ - 1);
-                            const auto dest_ptr_offset = data_type_size(m.dest_type_desc_, read_options.output_format(), DataTypeMode::INTERNAL) * (m.num_rows_ - 1);
-                            auto src_ptr = column.ptr_cast<SourceType*>((m.offset_bytes_ + )
-                            auto src_ptr = reinterpret_cast<SourceType *>(buffer.data() + m.offset_bytes_ + src_ptr_offset);
-                            auto dest_ptr = reinterpret_cast<DestinationType *>(buffer.data() + m.offset_bytes_ + dest_ptr_offset);
-                            for (auto i = 0u; i < m.num_rows_; ++i) {
-                                *dest_ptr-- = static_cast<DestinationType>(*src_ptr--);
-                            }
-                        } else {
-                            util::raise_rte("Can't promote type {} to type {} in field {}", m.source_type_desc_, m.dest_type_desc_, m.frame_field_descriptor_.name());
-                        }
-                    });
-                });
-            }
+            handle_type_promotion(m, shared_data, read_options, column);
             ARCTICDB_TRACE(log::codec(), "Decoded column {} to position {}", frame.field(dst_col).name(), data - begin);
         }
     } else {

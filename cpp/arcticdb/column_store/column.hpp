@@ -616,6 +616,18 @@ public:
         return data_.buffer();
     }
 
+    uint8_t* bytes_at(size_t bytes) {
+        return data_.bytes_at(bytes);
+    }
+
+    const uint8_t* bytes_at(size_t bytes) const {
+        return data_.bytes_at(bytes);
+    }
+
+    void assert_size(size_t bytes) const {
+        data_.buffer().assert_size(bytes);
+    }
+
     template<typename T>
     std::optional<position_t> search_unsorted(T val) const {
         util::check_arg(is_scalar(), "Cannot index on multidimensional values");
