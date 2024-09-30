@@ -18,9 +18,11 @@
 #include <arcticdb/entity/metrics.hpp>
 #include <arcticdb/version/version_tasks.hpp>
 #include <arcticdb/pipeline/index_utils.hpp>
+#include <arcticdb/pipeline/pipeline_utils.hpp>
 #include <arcticdb/version/version_map_batch_methods.hpp>
 #include <arcticdb/util/container_filter_wrapper.hpp>
 #include <arcticdb/pipeline/chunking.hpp>
+#include <arcticdb/version/read_version_output.hpp>
 
 namespace arcticdb::version_store {
 
@@ -376,7 +378,8 @@ ChunkIterator LocalVersionedEngine::read_dataframe_chunked(
     const VersionQuery& version_query,
     ReadQuery& read_query,
     const ReadOptions& read_options,
-    std::any& handler_data) {
+    std::any& handler_data,
+    DecodePathData shared_data) {
     py::gil_scoped_release release_gil;
     auto version = get_version_to_read(stream_id, version_query);
     const auto identifier = check_have_version_if_required(stream_id, version_query, read_options, version);
@@ -394,9 +397,11 @@ ChunkIterator LocalVersionedEngine::read_dataframe_chunked(
         bucketize_dynamic);
 
     pipeline_context->slice_and_keys_ = filter_index(index_segment_reader, combine_filter_functions(queries));
+    pipelines::sort_by_row_range(pipeline_context->slice_and_keys_);
 
     generate_filtered_field_descriptors(pipeline_context, read_query.columns);
     mark_index_slices(pipeline_context, dynamic_schema, bucketize_dynamic);
+
 
 }
 

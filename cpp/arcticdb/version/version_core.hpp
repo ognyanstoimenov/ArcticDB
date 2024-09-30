@@ -38,18 +38,6 @@ struct CompactIncompleteOptions {
     bool validate_index_{true}; // Default value as unused in sort_merge
 };
 
-struct ReadVersionOutput {
-    ReadVersionOutput() = delete;
-    ReadVersionOutput(VersionedItem&& versioned_item, FrameAndDescriptor&& frame_and_descriptor):
-        versioned_item_(std::move(versioned_item)),
-        frame_and_descriptor_(std::move(frame_and_descriptor)) {}
-
-    ARCTICDB_MOVE_ONLY_DEFAULT(ReadVersionOutput)
-
-    VersionedItem versioned_item_;
-    FrameAndDescriptor frame_and_descriptor_;
-};
-
 VersionedItem write_dataframe_impl(
     const std::shared_ptr<Store>& store,
     VersionId version_id,
@@ -152,7 +140,7 @@ struct PredefragmentationInfo{
     std::optional<size_t> append_after;
 };
 
-folly::Future<version_store::ReadVersionOutput> async_read_direct_impl(
+folly::Future<ReadVersionOutput> async_read_direct_impl(
     const std::shared_ptr<Store>& store,
     const VariantKey& index_key,
     SegmentInMemory&& index_segment,

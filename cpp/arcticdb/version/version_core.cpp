@@ -32,6 +32,7 @@
 #include <arcticdb/version/version_utils.hpp>
 #include <arcticdb/entity/merge_descriptors.hpp>
 #include <arcticdb/processing/component_manager.hpp>
+#include <arcticdb/version/read_version_output.hpp>
 
 namespace arcticdb::version_store {
 
@@ -413,7 +414,7 @@ void set_row_id_for_empty_columns_set(
 // for things that need to get multiple objects in their entirety, as with
 // recursive normalizers. Outside those specific situtations it's probably
 // not what you want
-folly::Future<version_store::ReadVersionOutput> async_read_direct_impl(
+folly::Future<ReadVersionOutput> async_read_direct_impl(
     const std::shared_ptr<Store>& store,
     const VariantKey& index_key,
     SegmentInMemory&& index_segment,
