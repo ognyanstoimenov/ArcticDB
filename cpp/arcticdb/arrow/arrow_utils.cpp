@@ -33,13 +33,14 @@ std::vector<ArrowData> arrow_data_from_column(const Column& column, std::string_
         if constexpr (!is_sequence_type(DataType::data_type)) {
             std::vector<ArrowData> output;
             auto column_data = column.data();
-            while(auto block = column_data.next<TagType>(); block) {
+
+            while (auto block = column_data.next<TagType>()) {
                 sparrow::array_data data;
                 auto type = sparrow::data_descriptor(sparrow::arrow_traits<RawType>::type_id);
                 data.type = type;
-                auto column_data = column.data();
-                const auto row_count = block.row_count();
-                auto *tmp = const_cast<RawType *>(block.release());
+
+                const auto row_count = block->row_count();
+                auto *tmp = const_cast<RawType *>(block->release());
                 data.buffers.emplace_back(reinterpret_cast<uint8_t *>(tmp),
                                           row_count * sizeof(RawType),
                                           sparrow::any_allocator<uint8_t>{});

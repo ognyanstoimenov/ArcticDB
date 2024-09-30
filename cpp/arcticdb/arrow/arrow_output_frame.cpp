@@ -14,26 +14,38 @@
 namespace arcticdb {
 
     ArrowOutputFrame::ArrowOutputFrame(
-        std::vector<ArrowData>&& data,
+        std::vector<std::vector<ArrowData>>&& data,
         std::vector<std::string>&& names) :
-        data_(std::make_shared<std::vector<ArrowData>>(std::move(data))),
+        data_(std::make_shared<std::vector<std::vector<ArrowData>>>(std::move(data))),
         names_(std::move(names)) {
     }
 
-    std::vector<uintptr_t> ArrowOutputFrame::arrays() {
-        std::vector<uintptr_t> output;
+    std::vector<std::vector<uintptr_t>> ArrowOutputFrame::arrays() {
+        std::vector<std::vector<uintptr_t>> output;
         output.reserve(data_->size());
-        for(auto& data : *data_)
-            output.emplace_back(reinterpret_cast<uintptr_t>(data.data_.get()));
+        for(auto& column : *data_) {
+            std::vector<uintptr_t> vec;
+            vec.reserve(column.size());
+            for(auto& data : column) {
+                vec.emplace_back(reinterpret_cast<uintptr_t>(data.data_.get()));
+            }
+            output.emplace_back(std::move(vec));
+        }
 
         return output;
     }
 
-    std::vector<uintptr_t> ArrowOutputFrame::schemas() {
-        std::vector<uintptr_t> output;
+    std::vector<std::vector<uintptr_t>> ArrowOutputFrame::schemas() {
+        std::vector<std::vector<uintptr_t>> output;
         output.reserve(data_->size());
-        for(auto& data : *data_)
-            output.emplace_back(reinterpret_cast<uintptr_t>(data.schema_.get()));
+        for(auto& column : *data_) {
+            std::vector<uintptr_t> vec;
+            vec.reserve(column.size());
+            for(auto& data : column) {
+                vec.emplace_back(reinterpret_cast<uintptr_t>(data.schema_.get()));
+            }
+            output.emplace_back(std::move(vec));
+        }
 
         return output;
     }

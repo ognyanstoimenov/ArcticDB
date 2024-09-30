@@ -22,9 +22,9 @@ struct ArrowOutputFrame {
     std::shared_ptr<std::vector<std::vector<ArrowData>>> data_;
     std::vector<std::string> names_;
 
-    std::vector<uintptr_t> arrays();
+    std::vector<std::vector<uintptr_t>> arrays();
 
-    std::vector<uintptr_t> schemas();
+    std::vector<std::vector<uintptr_t>> schemas();
 
     std::vector<std::string> names() const;
 };

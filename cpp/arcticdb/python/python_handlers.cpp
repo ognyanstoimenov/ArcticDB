@@ -202,7 +202,7 @@ void PythonStringHandler::handle_type(
         std::any& handler_data,
         EncodingVersion encoding_version,
         const std::shared_ptr<StringPool>& string_pool) {
-    ARCTICDB_SAMPLE(HandleString, 0)
+    ARCTICDB_SAMPLE(PythonHandleString, 0)
     util::check(field.has_ndarray(), "String handler expected array");
     ARCTICDB_DEBUG(log::version(), "String handler got encoded field: {}", field.DebugString());
     const auto &ndarray = field.ndarray();

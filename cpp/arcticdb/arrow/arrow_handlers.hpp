@@ -28,7 +28,7 @@ struct ArrowStringHandler {
 
     void convert_type(
         const Column& source_column,
-        ChunkedBuffer& dest_buffer,
+        Column& dest_column,
         size_t num_rows,
         size_t offset_bytes,
         TypeDescriptor source_type_desc,

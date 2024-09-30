@@ -308,7 +308,6 @@ void advance_skipped_cols(
         const StaticColumnMappingIterator& it,
         const EncodedFieldCollection& fields,
         const SegmentHeader& hdr) {
-    const auto source_col = static_cast<size_t>(it.last_slice_col_offset());
     const auto next_col = it.prev_col_offset() + 1;
     auto skipped_cols = it.last_slice_col_offset();
     if(skipped_cols) {
