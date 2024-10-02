@@ -24,7 +24,8 @@ namespace arcticdb {
             num_rows_(context.slice_and_key().slice_.row_range.diff()),
             first_row_(context.slice_and_key().slice_.row_range.first - frame.offset()),
             offset_bytes_(dest_size_ * first_row_),
-            dest_bytes_(dest_size_ * num_rows_) {
+            dest_bytes_(dest_size_ * num_rows_),
+            dest_col_(dst_col) {
     }
 
     StaticColumnMappingIterator::StaticColumnMappingIterator(

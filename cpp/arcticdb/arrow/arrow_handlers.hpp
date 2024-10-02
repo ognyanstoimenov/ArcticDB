@@ -29,10 +29,7 @@ struct ArrowStringHandler {
     void convert_type(
         const Column& source_column,
         Column& dest_column,
-        size_t num_rows,
-        size_t offset_bytes,
-        TypeDescriptor source_type_desc,
-        TypeDescriptor dest_type_desc,
+        const ColumnMapping& mapping,
         const DecodePathData& shared_data,
         std::any& handler_data,
         const std::shared_ptr<StringPool>& string_pool);
@@ -45,6 +42,10 @@ struct ArrowStringHandler {
         std::any& handler_data) const;
 };
 
+struct ArrowHandlerData {
+    std::unordered_map<size_t, std::vector<ChunkedBuffer>> string_buffers;
+    std::shared_ptr<std::mutex> mutex_;
+};
 
 struct ArrowHandlerDataFactory  : public TypeHandlerDataFactory {
     std::any get_data() const override {

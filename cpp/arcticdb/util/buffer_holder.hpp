@@ -9,6 +9,7 @@
 
 #include <arcticdb/util/spinlock.hpp>
 #include <arcticdb/util/constructors.hpp>
+#include <arcticdb/column_store/chunked_buffer.hpp>
 #include <arcticdb/entity/types.hpp>
 #include <arcticdb/util/lazy.hpp>
 
@@ -34,10 +35,15 @@ struct BufferHolder {
 
 using UniqueStringMapType = folly::ConcurrentHashMap<std::string_view, PyObject*>;
 
+struct BufferMap {
+    std::unordered_map<std::pair<size_t, size_t>, ChunkedBuffer> buffers_;
+    std::mutex mutex_;
+};
 
 struct DecodePathDataImpl {
     LazyInit<BufferHolder> buffer_holder_;
     LazyInit<UniqueStringMapType> unique_string_map_;
+    LazyInit<BufferMap> buffer_map_;
     bool optimize_for_memory_ = false;
 };
 
@@ -49,6 +55,10 @@ public:
 
     const std::shared_ptr<UniqueStringMapType>& unique_string_map() const {
         return data_->unique_string_map_.instance();
+    }
+
+    const std::shared_ptr<BufferMap> buffer_map() const {
+        return data_->buffer_map_.instance();
     }
 
     bool optimize_for_memory() const {

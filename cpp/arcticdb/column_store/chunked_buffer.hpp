@@ -179,6 +179,11 @@ class ChunkedBufferImpl {
 
     [[nodiscard]] const auto &blocks() const { return blocks_; }
 
+    BlockType* block(size_t pos) {
+        util::check(pos < blocks_.size(), "Requested block {} out of range {}", pos, blocks_.size());
+        return blocks_[pos];
+    }
+
     // If the extra space required does not fit in the current last block, and is <=DefaultBlockSize, then if aligned is
     // set to true, the current last block will be padded with zeros, and a new default sized block added. This allows
     // the buffer to stay regular sized for as long as possible, which greatly improves random access performance, and

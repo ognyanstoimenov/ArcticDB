@@ -72,23 +72,19 @@ void PythonEmptyHandler::handle_type(
     convert_type(
         {},
         dest_column,
-        mapping.num_rows_,
-        mapping.offset_bytes_,
-        mapping.source_type_desc_,
-        mapping.dest_type_desc_, {}, handler_data, {});
+        mapping,
+        {},
+        handler_data, {});
 }
 
 void PythonEmptyHandler::convert_type(
         const Column&,
         Column& dest_column,
-        size_t num_rows,
-        size_t offset_bytes,
-        TypeDescriptor source_type_desc ARCTICDB_UNUSED,
-        TypeDescriptor dest_type_desc,
+        const ColumnMapping& mapping,
         const DecodePathData& shared_data,
         std::any& handler_data,
         const std::shared_ptr<StringPool>&) const {
-    auto dest_data = dest_column.bytes_at(offset_bytes);
+    auto dest_data = dest_column.bytes_at(mapping.offset_bytes_);
     util::check(dest_data != nullptr, "Got null destination pointer");
     ARCTICDB_TRACE(
         log::version(),
@@ -140,10 +136,7 @@ void PythonBoolHandler::handle_type(
     convert_type(
         decoded_data,
         dest_column,
-        m.num_rows_,
-        m.offset_bytes_,
-        m.source_type_desc_,
-        m.dest_type_desc_,
+        m
         shared_data,
         handler_data,
         {});
@@ -152,10 +145,7 @@ void PythonBoolHandler::handle_type(
 void PythonBoolHandler::convert_type(
         const Column& source_column,
         Column& dest_column,
-        size_t num_rows,
-        size_t offset_bytes,
-        arcticdb::entity::TypeDescriptor,
-        arcticdb::entity::TypeDescriptor,
+        const ColumnMapping& mapping,
         const arcticdb::DecodePathData &,
         std::any& any,
         const std::shared_ptr<StringPool> &) const{
@@ -224,10 +214,7 @@ void PythonStringHandler::handle_type(
         convert_type(
             decoded_data,
             dest_column,
-            m.num_rows_,
-            m.offset_bytes_,
-            m.source_type_desc_,
-            m.dest_type_desc_,
+            m,
             shared_data,
             handler_data,
             string_pool);
@@ -311,10 +298,7 @@ void PythonArrayHandler::handle_type(
 void PythonArrayHandler::convert_type(
     const Column& source_column,
     Column& dest_column,
-    size_t num_rows,
-    size_t offset_bytes,
-    arcticdb::entity::TypeDescriptor source_type_desc,
-    arcticdb::entity::TypeDescriptor,
+    const ColumnMapping& mapping,
     const arcticdb::DecodePathData&,
     std::any& any,
     const std::shared_ptr<StringPool> &) const { //TODO we don't handle string arrays at the moment

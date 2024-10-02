@@ -27,6 +27,7 @@ struct ColumnMapping {
     const size_t first_row_;
     const size_t offset_bytes_;
     const size_t dest_bytes_;
+    const size_t dest_col_;
 
     ColumnMapping(
         SegmentInMemory& frame,

@@ -41,31 +41,45 @@ void ArrowStringHandler::handle_type(
 
     data += decode_field(m.source_type_desc_, field, data, decoded_data, decoded_data.opt_sparse_map(), encoding_version);
 
-    if(is_dynamic_string_type(m.dest_type_desc_.data_type())) {
-        convert_type(
-            decoded_data,
-            dest_column,
-            m.num_rows_,
-            m.offset_bytes_,
-            m.source_type_desc_,
-            m.dest_type_desc_,
-            shared_data,
-            handler_data,
-            string_pool);
-    }
+    convert_type(
+        decoded_data,
+        dest_column,
+        m,
+        shared_data,
+        handler_data,
+        string_pool);
 }
 
 void ArrowStringHandler::convert_type(
     const Column& source_column,
     Column& dest_column,
-    size_t num_rows,
-    size_t offset_bytes,
-    TypeDescriptor source_type_desc,
-    TypeDescriptor dest_type_desc,
+    const ColumnMapping& mapping,
     const DecodePathData& shared_data,
-    std::any& handler_data,
+    std::any&,
     const std::shared_ptr<StringPool>& string_pool) {
+    size_t bytes = 0;
+    using ArcticStringColumnTag = ScalarTagType<DataTypeTag<DataType::UTF_DYNAMIC64>>;
+    using ArrowStringColumnTag = ScalarTagType<DataTypeTag<DataType::UINT32>>;
+    Column::transform<ArcticStringColumnTag, ArrowStringColumnTag>(source_column, dest_column, [&bytes, &string_pool] (auto offset) {
+        auto value = bytes;
+        bytes += string_pool->get_view(offset).size();
+        return value;
+    });
 
+    ChunkedBuffer buffer{bytes, AllocationType::DETACHABLE};
+    auto input_data = source_column.data();
+    auto begin = input_data.cbegin<ArcticStringColumnTag>();
+    auto end = input_data.cend<ArcticStringColumnTag>();
+    auto out_ptr = buffer.data();
+    std::for_each(begin, end, [&string_pool, &out_ptr] (auto offset) {
+        const auto strv = string_pool->get_view(offset);
+        memcpy(out_ptr, strv.data(), strv.size());
+        out_ptr += strv.size();
+    });
+
+    auto buffer_map = shared_data.buffer_map();
+    std::lock_guard lock(buffer_map->mutex_);
+    buffer_map->buffers_.try_emplace(std::make_pair(mapping.dest_col_, mapping.offset_bytes_), std::move(buffer));
 }
 
 int ArrowStringHandler::type_size() const {

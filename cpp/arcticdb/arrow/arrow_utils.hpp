@@ -19,6 +19,7 @@ class SegmentInMemory;
 struct ArrowData;
 class Column;
 struct FrameAndDescriptor;
+struct DecodePathData;
 
 struct ArrowReadResult {
 
@@ -42,7 +43,7 @@ ArrowReadResult create_arrow_read_result(
 
 std::vector<ArrowData> arrow_data_from_column(const Column& column, std::string_view name);
 
-std::vector<std::vector<ArrowData>> segment_to_arrow_data(SegmentInMemory& segment);
+std::vector<std::vector<ArrowData>> segment_to_arrow_data(SegmentInMemory& segment, DecodePathData& shared_data);
 
 std::vector<std::string> names_from_segment(const SegmentInMemory& segment);
 
