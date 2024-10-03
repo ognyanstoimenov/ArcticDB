@@ -929,6 +929,26 @@ public:
         inserter.flush();
     }
 
+    void init_buffer() {
+        std::call_once(*init_buffer_, [this] () {
+            extra_buffers_ = std::make_unique<ExtraBufferContainer>();
+        });
+    }
+
+    ChunkedBuffer& create_extra_buffer(size_t offset, size_t size, AllocationType allocation_type) {
+        init_buffer();
+        return extra_buffers_->create_buffer(offset, size, allocation_type);
+    }
+
+    ChunkedBuffer& get_extra_buffer(size_t offset) {
+        util::check(static_cast<bool>(extra_buffers_), "Extra buffer {} requested but pointer is null", offset);
+        return extra_buffers_->get_buffer(offset);
+    }
+
+    void set_extra_buffer(size_t offset, ChunkedBuffer&& buffer) {
+        init_buffer();
+        extra_buffers_->set_buffer(offset, std::move(buffer));
+    }
 private:
     position_t last_offset() const;
     void update_offsets(size_t nbytes);
@@ -959,6 +979,33 @@ private:
     Sparsity allow_sparse_ = Sparsity::NOT_PERMITTED;
 
     std::optional<util::BitMagic> sparse_map_;
+
+    std::unique_ptr<std::once_flag> init_buffer_ = std::make_unique<std::once_flag>();
+    struct ExtraBufferContainer {
+        std::mutex mutex_;
+        std::unordered_map<size_t, ChunkedBuffer> buffers_;
+
+        ChunkedBuffer& create_buffer(size_t offset, size_t size, AllocationType allocation_type) {
+            std::lock_guard lock(mutex_);
+            auto inserted = buffers_.try_emplace(offset, ChunkedBuffer{size, allocation_type});
+            util::check(inserted.second, "Failed to insert additional chunked buffer at position {}", offset);
+            return inserted.first->second;
+        }
+
+        void set_buffer(size_t offset, ChunkedBuffer&& buffer) {
+            std::lock_guard lock(mutex_);
+            buffers_.try_emplace(offset, std::move(buffer));
+        }
+
+        ChunkedBuffer& get_buffer(size_t offset) {
+            std::lock_guard lock(mutex_);
+            auto it = buffers_.find(offset);
+            util::check(it != buffers_.end(), "Failed to find additional chunked buffer at position {}", offset);
+            return it->second;
+        }
+    };
+
+    std::unique_ptr<ExtraBufferContainer> extra_buffers_;
     util::MagicNum<'D', 'C', 'o', 'l'> magic_;
 }; //class Column
 

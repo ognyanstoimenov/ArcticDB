@@ -51,11 +51,11 @@ std::vector<ArrowData> arrow_data_from_column(const Column& column, std::string_
     });
 };
 
-std::vector<ArrowData> arrow_data_from_string_column(Column& column, position_t column_pos, DecodePathData& shared_data, std::string_view name) {
+std::vector<ArrowData> arrow_data_from_string_column(Column& column, position_t column_pos, std::string_view name) {
         using ArrowStringTagType = ScalarTagType<DataTypeTag<DataType::UINT32>>;
         std::vector<ArrowData> output;
         auto column_data = column.data();
-        auto& buffer_map = shared_data.buffer_map();
+        //auto& buffer_map = shared_data.buffer_map();
 
         while (auto block = column_data.next<ArrowStringTagType>()) {
             sparrow::array_data data;
@@ -80,12 +80,12 @@ std::vector<ArrowData> arrow_data_from_string_column(Column& column, position_t 
         return output;
 }
 
-std::vector<std::vector<ArrowData>> segment_to_arrow_data(SegmentInMemory& segment, DecodePathData& shared_data) {
+std::vector<std::vector<ArrowData>> segment_to_arrow_data(SegmentInMemory& segment/*, DecodePathData& shared_data*/) {
     std::vector<std::vector<ArrowData>> output;
     for(auto i = 0UL; i < segment.num_columns(); ++i) {
         auto& column = segment.column(static_cast<position_t>(i));
         if(is_sequence_type(column.type().data_type())) {
-            output.emplace_back(arrow_data_from_string_column(column, i, shared_data, segment.field(i).name()));
+            output.emplace_back(arrow_data_from_string_column(column, i, segment.field(i).name()));
         } else {
             output.emplace_back(arrow_data_from_column(segment.column(static_cast<position_t>(i)), segment.field(i).name()));
         }

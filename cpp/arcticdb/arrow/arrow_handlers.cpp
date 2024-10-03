@@ -8,7 +8,7 @@
 #include <arcticdb/codec/slice_data_sink.hpp>
 #include <arcticdb/codec/encoding_sizes.hpp>
 #include <arcticdb/codec/codec.hpp>
-#include <arcticdb/util/buffer_holder.hpp>
+#include <arcticdb/util/decode_path_data.hpp>
 #include <arcticdb/pipeline/column_mapping.hpp>
 #include <arcticdb/util/sparse_utils.hpp>
 
@@ -54,7 +54,7 @@ void ArrowStringHandler::convert_type(
     const Column& source_column,
     Column& dest_column,
     const ColumnMapping& mapping,
-    const DecodePathData& shared_data,
+    const DecodePathData&,
     std::any&,
     const std::shared_ptr<StringPool>& string_pool) {
     size_t bytes = 0;
@@ -66,7 +66,7 @@ void ArrowStringHandler::convert_type(
         return value;
     });
 
-    ChunkedBuffer buffer{bytes, AllocationType::DETACHABLE};
+    auto& buffer = dest_column.create_extra_buffer(0, bytes, AllocationType::DETACHABLE);
     auto input_data = source_column.data();
     auto begin = input_data.cbegin<ArcticStringColumnTag>();
     auto end = input_data.cend<ArcticStringColumnTag>();
@@ -76,10 +76,6 @@ void ArrowStringHandler::convert_type(
         memcpy(out_ptr, strv.data(), strv.size());
         out_ptr += strv.size();
     });
-
-    auto buffer_map = shared_data.buffer_map();
-    std::lock_guard lock(buffer_map->mutex_);
-    buffer_map->buffers_.try_emplace(std::make_pair(mapping.dest_col_, mapping.offset_bytes_), std::move(buffer));
 }
 
 int ArrowStringHandler::type_size() const {

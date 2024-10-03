@@ -505,7 +505,7 @@ set(arcticdb_srcs
         version/symbol_list.cpp
         version/version_map_batch_methods.cpp
         storage/s3/ec2_utils.cpp
-        util/buffer_holder.cpp arrow/arrow_utils.hpp arrow/arrow_output_frame.hpp arrow/arrow_data.hpp arrow/arrow_utils.cpp arrow/arrow_output_frame.cpp arrow/arrow_handlers.hpp arrow/arrow_handlers.cpp)
+        util/decode_path_data.cpp arrow/arrow_utils.hpp arrow/arrow_output_frame.hpp arrow/arrow_data.hpp arrow/arrow_utils.cpp arrow/arrow_output_frame.cpp arrow/arrow_handlers.hpp arrow/arrow_handlers.cpp)
 
 add_library(arcticdb_core_object OBJECT ${arcticdb_srcs})
 

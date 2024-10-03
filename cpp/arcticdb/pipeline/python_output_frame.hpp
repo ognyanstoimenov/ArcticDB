@@ -8,7 +8,7 @@
 #pragma once
 
 #include <arcticdb/pipeline/frame_data_wrapper.hpp>
-#include <arcticdb/util/buffer_holder.hpp>
+#include <arcticdb/util/decode_path_data.hpp>
 
 namespace arcticdb::pipelines {
 
