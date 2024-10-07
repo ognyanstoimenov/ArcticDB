@@ -18,7 +18,6 @@ namespace arcticdb {
 struct ColumnMapping;
 class Column;
 
-
 struct PythonEmptyHandler {
     void handle_type(
         const uint8_t *&data,

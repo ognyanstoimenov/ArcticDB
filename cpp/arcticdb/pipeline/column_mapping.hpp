@@ -35,7 +35,19 @@ struct ColumnMapping {
         size_t field_col,
         pipelines::PipelineContextRow& context,
         OutputFormat output_format);
-};
+
+    ColumnMapping(
+        const entity::TypeDescriptor source_type_desc,
+        const entity::TypeDescriptor dest_type_desc,
+        const entity::Field& frame_field_descriptor,
+        const size_t dest_size,
+        const size_t num_rows,
+        const size_t first_row,
+        const size_t offset_bytes,
+        const size_t dest_bytes,
+        const size_t dest_col);
+
+    };
 
 struct StaticColumnMappingIterator {
     const size_t index_fieldcount_;

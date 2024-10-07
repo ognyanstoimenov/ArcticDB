@@ -368,7 +368,7 @@ inline std::vector<std::variant<ReadResult, DataError>> frame_to_read_result(std
         const auto& desc_proto = read_version_output.frame_and_descriptor_.desc_.proto();
         read_results.emplace_back(ReadResult(
             read_version_output.versioned_item_,
-            PythonOutputFrame{read_version_output.frame_and_descriptor_.frame_, OutputFormat::PANDAS, read_version_output.frame_and_descriptor_.buffers_},
+            PythonOutputFrame{read_version_output.frame_and_descriptor_.frame_, OutputFormat::PANDAS},
             desc_proto.normalization(),
             desc_proto.user_meta(),
             desc_proto.multi_key_meta(),

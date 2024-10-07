@@ -266,7 +266,7 @@ void PythonArrayHandler::handle_type(
     Column column{m.source_type_desc_, Sparsity::PERMITTED};
     data += decode_field(m.source_type_desc_, field, data, column, column.opt_sparse_map(), encoding_version);
 
-    convert_type(*column, dest_column, m, shared_data, any, {});
+    convert_type(column, dest_column, m, shared_data, any, {});
 }
 
 [[nodiscard]] static inline PyObject* initialize_array(
@@ -345,7 +345,7 @@ void PythonArrayHandler::convert_type(
             }
         });
     }
-    dest_column.g
+    dest_column.set_extra_buffer(mapping.offset_bytes_, std::move(source_column.data().buffer()));
 }
 
 int PythonArrayHandler::type_size() const {

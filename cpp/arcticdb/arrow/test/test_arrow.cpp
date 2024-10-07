@@ -20,9 +20,9 @@ TEST(Arrow, ConvertColumn) {
     }
 
     auto data = arrow_data_from_column(column, "column_1");
-    ASSERT_EQ(data.data_->n_buffers, 2);
-    ASSERT_EQ(data.data_->offset, 0);
-    ASSERT_EQ(data.data_->n_children, 0);
+    ASSERT_EQ(data[0].data_->n_buffers, 2);
+    ASSERT_EQ(data[0].data_->offset, 0);
+    ASSERT_EQ(data[0].data_->n_children, 0);
 }
 
 TEST(Arrow, ConvertSegment) {

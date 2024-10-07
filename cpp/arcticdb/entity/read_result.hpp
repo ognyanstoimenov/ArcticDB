@@ -50,7 +50,7 @@ inline ReadResult create_python_read_result(
     OutputFormat output_format,
     FrameAndDescriptor&& fd) {
     auto result = std::move(fd);
-    auto python_frame = pipelines::PythonOutputFrame{result.frame_, output_format, result.buffers_};
+    auto python_frame = pipelines::PythonOutputFrame{result.frame_, output_format};
     util::print_total_mem_usage(__FILE__, __LINE__, __FUNCTION__);
 
     const auto& desc_proto = result.desc_.proto();

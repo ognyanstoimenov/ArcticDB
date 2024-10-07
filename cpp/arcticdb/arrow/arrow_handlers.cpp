@@ -53,7 +53,7 @@ void ArrowStringHandler::handle_type(
 void ArrowStringHandler::convert_type(
     const Column& source_column,
     Column& dest_column,
-    const ColumnMapping& mapping,
+    const ColumnMapping&,
     const DecodePathData&,
     std::any&,
     const std::shared_ptr<StringPool>& string_pool) {

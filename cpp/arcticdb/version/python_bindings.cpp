@@ -199,7 +199,7 @@ void register_bindings(py::module &version, py::exception<arcticdb::ArcticExcept
     py::class_<PythonOutputFrame>(version, "PythonOutputFrame")
         //.def(py::init<const SegmentInMemory&, OutputFormat output_format, std::shared_ptr<BufferHolder>>())
         .def(py::init<>([](const SegmentInMemory& segment_in_memory, OutputFormat output_format) {
-            return PythonOutputFrame(segment_in_memory, output_format, std::make_shared<BufferHolder>());
+            return PythonOutputFrame(segment_in_memory, output_format);
         }))
         .def_property_readonly("value", [](py::object & obj){
             auto& fd = obj.cast<PythonOutputFrame&>();
@@ -701,7 +701,7 @@ void register_bindings(py::module &version, py::exception<arcticdb::ArcticExcept
                 ReadResult res{
                     vit,
                     PythonOutputFrame{
-                        SegmentInMemory{tsd.as_stream_descriptor()},  read_options.output_format(), std::make_shared<BufferHolder>()},
+                        SegmentInMemory{tsd.as_stream_descriptor()},  read_options.output_format()},
                         tsd_proto.normalization(),
                         tsd_proto.user_meta(),
                         tsd_proto.multi_key_meta(),
@@ -770,7 +770,7 @@ void register_bindings(py::module &version, py::exception<arcticdb::ArcticExcept
                  for(auto& [vit, tsd] : results) {
                      const auto& tsd_proto = tsd.proto();
                      ReadResult res{vit, PythonOutputFrame{
-                         SegmentInMemory{tsd.as_stream_descriptor()}, read_options.output_format(), std::make_shared<BufferHolder>()},
+                         SegmentInMemory{tsd.as_stream_descriptor()}, read_options.output_format()},
                                     tsd_proto.normalization(),
                                     tsd_proto.user_meta(),
                                     tsd_proto.multi_key_meta(), {}};

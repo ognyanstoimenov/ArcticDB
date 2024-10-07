@@ -12,12 +12,11 @@
 
 namespace arcticdb::pipelines {
 
-PythonOutputFrame::PythonOutputFrame(const SegmentInMemory &frame, OutputFormat output_format, std::shared_ptr<BufferHolder> buffers) :
+PythonOutputFrame::PythonOutputFrame(const SegmentInMemory &frame, OutputFormat output_format) :
         module_data_(ModuleData::instance()),
         frame_(frame),
         names_(frame.fields().size() - frame.descriptor().index().field_count()),
         index_columns_(frame.descriptor().index().field_count()),
-        buffers_(std::move(buffers)),
         output_format_(output_format) {
     ARCTICDB_SAMPLE_DEFAULT(PythonOutputFrameCtor)
     const auto field_count = frame.descriptor().index().field_count();

@@ -51,7 +51,7 @@ std::vector<ArrowData> arrow_data_from_column(const Column& column, std::string_
     });
 };
 
-std::vector<ArrowData> arrow_data_from_string_column(Column& column, position_t column_pos, std::string_view name) {
+std::vector<ArrowData> arrow_data_from_string_column(Column& column, std::string_view name) {
         using ArrowStringTagType = ScalarTagType<DataTypeTag<DataType::UINT32>>;
         std::vector<ArrowData> output;
         auto column_data = column.data();
@@ -64,9 +64,8 @@ std::vector<ArrowData> arrow_data_from_string_column(Column& column, position_t 
 
             const auto row_count = block->row_count();
             const auto offset = block->offset();
-            auto string_buffer = buffer_map->buffers_.find(std::make_pair(column_pos, offset));
-            util::check(string_buffer != buffer_map->buffers_.end(), "Failed to find arrow string data for {}: {}", column_pos, offset);
-            auto string_block = string_buffer->second.block(0);
+            auto& string_buffer = column.get_extra_buffer(offset);
+            auto string_block = string_buffer.block(0);
             const auto string_block_size = string_block->bytes();
             data.buffers.emplace_back(const_cast<uint8_t*>(string_block->release()), string_block_size, sparrow::any_allocator<uint8_t>{});
             auto *tmp = const_cast<uint32_t*>(block->release());
@@ -85,7 +84,7 @@ std::vector<std::vector<ArrowData>> segment_to_arrow_data(SegmentInMemory& segme
     for(auto i = 0UL; i < segment.num_columns(); ++i) {
         auto& column = segment.column(static_cast<position_t>(i));
         if(is_sequence_type(column.type().data_type())) {
-            output.emplace_back(arrow_data_from_string_column(column, i, segment.field(i).name()));
+            output.emplace_back(arrow_data_from_string_column(column, segment.field(i).name()));
         } else {
             output.emplace_back(arrow_data_from_column(segment.column(static_cast<position_t>(i)), segment.field(i).name()));
         }
@@ -107,8 +106,7 @@ ArrowReadResult create_arrow_read_result(
     const VersionedItem& version,
     FrameAndDescriptor&& fd) {
     auto result = std::move(fd);
-    auto arrow_frame = ArrowOutputFrame{segment_to_arrow_data(result.frame_, *result.buffers_), names_from_segment(result.frame_)};
-    //util::print_total_mem_usage(__FILE__, __LINE__, __FUNCTION__);
+    auto arrow_frame = ArrowOutputFrame{segment_to_arrow_data(result.frame_), names_from_segment(result.frame_)};
 
     const auto& desc_proto = result.desc_.proto();
     return {version, std::move(arrow_frame), desc_proto.user_meta()};

@@ -435,7 +435,7 @@ folly::Future<version_store::ReadVersionOutput> async_read_direct_impl(
         [index_segment_reader, frame, index_key, shared_data, read_query, pipeline_context](auto &&) mutable {
             set_row_id_for_empty_columns_set(*read_query, *pipeline_context, frame, index_segment_reader->tsd().total_rows() - 1);
             return ReadVersionOutput{VersionedItem{to_atom(index_key)},
-                                     FrameAndDescriptor{frame, std::move(index_segment_reader->mutable_tsd()), {}, shared_data.buffers()}};
+                                     FrameAndDescriptor{frame, std::move(index_segment_reader->mutable_tsd()), {}}};
         });
 }
 
@@ -454,7 +454,7 @@ FrameAndDescriptor read_multi_key(
     auto res = read_frame_for_version(store, versioned_item, read_query, ReadOptions{}, handler_data);
     TimeseriesDescriptor multi_key_desc{index_key_seg.index_descriptor()};
     multi_key_desc.mutable_proto().mutable_normalization()->CopyFrom(res.desc_.proto().normalization());
-    return {res.frame_, multi_key_desc, keys, std::shared_ptr<BufferHolder>{}};
+    return {res.frame_, multi_key_desc, keys};
 }
 
 std::vector<EntityId> process_clauses(
@@ -1022,7 +1022,9 @@ void copy_frame_data_to_buffer(
     auto type_promotion_error_msg = fmt::format("Can't promote type {} to type {} in field {}",
                                                 src_column.type(), dst_column.type(), destination.field(target_index).name());
     if(auto handler = get_type_handler(output_format, src_column.type(), dst_column.type()); handler) {
-        handler->convert_type(src_column, dst_column, num_rows, offset, src_column.type(), dst_column.type(), shared_data, handler_data, source.string_pool_ptr());
+        const auto type_size = data_type_size(dst_column.type(), output_format, DataTypeMode::EXTERNAL);
+        ColumnMapping mapping{src_column.type(), dst_column.type(), destination.field(target_index), type_size, num_rows, 0, 0, total_size, target_index};
+        handler->convert_type(src_column, dst_column, mapping, shared_data, handler_data, source.string_pool_ptr());
     } else if (is_empty_type(src_column.type().data_type())) {
         dst_column.type().visit_tag([&](auto dst_desc_tag) {
             util::default_initialize<decltype(dst_desc_tag)>(dst_ptr, num_rows * dst_rawtype_size);
@@ -1306,7 +1308,7 @@ FrameAndDescriptor read_column_stats_impl(
         TimeseriesDescriptor tsd;
         tsd.set_total_rows(segment_in_memory.row_count());
         tsd.set_stream_descriptor(segment_in_memory.descriptor());
-        return {SegmentInMemory(std::move(segment_in_memory)), tsd, {}, {}};
+        return {SegmentInMemory(std::move(segment_in_memory)), tsd, {}};
     } catch (const std::exception& e) {
         storage::raise<ErrorCode::E_KEY_NOT_FOUND>("Failed to read column stats key: {}", e.what());
     }
@@ -1766,7 +1768,7 @@ FrameAndDescriptor read_frame_for_version(
     ARCTICDB_DEBUG(log::version(), "Reduce and fix columns");
     reduce_and_fix_columns(pipeline_context, frame, read_options, handler_data);
     set_row_id_if_index_only(*pipeline_context, frame, read_query);
-    return {frame, timeseries_descriptor_from_pipeline_context(pipeline_context, {}, pipeline_context->bucketize_dynamic_), {}, shared_data.buffers()};
+    return {frame, timeseries_descriptor_from_pipeline_context(pipeline_context, {}, pipeline_context->bucketize_dynamic_), {}};
 }
 
 } //namespace arcticdb::version_store

@@ -16,7 +16,6 @@ struct FrameAndDescriptor {
     SegmentInMemory frame_;
     TimeseriesDescriptor desc_;
     std::vector<AtomKey> keys_;
-    std::shared_ptr<BufferHolder> buffers_;
 };
 
 } //namespace arcticdb

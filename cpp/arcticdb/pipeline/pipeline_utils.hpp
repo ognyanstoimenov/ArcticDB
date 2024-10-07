@@ -12,6 +12,7 @@
 #include <arcticdb/pipeline/read_frame.hpp>
 #include <arcticdb/pipeline/read_options.hpp>
 #include <arcticdb/pipeline/read_pipeline.hpp>
+#include <arcticdb/pipeline/column_mapping.hpp>
 #include <arcticdb/column_store/memory_segment.hpp>
 #include <arcticdb/util/type_handler.hpp>
 
@@ -25,9 +26,11 @@ inline void apply_type_handlers(SegmentInMemory seg, std::any& handler_data, Out
     for(auto i = 0U; i < seg.num_columns(); ++i) {
         auto& column = seg.column(i);
         if(auto handler = get_type_handler(output_format, column.type()); handler) {
-            auto buffer = ChunkedBuffer::presized(seg.row_count() * data_type_size(column.type(), output_format, DataTypeMode::EXTERNAL), AllocationType::PRESIZED);
-            handler->convert_type(column, buffer, seg.row_count(), 0, column.type(), column.type(), shared_data, handler_data, seg.string_pool_ptr());
-            std::swap(column.buffer(), buffer);
+            ColumnMapping mapping{column.type(), column.type(), seg.field(i), 0, seg.row_count(), 0, 0, 0, i};
+            Column dest_column(column.type(), seg.row_count(), AllocationType::PRESIZED, Sparsity::PERMITTED, output_format, DataTypeMode::EXTERNAL);
+            //auto buffer = ChunkedBuffer::presized(seg.row_count() * data_type_size(column.type(), output_format, DataTypeMode::EXTERNAL), AllocationType::PRESIZED);
+            handler->convert_type(column, dest_column, mapping, shared_data, handler_data, seg.string_pool_ptr());
+            std::swap(column, dest_column);
         }
     }
 }

@@ -28,10 +28,31 @@ namespace arcticdb {
             dest_col_(dst_col) {
     }
 
+ColumnMapping::ColumnMapping(
+    const entity::TypeDescriptor source_type_desc,
+    const entity::TypeDescriptor dest_type_desc,
+    const entity::Field& frame_field_descriptor,
+    const size_t dest_size,
+    const size_t num_rows,
+    const size_t first_row,
+    const size_t offset_bytes,
+    const size_t dest_bytes,
+    const size_t dest_col) :
+        source_type_desc_(source_type_desc),
+        dest_type_desc_(dest_type_desc),
+        frame_field_descriptor_(frame_field_descriptor),
+        dest_size_(dest_size),
+        num_rows_(num_rows),
+        first_row_(first_row),
+        offset_bytes_(offset_bytes),
+        dest_bytes_(dest_bytes),
+        dest_col_(dest_col) {
+
+    }
+
     StaticColumnMappingIterator::StaticColumnMappingIterator(
         pipelines::PipelineContextRow& context,
-        size_t index_fieldcount
-    ) :
+        size_t index_fieldcount) :
             index_fieldcount_(index_fieldcount),
             field_count_(context.slice_and_key().slice_.col_range.diff() + index_fieldcount),
             first_slice_col_offset_(context.slice_and_key().slice_.col_range.first),
