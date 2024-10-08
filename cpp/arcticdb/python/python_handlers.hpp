@@ -10,6 +10,7 @@
 #include <arcticdb/util/type_handler.hpp>
 #include <arcticdb/util/bitset.hpp>
 #include <arcticdb/python/python_handler_data.hpp>
+#include <arcticdb/arrow/arrow_handlers.hpp>
 
 // Handlers for various non-trivial Python types,
 // that conform to the interface ITypeHandler
@@ -138,7 +139,7 @@ struct PythonArrayHandler {
         const std::shared_ptr<StringPool>& string_pool) const;
 };
 
-inline void register_array_types() {
+inline void register_python_array_types() {
     using namespace arcticdb;
     constexpr std::array<DataType, 5> array_data_types = {
         DataType::INT64, DataType::FLOAT64, DataType::EMPTYVAL, DataType::FLOAT32, DataType::INT32};
@@ -148,7 +149,7 @@ inline void register_array_types() {
     }
 }
 
-inline void register_string_types() {
+inline void register_python_string_types() {
     using namespace arcticdb;
     constexpr std::array<DataType, 5> string_data_types = {
         DataType::ASCII_DYNAMIC64, DataType::UTF_DYNAMIC64};

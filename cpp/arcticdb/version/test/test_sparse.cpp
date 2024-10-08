@@ -250,7 +250,7 @@ TEST_F(SparseTestStore, SimpleRoundtripStrings) {
     using namespace arcticdb;
     using namespace arcticdb::stream;
     std::optional<ScopedGILLock> scoped_gil_lock;
-    register_string_types();
+    register_python_string_types();
     register_python_handler_data_factory();
     using DynamicAggregator =  Aggregator<TimeseriesIndex, DynamicSchema, stream::NeverSegmentPolicy, stream::SparseColumnPolicy>;
     using DynamicSinkWrapper = SinkWrapperImpl<DynamicAggregator>;
@@ -639,7 +639,7 @@ TEST_F(SparseTestStore, CompactWithStrings) {
     using namespace arcticdb::stream;
     using DynamicAggregator =  Aggregator<TimeseriesIndex, DynamicSchema, stream::RowCountSegmentPolicy, stream::SparseColumnPolicy>;
 
-    register_string_types();
+    register_python_string_types();
     register_python_handler_data_factory();
     const std::string stream_id("test_sparse");
 

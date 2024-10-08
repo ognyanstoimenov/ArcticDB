@@ -43,9 +43,9 @@ static inline PyObject** fill_with_none(ChunkedBuffer& buffer, size_t offset, si
 }
 
 void PythonEmptyHandler::handle_type(
-        const uint8_t *& input,
+        const uint8_t*& input,
         Column& dest_column,
-        const EncodedFieldImpl &field,
+        const EncodedFieldImpl& field,
         const ColumnMapping& mapping,
         const DecodePathData&,
         std::any& handler_data,
@@ -111,7 +111,12 @@ int PythonEmptyHandler::type_size() const {
     return sizeof(PyObject *);
 }
 
-void PythonEmptyHandler::default_initialize(ChunkedBuffer& buffer, size_t bytes_offset, size_t byte_size, const DecodePathData&, std::any& any) const {
+void PythonEmptyHandler::default_initialize(
+        ChunkedBuffer& buffer,
+        size_t bytes_offset,
+        size_t byte_size,
+        const DecodePathData&,
+        std::any& any) const {
     auto& handler_data = get_handler_data(any);
     fill_with_none(buffer, bytes_offset, byte_size / type_size(), handler_data.spin_lock());
 }

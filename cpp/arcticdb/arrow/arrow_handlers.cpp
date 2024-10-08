@@ -29,15 +29,9 @@ void ArrowStringHandler::handle_type(
     const auto &ndarray = field.ndarray();
     const auto bytes = encoding_sizes::data_uncompressed_size(ndarray);
 
-    auto decoded_data = [&m, &ndarray, bytes, &dest_column]() {
-        if(ndarray.sparse_map_bytes() > 0) {
-            return Column(m.source_type_desc_, bytes / get_type_size(m.source_type_desc_.data_type()), AllocationType::DYNAMIC, Sparsity::PERMITTED);
-        } else {
-            Column column(m.source_type_desc_, Sparsity::NOT_PERMITTED);
-            column.buffer().add_external_block(dest_column.bytes_at(m.offset_bytes_), bytes, 0UL);
-            return column;
-        }
-    }();
+    Column decoded_data{m.source_type_desc_, bytes / get_type_size(m.source_type_desc_.data_type()),
+                                       AllocationType::DYNAMIC, Sparsity::PERMITTED};
+
 
     data += decode_field(m.source_type_desc_, field, data, decoded_data, decoded_data.opt_sparse_map(), encoding_version);
 
@@ -53,33 +47,44 @@ void ArrowStringHandler::handle_type(
 void ArrowStringHandler::convert_type(
     const Column& source_column,
     Column& dest_column,
-    const ColumnMapping&,
+    const ColumnMapping& mapping,
     const DecodePathData&,
     std::any&,
-    const std::shared_ptr<StringPool>& string_pool) {
+    const std::shared_ptr<StringPool>& string_pool) const {
     size_t bytes = 0;
     using ArcticStringColumnTag = ScalarTagType<DataTypeTag<DataType::UTF_DYNAMIC64>>;
-    using ArrowStringColumnTag = ScalarTagType<DataTypeTag<DataType::UINT32>>;
-    Column::transform<ArcticStringColumnTag, ArrowStringColumnTag>(source_column, dest_column, [&bytes, &string_pool] (auto offset) {
-        auto value = bytes;
-        bytes += string_pool->get_view(offset).size();
-        return value;
-    });
-
-    auto& buffer = dest_column.create_extra_buffer(0, bytes, AllocationType::DETACHABLE);
+    auto offset_ptr = reinterpret_cast<uint32_t*>(dest_column.bytes_at(mapping.offset_bytes_));
     auto input_data = source_column.data();
-    auto begin = input_data.cbegin<ArcticStringColumnTag>();
-    auto end = input_data.cend<ArcticStringColumnTag>();
-    auto out_ptr = buffer.data();
-    std::for_each(begin, end, [&string_pool, &out_ptr] (auto offset) {
-        const auto strv = string_pool->get_view(offset);
-        memcpy(out_ptr, strv.data(), strv.size());
-        out_ptr += strv.size();
-    });
+    auto pos = input_data.cbegin<ArcticStringColumnTag>();
+    const auto end = input_data.cend<ArcticStringColumnTag>();
+    while(pos != end) {
+        *offset_ptr = bytes;
+        bytes += string_pool->get_view(*pos).size();
+    }
+
+    auto& buffer = dest_column.create_extra_buffer(mapping.offset_bytes_, bytes, AllocationType::DETACHABLE);
+
+    pos = input_data.cbegin<ArcticStringColumnTag>();
+    auto strv_ptr = buffer.data();
+    while(pos != end) {
+        const auto strv = string_pool->get_view(*pos);
+        memcpy(strv_ptr, strv.data(), strv.size());
+        strv_ptr += strv.size();
+        ++pos;
+    };
 }
 
 int ArrowStringHandler::type_size() const {
     return sizeof(uint32_t);
+}
+
+void ArrowStringHandler::default_initialize(
+    ChunkedBuffer& /*buffer*/,
+    size_t /*offset*/,
+    size_t /*byte_size*/,
+    const DecodePathData& /*shared_data*/,
+    std::any& /*handler_data*/) const {
+
 }
 
 } // namespace arcticdb

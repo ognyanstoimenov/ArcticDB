@@ -14,7 +14,7 @@ namespace arcticdb {
 
 struct ArrowStringHandler {
     void handle_type(
-        const uint8_t *&data,
+        const uint8_t*& data,
         Column& dest_column,
         const EncodedFieldImpl &field,
         const ColumnMapping& m,
@@ -32,7 +32,7 @@ struct ArrowStringHandler {
         const ColumnMapping& mapping,
         const DecodePathData& shared_data,
         std::any& handler_data,
-        const std::shared_ptr<StringPool>& string_pool);
+        const std::shared_ptr<StringPool>& string_pool) const;
 
     void default_initialize(
         ChunkedBuffer& buffer,
@@ -40,11 +40,6 @@ struct ArrowStringHandler {
         size_t byte_size,
         const DecodePathData& shared_data,
         std::any& handler_data) const;
-};
-
-struct ArrowHandlerData {
-    std::unordered_map<size_t, std::vector<ChunkedBuffer>> string_buffers;
-    std::shared_ptr<std::mutex> mutex_;
 };
 
 struct ArrowHandlerDataFactory  : public TypeHandlerDataFactory {
@@ -55,6 +50,17 @@ struct ArrowHandlerDataFactory  : public TypeHandlerDataFactory {
 
 inline void register_arrow_handler_data_factory() {
     TypeHandlerRegistry::instance()->set_handler_data(OutputFormat::ARROW, std::make_unique<ArrowHandlerDataFactory>());
+}
+
+
+inline void register_arrow_string_types() {
+    using namespace arcticdb;
+    constexpr std::array<DataType, 5> string_data_types = {
+        DataType::ASCII_DYNAMIC64, DataType::UTF_DYNAMIC64};
+
+    for (auto data_type :string_data_types) {
+        TypeHandlerRegistry::instance()->register_handler(OutputFormat::ARROW, make_scalar_type(data_type), arcticdb::ArrowStringHandler{});
+    }
 }
 
 } // namespace arcticdb
