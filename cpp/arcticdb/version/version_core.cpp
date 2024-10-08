@@ -1023,7 +1023,7 @@ void copy_frame_data_to_buffer(
                                                 src_column.type(), dst_column.type(), destination.field(target_index).name());
     if(auto handler = get_type_handler(output_format, src_column.type(), dst_column.type()); handler) {
         const auto type_size = data_type_size(dst_column.type(), output_format, DataTypeMode::EXTERNAL);
-        ColumnMapping mapping{src_column.type(), dst_column.type(), destination.field(target_index), type_size, num_rows, 0, 0, total_size, target_index};
+        ColumnMapping mapping{src_column.type(), dst_column.type(), destination.field(target_index), type_size, num_rows, row_range.first, offset, total_size, target_index};
         handler->convert_type(src_column, dst_column, mapping, shared_data, handler_data, source.string_pool_ptr());
     } else if (is_empty_type(src_column.type().data_type())) {
         dst_column.type().visit_tag([&](auto dst_desc_tag) {

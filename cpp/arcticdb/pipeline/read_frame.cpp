@@ -309,7 +309,7 @@ void advance_skipped_cols(
         const EncodedFieldCollection& fields,
         const SegmentHeader& hdr) {
     const auto next_col = it.prev_col_offset() + 1;
-    auto skipped_cols = it.last_slice_col_offset();
+    auto skipped_cols = it.source_col() - next_col;
     if(skipped_cols) {
         const auto bytes_to_skip = get_field_range_compressed_size((next_col -  it.first_slice_col_offset()) + it.index_fieldcount(), skipped_cols, hdr, fields);
         data += bytes_to_skip;
