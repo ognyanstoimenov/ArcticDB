@@ -55,23 +55,24 @@ std::vector<ArrowData> arrow_data_from_string_column(Column& column, std::string
         using ArrowStringTagType = ScalarTagType<DataTypeTag<DataType::UINT32>>;
         std::vector<ArrowData> output;
         auto column_data = column.data();
-        //auto& buffer_map = shared_data.buffer_map();
 
         while (auto block = column_data.next<ArrowStringTagType>()) {
             sparrow::array_data data;
-            auto type = sparrow::data_descriptor(sparrow::arrow_traits<uint32_t>::type_id);
+            auto type = sparrow::data_descriptor(sparrow::arrow_traits<std::string>::type_id);
             data.type = type;
-
             const auto row_count = block->row_count();
+
+            auto *tmp = const_cast<uint32_t*>(block->release());
+            data.buffers.emplace_back(reinterpret_cast<uint8_t *>(tmp),
+                                      row_count * sizeof(uint32_t),
+                                      sparrow::any_allocator<uint8_t>{});
+
             const auto offset = block->offset();
             auto& string_buffer = column.get_extra_buffer(offset);
             auto string_block = string_buffer.block(0);
             const auto string_block_size = string_block->bytes();
             data.buffers.emplace_back(const_cast<uint8_t*>(string_block->release()), string_block_size, sparrow::any_allocator<uint8_t>{});
-            auto *tmp = const_cast<uint32_t*>(block->release());
-            data.buffers.emplace_back(reinterpret_cast<uint8_t *>(tmp),
-                                      row_count * sizeof(uint32_t),
-                                      sparrow::any_allocator<uint8_t>{});
+
             data.length = static_cast<std::int64_t>(row_count);
             data.offset = static_cast<std::int64_t>(0);
             output.emplace_back(to_arrow_array_unique_ptr(std::move(data)), arrow_schema_from_type(name, type));

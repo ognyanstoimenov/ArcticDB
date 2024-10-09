@@ -51,19 +51,29 @@ void mark_index_slices(
         column_groups).value();
 }
 
-StreamDescriptor get_filtered_descriptor(StreamDescriptor&& descriptor, const std::shared_ptr<FieldCollection>& filter_columns) {
+StreamDescriptor get_filtered_descriptor(StreamDescriptor&& descriptor, OutputFormat output_format, const std::shared_ptr<FieldCollection>& filter_columns) {
     // We assume here that filter_columns_ will always contain the index.
 
     auto desc = std::move(descriptor);
     auto index = stream::index_type_from_descriptor(desc);
-    return util::variant_match(index, [&desc, &filter_columns] (const auto& idx) {
+    return util::variant_match(index, [&desc, &filter_columns, output_format] (const auto& idx) {
         const std::shared_ptr<FieldCollection>& fields = filter_columns ? filter_columns : desc.fields_ptr();
+        auto handlers = TypeHandlerRegistry::instance();
+
+        for(auto& field : *fields) {
+            if(auto handler = handlers->get_handler(output_format, field.type())) {
+                auto output_type =  handler->output_type(field.type());
+                if(output_type != field.type())
+                    field.mutable_type() = output_type;
+            }
+        }
+
         return StreamDescriptor{index_descriptor_from_range(desc.id(), idx, *fields)};
     });
 }
 
-StreamDescriptor get_filtered_descriptor(const std::shared_ptr<PipelineContext>& context) {
-    return get_filtered_descriptor(context->descriptor().clone(), context->filter_columns_);
+StreamDescriptor get_filtered_descriptor(const std::shared_ptr<PipelineContext>& context, OutputFormat output_format) {
+    return get_filtered_descriptor(context->descriptor().clone(), output_format, context->filter_columns_);
 }
 
 void handle_modified_descriptor(const std::shared_ptr<PipelineContext>& context, SegmentInMemory& output) {
@@ -92,7 +102,7 @@ SegmentInMemory allocate_chunked_frame(const std::shared_ptr<PipelineContext>& c
     auto [offset, row_count] = offset_and_row_count(context);
     auto block_sizes = output_block_sizes(context);
     ARCTICDB_DEBUG(log::version(), "Allocated contiguous frame with offset {} and row count {}", offset, row_count);
-    SegmentInMemory output{get_filtered_descriptor(context), 0, allocation_type, Sparsity::NOT_PERMITTED, output_format, DataTypeMode::EXTERNAL};
+    SegmentInMemory output{get_filtered_descriptor(context, output_format), 0, allocation_type, Sparsity::NOT_PERMITTED, output_format, DataTypeMode::EXTERNAL};
     for(auto& column : output.columns()) {
         const auto data_size = data_type_size(column->type(), output_format, DataTypeMode::EXTERNAL);
         for(auto block_size : block_sizes) {
@@ -110,7 +120,7 @@ SegmentInMemory allocate_contiguous_frame(const std::shared_ptr<PipelineContext>
     ARCTICDB_SAMPLE_DEFAULT(AllocChunkedFrame)
     auto block_sizes = output_block_sizes(context);
     auto [offset, row_count] = offset_and_row_count(context);
-    SegmentInMemory output{get_filtered_descriptor(context),  row_count, allocation_type, Sparsity::NOT_PERMITTED, output_format, DataTypeMode::EXTERNAL};
+    SegmentInMemory output{get_filtered_descriptor(context, output_format),  row_count, allocation_type, Sparsity::NOT_PERMITTED, output_format, DataTypeMode::EXTERNAL};
     finalize_segment_setup(output, offset, row_count, context);
     return output;
 }

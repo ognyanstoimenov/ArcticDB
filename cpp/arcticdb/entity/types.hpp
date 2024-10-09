@@ -213,6 +213,7 @@ enum class DataType : uint8_t {
     UTF_DYNAMIC64 = detail::combine_val_bits(ValueType::UTF_DYNAMIC, SizeBits::S64),
     EMPTYVAL = detail::combine_val_bits(ValueType::EMPTY, SizeBits::S64),
     BOOL_OBJECT8 = detail::combine_val_bits(ValueType::BOOL_OBJECT, SizeBits::S8),
+    UTF_DYNAMIC32 = detail::combine_val_bits(ValueType::UTF_DYNAMIC, SizeBits::S32),
 #undef DT_COMBINE
     UNKNOWN = 0,
 };

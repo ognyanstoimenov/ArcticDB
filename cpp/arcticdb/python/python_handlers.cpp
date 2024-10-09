@@ -111,6 +111,10 @@ int PythonEmptyHandler::type_size() const {
     return sizeof(PyObject *);
 }
 
+TypeDescriptor PythonEmptyHandler::output_type(const TypeDescriptor&) const {
+    return make_scalar_type(DataType::EMPTYVAL);
+}
+
 void PythonEmptyHandler::default_initialize(
         ChunkedBuffer& buffer,
         size_t bytes_offset,
@@ -183,6 +187,10 @@ int PythonBoolHandler::type_size() const {
     return sizeof(PyObject *);
 }
 
+TypeDescriptor PythonBoolHandler::output_type(const TypeDescriptor&) const {
+    return make_scalar_type(DataType::BOOL_OBJECT8);
+}
+
 void PythonBoolHandler::default_initialize(ChunkedBuffer& buffer, size_t bytes_offset, size_t byte_size, const DecodePathData&, std::any& any) const {
     auto& handler_data = get_handler_data(any);
     fill_with_none(buffer, bytes_offset, byte_size / type_size(), handler_data.spin_lock());
@@ -242,6 +250,10 @@ void PythonStringHandler::convert_type(
 
 int PythonStringHandler::type_size() const {
     return sizeof(PyObject *);
+}
+
+TypeDescriptor PythonStringHandler::output_type(const TypeDescriptor& input_type) const {
+    return input_type;
 }
 
 void PythonStringHandler::default_initialize(ChunkedBuffer& buffer, size_t bytes_offset, size_t byte_size, const DecodePathData&, std::any& any) const {
@@ -351,6 +363,10 @@ void PythonArrayHandler::convert_type(
         });
     }
     dest_column.set_extra_buffer(mapping.offset_bytes_, std::move(source_column.data().buffer()));
+}
+
+TypeDescriptor PythonArrayHandler::output_type(const TypeDescriptor& input_type) const {
+    return input_type;
 }
 
 int PythonArrayHandler::type_size() const {

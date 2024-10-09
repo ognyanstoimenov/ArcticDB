@@ -1737,7 +1737,7 @@ class NativeVersionStore:
             arrow_arrays = []
             for arr, schema in zip(frame.arrays, frame.schemas):
                 print("Arr: {} Schema: {}".format(arr, schema));
-                arrow_arrays.append(pa.Array._import_from_c(arr, schema))
+                arrow_arrays.append(pa.Array._import_from_c(arr[0], schema[0]))
 
             return pa.RecordBatch.from_arrays(arrow_arrays, names=frame.names)
 

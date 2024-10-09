@@ -41,6 +41,8 @@ struct PythonEmptyHandler {
         std::any& handler_data,
         const std::shared_ptr<StringPool>& string_pool) const;
 
+    [[nodiscard]] TypeDescriptor output_type(const TypeDescriptor& input_type) const;
+
     void default_initialize(
         ChunkedBuffer& buffer,
         size_t offset,
@@ -62,6 +64,8 @@ struct PythonStringHandler {
     );
 
     [[nodiscard]] int type_size() const;
+
+    [[nodiscard]] TypeDescriptor output_type(const TypeDescriptor& input_type) const;
     
     void convert_type(
         const Column& source_column,
@@ -101,6 +105,8 @@ struct PythonBoolHandler {
         std::any& handler_data,
         const std::shared_ptr<StringPool>& string_pool) const;
 
+    [[nodiscard]] TypeDescriptor output_type(const TypeDescriptor& input_type) const;
+
     void default_initialize(
         ChunkedBuffer& buffer,
         size_t offset,
@@ -122,6 +128,8 @@ struct PythonArrayHandler {
     );
 
     [[nodiscard]] int type_size() const;
+
+    [[nodiscard]] TypeDescriptor output_type(const TypeDescriptor& input_type) const;
 
     void default_initialize(
         ChunkedBuffer& buffer,

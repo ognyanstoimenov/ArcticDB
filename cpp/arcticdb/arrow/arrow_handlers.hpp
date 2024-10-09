@@ -34,6 +34,8 @@ struct ArrowStringHandler {
         std::any& handler_data,
         const std::shared_ptr<StringPool>& string_pool) const;
 
+    [[nodiscard]] TypeDescriptor output_type(const TypeDescriptor& input_type) const;
+
     void default_initialize(
         ChunkedBuffer& buffer,
         size_t offset,

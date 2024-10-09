@@ -60,10 +60,13 @@ void ArrowStringHandler::convert_type(
     while(pos != end) {
         *offset_ptr = bytes;
         bytes += string_pool->get_view(*pos).size();
+        ++pos;
+        ++offset_ptr;
     }
 
     auto& buffer = dest_column.create_extra_buffer(mapping.offset_bytes_, bytes, AllocationType::DETACHABLE);
 
+    input_data = source_column.data();
     pos = input_data.cbegin<ArcticStringColumnTag>();
     auto strv_ptr = buffer.data();
     while(pos != end) {
@@ -72,6 +75,10 @@ void ArrowStringHandler::convert_type(
         strv_ptr += strv.size();
         ++pos;
     };
+}
+
+TypeDescriptor ArrowStringHandler::output_type(const TypeDescriptor&) const {
+    return make_scalar_type(DataType::UTF_DYNAMIC32);
 }
 
 int ArrowStringHandler::type_size() const {
