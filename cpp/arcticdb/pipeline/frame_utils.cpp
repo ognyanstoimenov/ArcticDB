@@ -133,7 +133,7 @@ std::pair<size_t, size_t> offset_and_row_count(const std::shared_ptr<pipelines::
     return std::make_pair(offset, row_count);
 }
 
-std::vector<size_t> output_block_sizes(const std::shared_ptr<pipelines::PipelineContext>& context) {
+std::vector<size_t> output_block_row_counts(const std::shared_ptr<pipelines::PipelineContext>& context) {
     std::vector<size_t> output;
     output.reserve(context->slice_and_keys_.size());
     for(auto s = 0u; s < context->slice_and_keys_.size(); ++s) {

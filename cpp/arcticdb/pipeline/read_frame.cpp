@@ -100,13 +100,17 @@ void finalize_segment_setup(SegmentInMemory& output, size_t offset, size_t row_c
 SegmentInMemory allocate_chunked_frame(const std::shared_ptr<PipelineContext>& context, OutputFormat output_format, AllocationType allocation_type) {
     ARCTICDB_SAMPLE_DEFAULT(AllocContiguousFrame)
     auto [offset, row_count] = offset_and_row_count(context);
-    auto block_sizes = output_block_sizes(context);
+    auto block_row_counts = output_block_row_counts(context);
     ARCTICDB_DEBUG(log::version(), "Allocated contiguous frame with offset {} and row count {}", offset, row_count);
     SegmentInMemory output{get_filtered_descriptor(context, output_format), 0, allocation_type, Sparsity::NOT_PERMITTED, output_format, DataTypeMode::EXTERNAL};
+    auto handlers = TypeHandlerRegistry::instance();
+
     for(auto& column : output.columns()) {
+        auto handler = handlers->get_handler(output_format, column->type());
+        const auto extra_rows = handler ? handler->extra_rows() : 0;
         const auto data_size = data_type_size(column->type(), output_format, DataTypeMode::EXTERNAL);
-        for(auto block_size : block_sizes) {
-            const auto bytes = block_size * data_size;
+        for(auto block_row_count : block_row_counts) {
+            const auto bytes = (block_row_count + extra_rows) * data_size;
             column->allocate_data(bytes);
             column->advance_data(bytes);
         }
@@ -118,7 +122,6 @@ SegmentInMemory allocate_chunked_frame(const std::shared_ptr<PipelineContext>& c
 
 SegmentInMemory allocate_contiguous_frame(const std::shared_ptr<PipelineContext>& context, OutputFormat output_format, AllocationType allocation_type) {
     ARCTICDB_SAMPLE_DEFAULT(AllocChunkedFrame)
-    auto block_sizes = output_block_sizes(context);
     auto [offset, row_count] = offset_and_row_count(context);
     SegmentInMemory output{get_filtered_descriptor(context, output_format),  row_count, allocation_type, Sparsity::NOT_PERMITTED, output_format, DataTypeMode::EXTERNAL};
     finalize_segment_setup(output, offset, row_count, context);

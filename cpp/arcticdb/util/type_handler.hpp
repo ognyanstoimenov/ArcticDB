@@ -58,10 +58,6 @@ struct ITypeHandler {
             );
         }
 
-        [[nodiscard]] int type_size() const {
-            return folly::poly_call<2>(*this);
-        }
-
         void convert_type(
             const Column& source_column,
             Column& dest_column,
@@ -72,17 +68,25 @@ struct ITypeHandler {
             folly::poly_call<1>(*this, source_column, dest_column, mapping, shared_data, handler_data, string_pool);
         }
 
+        [[nodiscard]] int type_size() const {
+            return folly::poly_call<2>(*this);
+        }
+
+        [[nodiscard]] size_t extra_rows() const {
+            return folly::poly_call<3>(*this);
+        }
+
         TypeDescriptor output_type(const TypeDescriptor& input_type) const {
-            return folly::poly_call<3>(*this, input_type);
+            return folly::poly_call<4>(*this, input_type);
         }
 
         void default_initialize(ChunkedBuffer& buffer, size_t offset, size_t byte_size, const DecodePathData& shared_data, std::any& handler_data) const {
-            folly::poly_call<4>(*this, buffer, offset, byte_size, shared_data, handler_data);
+            folly::poly_call<5>(*this, buffer, offset, byte_size, shared_data, handler_data);
         }
     };
 
     template<class T>
-    using Members = folly::PolyMembers<&T::handle_type, &T::convert_type, &T::type_size, &T::output_type, &T::default_initialize>;
+    using Members = folly::PolyMembers<&T::handle_type, &T::convert_type, &T::type_size, &T::extra_rows, &T::output_type, &T::default_initialize>;
 };
 
 using TypeHandler = folly::Poly<ITypeHandler>;

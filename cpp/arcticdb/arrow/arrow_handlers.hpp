@@ -42,6 +42,10 @@ struct ArrowStringHandler {
         size_t byte_size,
         const DecodePathData& shared_data,
         std::any& handler_data) const;
+
+    size_t extra_rows() const {
+        return 1;
+    }
 };
 
 struct ArrowHandlerDataFactory  : public TypeHandlerDataFactory {

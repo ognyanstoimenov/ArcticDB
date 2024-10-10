@@ -63,6 +63,7 @@ void ArrowStringHandler::convert_type(
         ++pos;
         ++offset_ptr;
     }
+    *offset_ptr = bytes;
 
     auto& buffer = dest_column.create_extra_buffer(mapping.offset_bytes_, bytes, AllocationType::DETACHABLE);
 

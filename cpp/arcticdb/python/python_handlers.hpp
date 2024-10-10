@@ -49,6 +49,10 @@ struct PythonEmptyHandler {
         size_t byte_size,
         const DecodePathData& shared_data,
         std::any& handler_data) const;
+
+    size_t extra_rows() const {
+        return 0;
+    }
 };
 
 struct PythonStringHandler {
@@ -81,6 +85,10 @@ struct PythonStringHandler {
         size_t byte_size,
         const DecodePathData& shared_data,
         std::any& handler_data) const;
+
+    size_t extra_rows() const {
+        return 0;
+    }
 };
 
 struct PythonBoolHandler {
@@ -113,6 +121,10 @@ struct PythonBoolHandler {
         size_t byte_size,
         const DecodePathData& shared_data,
         std::any& handler_data) const;
+
+    size_t extra_rows() const {
+        return 0;
+    }
 };
 
 struct PythonArrayHandler {
@@ -145,6 +157,10 @@ struct PythonArrayHandler {
         const DecodePathData& shared_data,
         std::any& handler_data,
         const std::shared_ptr<StringPool>& string_pool) const;
+
+    size_t extra_rows() const {
+        return 0;
+    }
 };
 
 inline void register_python_array_types() {
