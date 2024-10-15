@@ -376,9 +376,7 @@ class ChunkedBufferImpl {
     }
 
     void add_block(size_t capacity, size_t offset) {
-        auto [ptr, ts] = Allocator::aligned_alloc(BlockType::alloc_size(capacity));
-        new(ptr) MemBlock(capacity, offset, ts);
-        blocks_.emplace_back(reinterpret_cast<BlockType*>(ptr));
+        blocks_.emplace_back(create_regular_block(capacity, offset));
     }
 
     void add_external_block(const uint8_t* data, size_t size, size_t offset) {
@@ -387,7 +385,7 @@ class ChunkedBufferImpl {
 
         auto [ptr, ts] = Allocator::aligned_alloc(sizeof(MemBlock));
         new(ptr) MemBlock(data, size, offset, ts, false);
-        blocks_.emplace_back(reinterpret_cast<BlockType*>(ptr));
+        blocks_.emplace_back();
         bytes_ += size;
     }
 
@@ -398,10 +396,7 @@ class ChunkedBufferImpl {
         if (!no_blocks() && last_block().empty())
             free_last_block();
 
-        auto [ptr, ts] = Allocator::aligned_alloc(sizeof(MemBlock));
-        auto* data = reinterpret_cast<uint8_t*>(malloc(capacity));
-        new(ptr) MemBlock(data, capacity, 0UL, ts, true);
-        blocks_.emplace_back(reinterpret_cast<BlockType*>(ptr));
+        blocks_.emplace_back(create_detachable_block(capacity));
     }
 
     [[nodiscard]] bool empty() const { return bytes_ == 0; }
@@ -438,7 +433,49 @@ class ChunkedBufferImpl {
         util::check(bytes <= bytes_, "Expected allocation size {} smaller than actual allocation {}", bytes, bytes_);
     }
 
+    void truncate_first_block(size_t bytes) {
+        auto [block, offset, ts] = block_and_offset(bytes);
+        util::check(block == *blocks_.begin(), "Truncate first block position {} not within initial block", bytes);
+        util::check(bytes < block->bytes(), "Can't truncate {} bytes from a {} byte block", bytes, block->bytes());
+        auto remaining_bytes = block->bytes() - bytes;
+        auto new_block = create_block(bytes, 0);
+        new_block->copy_from(block->data() + bytes, remaining_bytes, 0);
+        blocks_[0] = new_block;
+        delete block;
+    }
+
+    void truncate_last_block(size_t bytes) {
+        auto [block, offset, ts] = block_and_offset(bytes);
+        util::check(block == *blocks_.rbegin(), "Truncate first block position {} not within initial block", bytes);
+        util::check(bytes < block->bytes(), "Can't truncate {} bytes from a {} byte block", bytes, block->bytes());
+        auto remaining_bytes = block->bytes() - bytes;
+        auto new_block = create_block(remaining_bytes, block->offset_);
+        new_block->copy_from(block->data(), remaining_bytes, 0);
+        blocks_[0] = new_block;
+        delete block;
+    }
+
   private:
+    MemBlock* create_block(size_t capacity, size_t offset) const {
+        if(allocation_type_ == entity::AllocationType::DETACHABLE)
+            return create_detachable_block(capacity);
+        else
+            return create_regular_block(capacity, offset);
+    }
+
+    MemBlock* create_regular_block(size_t capacity, size_t offset) const {
+        auto [ptr, ts] = Allocator::aligned_alloc(BlockType::alloc_size(capacity));
+        new(ptr) MemBlock(capacity, offset, ts);
+        return reinterpret_cast<BlockType*>(ptr);
+    }
+
+    MemBlock* create_detachable_block(size_t capacity) const {
+        auto [ptr, ts] = Allocator::aligned_alloc(sizeof(MemBlock));
+        auto* data = reinterpret_cast<uint8_t*>(malloc(capacity));
+        new(ptr) MemBlock(data, capacity, 0UL, ts, true);
+        return reinterpret_cast<BlockType*>(ptr);
+    }
+
     void free_block(BlockType* block) const {
         ARCTICDB_TRACE(log::storage(), "Freeing block at address {:x}", uintptr_t(block));
         block->magic_.check();

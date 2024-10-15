@@ -26,6 +26,7 @@
 #include <arcticdb/codec/segment_identifier.hpp>
 #include <arcticdb/util/spinlock.hpp>
 #include <arcticdb/pipeline/string_reducers.hpp>
+#include <arcticdb/pipeline/read_query.hpp>
 
 #include <ankerl/unordered_dense.h>
 #include <folly/gen/Base.h>
@@ -226,7 +227,7 @@ void decode_index_field(
             data += size;
         } else {
             auto &buffer = frame.column(0).data().buffer(); // TODO assert size
-            auto &frame_field_descriptor = frame.field(0); //TODO better method
+            auto &frame_field_descriptor = frame.field(0);
             auto sz = data_type_size(frame_field_descriptor.type(), output_format, DataTypeMode::EXTERNAL);
             const auto& slice_and_key = context.slice_and_key();
             auto offset = sz * (slice_and_key.slice_.row_range.first - frame.offset());
@@ -248,6 +249,17 @@ void decode_index_field(
     }
 }
 
+void handle_truncation(
+        Column& dest_column,
+        const ColumnMapping& mapping) {
+   if(mapping.truncate_.first)
+       dest_column.truncate_first_block(*mapping.truncate_.first);
+
+   if(mapping.truncate_.second)
+       dest_column.truncate_last_block(*mapping.truncate_.second);
+}
+
+
 void decode_or_expand(
     const uint8_t*& data,
     Column& dest_column,
@@ -255,22 +267,25 @@ void decode_or_expand(
     const DecodePathData& shared_data,
     std::any& handler_data,
 	EncodingVersion encoding_version,
-    const ColumnMapping& m,
+    const ColumnMapping& mapping,
     const std::shared_ptr<StringPool>& string_pool,
     OutputFormat output_format) {
-    if(auto handler = get_type_handler(output_format, m.source_type_desc_, m.dest_type_desc_); handler) {
-        handler->handle_type(data, dest_column, encoded_field_info, m, shared_data, handler_data, encoding_version, string_pool);
+    const auto source_type_desc = mapping.source_type_desc_;
+    const auto dest_type_desc = mapping.dest_type_desc_;
+
+    if(auto handler = get_type_handler(output_format, source_type_desc, dest_type_desc); handler) {
+        handler->handle_type(data, dest_column, encoded_field_info, mapping, shared_data, handler_data, encoding_version, string_pool);
     } else {
-        auto* dest = dest_column.bytes_at(m.offset_bytes_);
-        const auto dest_bytes = m.dest_bytes_;
+        auto* dest = dest_column.bytes_at(mapping.offset_bytes_);
+        const auto dest_bytes = mapping.dest_bytes_;
         std::optional<util::BitMagic> bv;
         if (encoded_field_info.has_ndarray() && encoded_field_info.ndarray().sparse_map_bytes() > 0) {
             const auto &ndarray = encoded_field_info.ndarray();
             const auto bytes = encoding_sizes::data_uncompressed_size(ndarray);
             ChunkedBuffer sparse{bytes};
             SliceDataSink sparse_sink{sparse.data(), bytes};
-            data += decode_field(m.source_type_desc_, encoded_field_info, data, sparse_sink, bv, encoding_version);
-            m.source_type_desc_.visit_tag([dest, dest_bytes, &bv, &sparse](const auto tdt) {
+            data += decode_field(source_type_desc, encoded_field_info, data, sparse_sink, bv, encoding_version);
+            source_type_desc.visit_tag([dest, dest_bytes, &bv, &sparse](const auto tdt) {
                 using TagType = decltype(tdt);
                 using RawType = typename TagType::DataTypeTag::raw_type;
                 util::default_initialize<TagType>(dest, dest_bytes);
@@ -280,15 +295,92 @@ void decode_or_expand(
             SliceDataSink sink(dest, dest_bytes);
             const auto &ndarray = encoded_field_info.ndarray();
             if (const auto bytes = encoding_sizes::data_uncompressed_size(ndarray); bytes < dest_bytes) {
-                m.source_type_desc_.visit_tag([dest, bytes, dest_bytes](const auto tdt) {
+                source_type_desc.visit_tag([dest, bytes, dest_bytes](const auto tdt) {
                     using TagType = decltype(tdt);
                     util::default_initialize<TagType>(dest + bytes, dest_bytes - bytes);
                 });
             }
-            data += decode_field(m.source_type_desc_, encoded_field_info, data, sink, bv, encoding_version);
+            data += decode_field(source_type_desc, encoded_field_info, data, sink, bv, encoding_version);
         }
     }
+
+    if(mapping.requires_truncation())
+        handle_truncation(dest_column, mapping);
 }
+
+template <typename IndexValueType>
+std::pair<std::optional<int64_t>, std::optional<int64_t>> get_truncate_range_from_index(
+    const Column& column,
+    const IndexValueType& start,
+    const IndexValueType& end,
+    std::optional<int64_t> start_offset = std::nullopt,
+    std::optional<int64_t> end_offset = std::nullopt) {
+    int64_t start_row = column.search_sorted<IndexValueType>(start, false, start_offset, end_offset);
+    int64_t end_row = column.search_sorted<IndexValueType>(end, true, start_offset, end_offset);
+    std::optional<int64_t> truncate_start;
+    std::optional<int64_t> truncate_end;
+    if((start_offset && start_row != *start_offset) || (!start_offset && start_row > 0))
+        truncate_start = start_offset;
+
+    if((end_offset && end_row != *end_offset) || (!end_offset && end_row < column.row_count() - 1))
+        truncate_end = end_offset;
+
+    return std::make_pair(truncate_start, truncate_end);
+}
+
+std::pair<std::optional<int64_t>, std::optional<int64_t>> get_truncate_range_from_rows(
+    const RowRange& row_range,
+    size_t start_offset,
+    size_t end_offset) {
+    std::optional<int64_t> truncate_start;
+    std::optional<int64_t> truncate_end;
+    if(contains(row_range, start_offset))
+        truncate_start = start_offset;
+
+    if(contains(row_range, end_offset))
+        truncate_end = end_offset;
+
+    return std::make_pair(truncate_start, truncate_end);
+}
+
+std::pair<std::optional<size_t>, std::optional<size_t>> get_truncate_range(
+        const SegmentInMemory& frame,
+        const PipelineContextRow& context,
+        const ReadOptions& read_options,
+        const ReadQuery& read_query,
+        EncodingVersion encoding_version,
+        const EncodedField& index_field,
+        const uint8_t* index_field_offset) {
+    std::pair<std::optional<int64_t>, std::optional<int64_t>> truncate_rows;
+    if(read_options.output_format() == OutputFormat::ARROW) {
+    util::variant_match(read_query.row_filter,
+        [&truncate_rows, &frame, &context, &index_field, index_field_offset, encoding_version] (const IndexRange& index_range) {
+            const auto& time_range = static_cast<const TimestampRange&>(index_range);
+            const auto& slice_time_range =  context.slice_and_key().key().time_range();
+            if(contains(slice_time_range, time_range.first) || contains(slice_time_range, time_range.second)) {
+                if(context.fetch_index()) {
+                    const auto& index_column = frame.column(0);
+                    const auto& current_row_range = context.slice_and_key().slice().row_range;
+                    truncate_rows = get_truncate_range_from_index(index_column, time_range.first, time_range.second, current_row_range.first, current_row_range.second);
+            } else {
+                const auto& frame_index_desc = frame.descriptor().fields(0UL);
+                Column sink{frame_index_desc.type(), encoding_sizes::data_uncompressed_size(index_field), AllocationType::PRESIZED};
+                std::optional<util::BitMagic> bv;
+                (void)decode_field(frame_index_desc.type(), index_field, index_field_offset, sink, bv, encoding_version);
+                truncate_rows = get_truncate_range_from_index(sink, time_range.first, time_range.second);
+            }
+        }
+            },
+        [&context] (const RowRange& row_range) {
+            const auto& slice_row_range = context.slice_and_key().slice().row_range;
+            get_truncate_range_from_rows(row_range, slice_row_range.start(), slice_row_range.end());
+        },
+        [] (const auto&) {
+            // Do nothing
+        });
+    }
+    return truncate_rows
+};
 
 size_t get_field_range_compressed_size(
         size_t start_idx,
@@ -378,6 +470,7 @@ void decode_into_frame_static(
     Segment &&s,
     const DecodePathData& shared_data,
     std::any& handler_data,
+    const ReadQuery& read_query,
     const ReadOptions& read_options) {
     auto seg = std::move(s);
     ARCTICDB_SAMPLE_DEFAULT(DecodeIntoFrame)
@@ -401,7 +494,9 @@ void decode_into_frame_static(
         decode_string_pool(hdr, string_pool_data, begin, end, context);
 
         auto& index_field = fields.at(0u);
+        const auto index_field_offset = data;
         decode_index_field(frame, index_field, data, begin, end, context, encoding_version, read_options.output_format());
+        auto truncate_range = get_truncate_range(frame, context, read_options, read_query, encoding_version, index_field, index_field_offset);
 
         StaticColumnMappingIterator it(context, index_fieldcount);
         if(it.invalid())
@@ -416,8 +511,9 @@ void decode_into_frame_static(
             util::check(it.source_field_pos() < size_t(fields.size()), "Field index out of range: {} !< {}", it.source_field_pos(), fields.size());
             auto field_name = context.descriptor().fields(it.source_field_pos()).name();
             auto& column = frame.column(static_cast<ssize_t>(it.dest_col()));
-            ColumnMapping m{frame, it.dest_col(), it.source_field_pos(), context, read_options.output_format()};
-            check_type_compatibility(m, field_name, it.source_col(), it.dest_col());
+            ColumnMapping mapping{frame, it.dest_col(), it.source_field_pos(), context, read_options.output_format()};
+            mapping.set_truncate(truncate_range);
+            check_type_compatibility(mapping, field_name, it.source_col(), it.dest_col());
             check_data_left_for_subsequent_fields(data, end, it, context);
 
             decode_or_expand(
@@ -427,7 +523,7 @@ void decode_into_frame_static(
                 shared_data,
                 handler_data,
                 encoding_version,
-                m,
+                mapping,
                 context.string_pool_ptr(),
                 read_options.output_format_
             );
@@ -509,6 +605,7 @@ void decode_into_frame_dynamic(
     Segment&& s,
     const DecodePathData& shared_data,
     std::any& handler_data,
+    const ReadQuery& read_query,
     const ReadOptions& read_options
 ) {
     ARCTICDB_SAMPLE_DEFAULT(DecodeIntoFrame)
@@ -531,7 +628,9 @@ void decode_into_frame_dynamic(
 
         const auto& fields = hdr.body_fields();
         auto& index_field = fields.at(0u);
+        auto index_field_offset = data;
         decode_index_field(frame, index_field, data, begin, end, context, encoding_version, read_options.output_format());
+        auto truncate_range = get_truncate_range(frame, context, read_options, read_query, encoding_version, index_field, index_field_offset);
 
         auto field_count = context.slice_and_key().slice_.col_range.diff() + index_fieldcount;
         for (auto field_col = index_fieldcount; field_col < field_count; ++field_col) {
@@ -731,6 +830,7 @@ folly::Future<std::vector<VariantKey>> fetch_data(
     const SegmentInMemory& frame,
     const std::shared_ptr<PipelineContext> &context,
     const std::shared_ptr<stream::StreamSource>& ssource,
+    const ReadQuery& read_query,
     const ReadOptions& read_options,
     DecodePathData shared_data,
     std::any& handler_data
@@ -747,12 +847,12 @@ folly::Future<std::vector<VariantKey>> fetch_data(
         const auto dynamic_schema = read_options.dynamic_schema_.value_or(false);
         for ( auto& row : *context) {
             keys_and_continuations.emplace_back(row.slice_and_key().key(),
-            [row=row, frame=frame, dynamic_schema=dynamic_schema, shared_data, &handler_data, &read_options](auto &&ks) mutable {
+            [row=row, frame=frame, dynamic_schema=dynamic_schema, shared_data, &handler_data, &read_query, &read_options](auto &&ks) mutable {
                 auto key_seg = std::forward<storage::KeySegmentPair>(ks);
                 if(dynamic_schema) {
-                    decode_into_frame_dynamic(frame, row, std::move(key_seg.segment()), shared_data, handler_data, read_options);
+                    decode_into_frame_dynamic(frame, row, std::move(key_seg.segment()), shared_data, handler_data, read_query, read_options);
                 } else {
-                    decode_into_frame_static(frame, row, std::move(key_seg.segment()), shared_data, handler_data, read_options);
+                    decode_into_frame_static(frame, row, std::move(key_seg.segment()), shared_data, handler_data, read_query, read_options);
                 }
 
                 return key_seg.variant_key();

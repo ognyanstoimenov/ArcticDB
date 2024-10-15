@@ -586,6 +586,20 @@ std::vector<std::shared_ptr<Column>> Column::split(const std::shared_ptr<Column>
     return output;
 }
 
+void Column::truncate_first_block(size_t row) {
+    if(!is_sparse()) {
+        auto bytes = data_type_size(type_, OutputFormat::NATIVE, DataTypeMode::INTERNAL)  * row;
+        data_.buffer().truncate_first_block(bytes);
+    }
+}
+
+void Column::truncate_last_block(size_t row) {
+    if(!is_sparse()) {
+        auto bytes = data_type_size(type_, OutputFormat::NATIVE, DataTypeMode::INTERNAL)  * (row_count() - row);
+        data_.buffer().truncate_last_block(bytes);
+    }
+}
+
 /// Bytes from the underlying chunked buffer to include when truncating. Inclusive of start_byte, exclusive of end_byte
 [[nodiscard]] static std::pair<size_t, size_t> column_start_end_bytes(
     const Column& column,

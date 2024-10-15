@@ -473,6 +473,10 @@ public:
 
     void change_type(DataType target_type);
 
+    void truncate_first_block(size_t row);
+
+    void truncate_last_block(size_t row);
+
     position_t row_count() const;
 
     std::optional<StringArrayData> string_array_at(position_t idx, const StringPool &string_pool) {
@@ -642,18 +646,18 @@ public:
     // Returns the index such that if val were inserted before that index, the order would be preserved
     // By default returns the lowest index satisfying this property. If from_right=true, returns the highest such index
     template<class T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0>
-    size_t search_sorted(T val, bool from_right=false) const {
+    size_t search_sorted(T val, bool from_right=false, std::optional<int64_t> from = std::nullopt, std::optional<int64_t> to = std::nullopt) const {
         // There will not necessarily be a unique answer for sparse columns
         internal::check<ErrorCode::E_ASSERTION_FAILURE>(!is_sparse(),
                                                         "Column::search_sorted not supported with sparse columns");
         std::optional<size_t> res;
         auto column_data = data();
-        details::visit_type(type().data_type(), [this, &res, &column_data, val, from_right](auto type_desc_tag) {
+        details::visit_type(type().data_type(), [this, &res, &column_data, val, from_right, &from, &to](auto type_desc_tag) {
             using type_info = ScalarTypeInfo<decltype(type_desc_tag)>;
             auto accessor = random_accessor<typename type_info::TDT>(&column_data);
             if constexpr(std::is_same_v<T, typename type_info::RawType>) {
-                int64_t low{0};
-                int64_t high{row_count() -1};
+                int64_t low = from.value_or(0);
+                int64_t high = to.value_or(row_count() - 1);
                 while (!res.has_value()) {
                     auto mid{low + (high - low) / 2};
                     auto mid_value = accessor.at(mid);

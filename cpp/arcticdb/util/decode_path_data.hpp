@@ -26,40 +26,18 @@ namespace entity {
 struct TypeDescriptor;
 }
 
-struct BufferHolder {
-    boost::container::small_vector<std::shared_ptr<Column>, 1> columns_;
-    std::mutex mutex_;
-
-    std::shared_ptr<Column> get_buffer(const entity::TypeDescriptor& td, entity::Sparsity allow_sparse);
-};
-
 using UniqueStringMapType = folly::ConcurrentHashMap<std::string_view, PyObject*>;
 
-struct BufferMap {
-    std::unordered_map<std::pair<size_t, size_t>, ChunkedBuffer> buffers_;
-    std::mutex mutex_;
-};
-
 struct DecodePathDataImpl {
-    //LazyInit<BufferHolder> buffer_holder_;
     LazyInit<UniqueStringMapType> unique_string_map_;
-    //LazyInit<BufferMap> buffer_map_;
     bool optimize_for_memory_ = false;
 };
 
 struct DecodePathData {
 public:
-    //const std::shared_ptr<BufferHolder>& buffers() const {
-    //    return data_->buffer_holder_.instance();
-    //}
-
     const std::shared_ptr<UniqueStringMapType>& unique_string_map() const {
         return data_->unique_string_map_.instance();
     }
-
-    //const std::shared_ptr<BufferMap> buffer_map() const {
-    //    return data_->buffer_map_.instance();
-    //}
 
     bool optimize_for_memory() const {
         return data_->optimize_for_memory_;

@@ -2,6 +2,7 @@
 #include <arcticdb/column_store/column.hpp>
 #include <arcticdb/entity/types.hpp>
 
+/*
 namespace arcticdb {
 std::shared_ptr<Column> BufferHolder::get_buffer(const TypeDescriptor& td, entity::Sparsity allow_sparse) {
     std::lock_guard lock(mutex_);
@@ -11,3 +12,4 @@ std::shared_ptr<Column> BufferHolder::get_buffer(const TypeDescriptor& td, entit
 }
 } //namespace arcticdb
 
+*/

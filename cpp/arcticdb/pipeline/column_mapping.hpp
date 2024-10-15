@@ -28,6 +28,7 @@ struct ColumnMapping {
     const size_t offset_bytes_;
     const size_t dest_bytes_;
     const size_t dest_col_;
+    std::pair<std::optional<size_t>, std::optional<size_t>> truncate_;
 
     ColumnMapping(
         SegmentInMemory& frame,
@@ -47,7 +48,14 @@ struct ColumnMapping {
         const size_t dest_bytes,
         const size_t dest_col);
 
-    };
+    void set_truncate(std::pair<std::optional<size_t>, std::optional<size_t>> truncate) {
+        truncate_ = std::move(truncate);
+    }
+
+    bool requires_truncation() const {
+        return truncate_.first || truncate_.second;
+    }
+};
 
 struct StaticColumnMappingIterator {
     const size_t index_fieldcount_;

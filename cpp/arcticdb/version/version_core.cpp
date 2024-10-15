@@ -408,7 +408,7 @@ folly::Future<version_store::ReadVersionOutput> async_read_direct_impl(
     const auto& tsd = index_segment_reader->tsd();
     check_column_and_date_range_filterable(*index_segment_reader, *read_query);
     add_index_columns_to_query(*read_query, tsd);
-    read_query->calculate_row_filter(static_cast<int64_t>(tsd.total_rows()));
+    read_query->convert_to_positive_row_filter(static_cast<int64_t>(tsd.total_rows()));
 
     auto pipeline_context = std::make_shared<PipelineContext>(StreamDescriptor{tsd.as_stream_descriptor()});
     pipeline_context->set_selected_columns(read_query->columns);
@@ -428,7 +428,7 @@ folly::Future<version_store::ReadVersionOutput> async_read_direct_impl(
     mark_index_slices(pipeline_context, dynamic_schema, bucketize_dynamic);
     auto frame = allocate_frame(pipeline_context, read_options.output_format(), AllocationType::PRESIZED);
 
-    return fetch_data(frame, pipeline_context, store, read_options, shared_data, handler_data).thenValue(
+    return fetch_data(frame, pipeline_context, store, read_query, read_options, shared_data, handler_data).thenValue(
         [pipeline_context, frame, read_options, &handler_data](auto &&) mutable {
             reduce_and_fix_columns(pipeline_context, frame, read_options, handler_data);
         }).thenValue(
@@ -713,6 +713,7 @@ std::vector<SliceAndKey> read_and_process(
 SegmentInMemory read_direct(const std::shared_ptr<Store>& store,
                             const std::shared_ptr<PipelineContext>& pipeline_context,
                             DecodePathData shared_data,
+                            const ReadQuery& read_query,
                             const ReadOptions& read_options,
                             std::any& handler_data) {
     ARCTICDB_DEBUG(log::version(), "Allocating frame");
@@ -722,7 +723,7 @@ SegmentInMemory read_direct(const std::shared_ptr<Store>& store,
     util::print_total_mem_usage(__FILE__, __LINE__, __FUNCTION__);
 
     ARCTICDB_DEBUG(log::version(), "Fetching frame data");
-    fetch_data(frame, pipeline_context, store, read_options, shared_data, handler_data).get();
+    fetch_data(frame, pipeline_context, store, read_query, read_options, shared_data, handler_data).get();
     util::print_total_mem_usage(__FILE__, __LINE__, __FUNCTION__);
     return frame;
 }
@@ -818,7 +819,7 @@ void read_indexed_keys_to_pipeline(
     add_index_columns_to_query(read_query, index_segment_reader.tsd());
 
     const auto& tsd = index_segment_reader.tsd();
-    read_query.calculate_row_filter(static_cast<int64_t>(tsd.total_rows()));
+    read_query.convert_to_positive_row_filter(static_cast<int64_t>(tsd.total_rows()));
     bool bucketize_dynamic = index_segment_reader.bucketize_dynamic();
     pipeline_context->desc_ = tsd.as_stream_descriptor();
 
@@ -1344,7 +1345,7 @@ SegmentInMemory do_direct_read_or_process(
         ARCTICDB_SAMPLE(MarkAndReadDirect, 0)
         util::check_rte(!(pipeline_context->is_pickled() && std::holds_alternative<RowRange>(read_query.row_filter)), "Cannot use head/tail/row_range with pickled data, use plain read instead");
         mark_index_slices(pipeline_context, opt_false(read_options.dynamic_schema_), pipeline_context->bucketize_dynamic_);
-        frame = read_direct(store, pipeline_context, shared_data, read_options, handler_data);
+        frame = read_direct(store, pipeline_context, shared_data, read_query, read_options, handler_data);
     }
     return frame;
 }
