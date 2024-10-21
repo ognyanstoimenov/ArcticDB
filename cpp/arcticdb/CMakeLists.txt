@@ -40,7 +40,7 @@ find_package(zstd CONFIG REQUIRED)  # "CONFIG" bypasses our cpp/CMake/FindZstd.c
 
 find_package(azure-identity-cpp CONFIG REQUIRED)
 find_package(azure-storage-blobs-cpp CONFIG REQUIRED)
-find_package(sparrow REQUIRED)
+#find_package(sparrow REQUIRED)
 
 if(${BUILD_WITH_REMOTERY})
     add_compile_definitions(USE_REMOTERY)
@@ -505,7 +505,7 @@ set(arcticdb_srcs
         version/symbol_list.cpp
         version/version_map_batch_methods.cpp
         storage/s3/ec2_utils.cpp
-        util/decode_path_data.cpp arrow/arrow_utils.hpp arrow/arrow_output_frame.hpp arrow/arrow_data.hpp arrow/arrow_utils.cpp arrow/arrow_output_frame.cpp arrow/arrow_handlers.hpp arrow/arrow_handlers.cpp pipeline/read_query.hpp pipeline/read_query.cpp)
+        util/decode_path_data.cpp arrow/arrow_utils.hpp arrow/arrow_output_frame.hpp arrow/arrow_data.hpp arrow/arrow_utils.cpp arrow/arrow_output_frame.cpp arrow/arrow_handlers.hpp arrow/arrow_handlers.cpp pipeline/read_query.hpp pipeline/read_query.cpp pipeline/read_query.cpp pipeline/read_pipeline.cpp)
 
 add_library(arcticdb_core_object OBJECT ${arcticdb_srcs})
 

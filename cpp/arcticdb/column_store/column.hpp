@@ -477,6 +477,8 @@ public:
 
     void truncate_last_block(size_t row);
 
+    void truncate_single_block(size_t start_offset, size_t end_offset);
+
     position_t row_count() const;
 
     std::optional<StringArrayData> string_array_at(position_t idx, const StringPool &string_pool) {

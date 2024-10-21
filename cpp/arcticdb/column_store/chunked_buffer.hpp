@@ -385,7 +385,7 @@ class ChunkedBufferImpl {
 
         auto [ptr, ts] = Allocator::aligned_alloc(sizeof(MemBlock));
         new(ptr) MemBlock(data, size, offset, ts, false);
-        blocks_.emplace_back();
+        blocks_.emplace_back(reinterpret_cast<BlockType*>(ptr));
         bytes_ += size;
     }
 
@@ -433,6 +433,18 @@ class ChunkedBufferImpl {
         util::check(bytes <= bytes_, "Expected allocation size {} smaller than actual allocation {}", bytes, bytes_);
     }
 
+    void truncate_single_block(size_t start_offset, size_t end_offset) {
+        auto [block, offset, ts] = block_and_offset(start_offset);
+        util::check(blocks_.size() == 1, "Truncate single block expects buffer with only one block");
+        const auto removed_bytes = start_offset + end_offset; // End offset is counted from the end of the block
+        util::check(removed_bytes < block->bytes(), "Can't truncate {} bytes from a {} byte block", removed_bytes, block->bytes());
+        auto remaining_bytes = block->bytes() - removed_bytes;
+        auto new_block = create_block(remaining_bytes, 0);
+        new_block->copy_from(block->data() + start_offset, remaining_bytes, 0);
+        blocks_[0] = new_block;
+        delete block;
+    }
+
     void truncate_first_block(size_t bytes) {
         auto [block, offset, ts] = block_and_offset(bytes);
         util::check(block == *blocks_.begin(), "Truncate first block position {} not within initial block", bytes);
@@ -451,7 +463,7 @@ class ChunkedBufferImpl {
         auto remaining_bytes = block->bytes() - bytes;
         auto new_block = create_block(remaining_bytes, block->offset_);
         new_block->copy_from(block->data(), remaining_bytes, 0);
-        blocks_[0] = new_block;
+        *blocks_.rbegin() = new_block;
         delete block;
     }
 

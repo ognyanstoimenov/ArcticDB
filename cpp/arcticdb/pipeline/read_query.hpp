@@ -6,6 +6,7 @@
 
 #include <arcticdb/entity/index_range.hpp>
 #include <arcticdb/pipeline/frame_slice.hpp>
+#include <arcticdb/processing/clause.hpp>
 
 namespace arcticdb::pipelines {
 using FilterRange = std::variant<std::monostate, entity::IndexRange, pipelines::RowRange>;
@@ -14,8 +15,6 @@ struct SignedRowRange {
     int64_t start_;
     int64_t end_;
 };
-
-struct Clause;
 
 struct ReadQuery {
     // std::nullopt -> all columns

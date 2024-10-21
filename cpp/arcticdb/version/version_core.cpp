@@ -428,7 +428,7 @@ folly::Future<version_store::ReadVersionOutput> async_read_direct_impl(
     mark_index_slices(pipeline_context, dynamic_schema, bucketize_dynamic);
     auto frame = allocate_frame(pipeline_context, read_options.output_format(), AllocationType::PRESIZED);
 
-    return fetch_data(frame, pipeline_context, store, read_query, read_options, shared_data, handler_data).thenValue(
+    return fetch_data(frame, pipeline_context, store, *read_query, read_options, shared_data, handler_data).thenValue(
         [pipeline_context, frame, read_options, &handler_data](auto &&) mutable {
             reduce_and_fix_columns(pipeline_context, frame, read_options, handler_data);
         }).thenValue(

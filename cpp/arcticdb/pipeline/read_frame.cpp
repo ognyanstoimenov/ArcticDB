@@ -252,6 +252,9 @@ void decode_index_field(
 void handle_truncation(
         Column& dest_column,
         const ColumnMapping& mapping) {
+   if(dest_column.num_blocks() == 1 && mapping.truncate_.first && mapping.truncate_.second)
+       dest_column.truncate_single_block(*mapping.truncate_.first, *mapping.truncate_.second);
+
    if(mapping.truncate_.first)
        dest_column.truncate_first_block(*mapping.truncate_.first);
 
@@ -320,10 +323,10 @@ std::pair<std::optional<int64_t>, std::optional<int64_t>> get_truncate_range_fro
     std::optional<int64_t> truncate_start;
     std::optional<int64_t> truncate_end;
     if((start_offset && start_row != *start_offset) || (!start_offset && start_row > 0))
-        truncate_start = start_offset;
+        truncate_start = start_row;
 
     if((end_offset && end_row != *end_offset) || (!end_offset && end_row < column.row_count() - 1))
-        truncate_end = end_offset;
+        truncate_end = end_row;
 
     return std::make_pair(truncate_start, truncate_end);
 }
@@ -349,7 +352,7 @@ std::pair<std::optional<size_t>, std::optional<size_t>> get_truncate_range(
         const ReadOptions& read_options,
         const ReadQuery& read_query,
         EncodingVersion encoding_version,
-        const EncodedField& index_field,
+        const EncodedFieldImpl& index_field,
         const uint8_t* index_field_offset) {
     std::pair<std::optional<int64_t>, std::optional<int64_t>> truncate_rows;
     if(read_options.output_format() == OutputFormat::ARROW) {
@@ -364,7 +367,7 @@ std::pair<std::optional<size_t>, std::optional<size_t>> get_truncate_range(
                     truncate_rows = get_truncate_range_from_index(index_column, time_range.first, time_range.second, current_row_range.first, current_row_range.second);
             } else {
                 const auto& frame_index_desc = frame.descriptor().fields(0UL);
-                Column sink{frame_index_desc.type(), encoding_sizes::data_uncompressed_size(index_field), AllocationType::PRESIZED};
+                Column sink{frame_index_desc.type(), encoding_sizes::field_uncompressed_size(index_field), AllocationType::PRESIZED, Sparsity::PERMITTED};
                 std::optional<util::BitMagic> bv;
                 (void)decode_field(frame_index_desc.type(), index_field, index_field_offset, sink, bv, encoding_version);
                 truncate_rows = get_truncate_range_from_index(sink, time_range.first, time_range.second);
@@ -379,7 +382,7 @@ std::pair<std::optional<size_t>, std::optional<size_t>> get_truncate_range(
             // Do nothing
         });
     }
-    return truncate_rows
+    return truncate_rows;
 };
 
 size_t get_field_range_compressed_size(
@@ -644,9 +647,10 @@ void decode_into_frame_dynamic(
 
             auto dst_col = *column_output_destination;
             auto& column = frame.column(static_cast<position_t>(dst_col));
-            ColumnMapping m{frame, dst_col, field_col, context, read_options.output_format()};
-            check_mapping_type_compatibility(m);
-            util::check(data != end || source_is_empty(m), "Reached end of input block with {} fields to decode", field_count - field_col);
+            ColumnMapping mapping{frame, dst_col, field_col, context, read_options.output_format()};
+            check_mapping_type_compatibility(mapping);
+            mapping.set_truncate(truncate_range);
+            util::check(data != end || source_is_empty(mapping), "Reached end of input block with {} fields to decode", field_count - field_col);
 
             decode_or_expand(
                 data,
@@ -655,12 +659,12 @@ void decode_into_frame_dynamic(
                 shared_data,
                 handler_data,
                 encoding_version,
-                m,
+                mapping,
                 context.string_pool_ptr(),
                 read_options.output_format_
             );
 
-            handle_type_promotion(m, shared_data, read_options, column);
+            handle_type_promotion(mapping, shared_data, read_options, column);
             ARCTICDB_TRACE(log::codec(), "Decoded column {} to position {}", frame.field(dst_col).name(), data - begin);
         }
     } else {
