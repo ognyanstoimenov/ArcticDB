@@ -226,7 +226,7 @@ void decode_index_field(
 
             data += size;
         } else {
-            auto &buffer = frame.column(0).data().buffer(); // TODO assert size
+            auto &buffer = frame.column(0).data().buffer();
             auto &frame_field_descriptor = frame.field(0);
             auto sz = data_type_size(frame_field_descriptor.type(), output_format, DataTypeMode::EXTERNAL);
             const auto& slice_and_key = context.slice_and_key();
@@ -250,18 +250,21 @@ void decode_index_field(
 }
 
 void handle_truncation(
-        Column& dest_column,
-        const ColumnMapping& mapping) {
-   if(dest_column.num_blocks() == 1 && mapping.truncate_.first && mapping.truncate_.second)
-       dest_column.truncate_single_block(*mapping.truncate_.first, *mapping.truncate_.second);
-
-   if(mapping.truncate_.first)
-       dest_column.truncate_first_block(*mapping.truncate_.first);
-
-   if(mapping.truncate_.second)
-       dest_column.truncate_last_block(*mapping.truncate_.second);
+    Column& dest_column,
+    const ColumnTruncation& truncate) {
+    if(dest_column.num_blocks() == 1 && truncate.start_ && truncate.end_)
+        dest_column.truncate_single_block(*truncate.start_, *truncate.end_);
+    else if(truncate.start_)
+        dest_column.truncate_first_block(*truncate.start_);
+    else if(truncate.end_)
+        dest_column.truncate_last_block(*truncate.end_);
 }
 
+void handle_truncation(
+        Column& dest_column,
+        const ColumnMapping& mapping) {
+    handle_truncation(dest_column, mapping.truncate_);
+}
 
 void decode_or_expand(
     const uint8_t*& data,
@@ -312,7 +315,7 @@ void decode_or_expand(
 }
 
 template <typename IndexValueType>
-std::pair<std::optional<int64_t>, std::optional<int64_t>> get_truncate_range_from_index(
+ColumnTruncation get_truncate_range_from_index(
     const Column& column,
     const IndexValueType& start,
     const IndexValueType& end,
@@ -328,7 +331,7 @@ std::pair<std::optional<int64_t>, std::optional<int64_t>> get_truncate_range_fro
     if((end_offset && end_row != *end_offset) || (!end_offset && end_row < column.row_count() - 1))
         truncate_end = end_row;
 
-    return std::make_pair(truncate_start, truncate_end);
+    return {truncate_start, truncate_end};
 }
 
 std::pair<std::optional<int64_t>, std::optional<int64_t>> get_truncate_range_from_rows(
@@ -346,7 +349,7 @@ std::pair<std::optional<int64_t>, std::optional<int64_t>> get_truncate_range_fro
     return std::make_pair(truncate_start, truncate_end);
 }
 
-std::pair<std::optional<size_t>, std::optional<size_t>> get_truncate_range(
+ColumnTruncation get_truncate_range(
         const SegmentInMemory& frame,
         const PipelineContextRow& context,
         const ReadOptions& read_options,
@@ -354,7 +357,7 @@ std::pair<std::optional<size_t>, std::optional<size_t>> get_truncate_range(
         EncodingVersion encoding_version,
         const EncodedFieldImpl& index_field,
         const uint8_t* index_field_offset) {
-    std::pair<std::optional<int64_t>, std::optional<int64_t>> truncate_rows;
+    ColumnTruncation truncate_rows;
     if(read_options.output_format() == OutputFormat::ARROW) {
     util::variant_match(read_query.row_filter,
         [&truncate_rows, &frame, &context, &index_field, index_field_offset, encoding_version] (const IndexRange& index_range) {
@@ -500,6 +503,8 @@ void decode_into_frame_static(
         const auto index_field_offset = data;
         decode_index_field(frame, index_field, data, begin, end, context, encoding_version, read_options.output_format());
         auto truncate_range = get_truncate_range(frame, context, read_options, read_query, encoding_version, index_field, index_field_offset);
+        if(context.fetch_index() && truncate_range.requires_truncation())
+            handle_truncation(frame.column(0), truncate_range);
 
         StaticColumnMappingIterator it(context, index_fieldcount);
         if(it.invalid())
@@ -516,6 +521,7 @@ void decode_into_frame_static(
             auto& column = frame.column(static_cast<ssize_t>(it.dest_col()));
             ColumnMapping mapping{frame, it.dest_col(), it.source_field_pos(), context, read_options.output_format()};
             mapping.set_truncate(truncate_range);
+
             check_type_compatibility(mapping, field_name, it.source_col(), it.dest_col());
             check_data_left_for_subsequent_fields(data, end, it, context);
 

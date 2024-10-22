@@ -595,7 +595,11 @@ void Column::truncate_first_block(size_t row) {
 
 void Column::truncate_last_block(size_t row) {
     if(!is_sparse()) {
-        auto bytes = data_type_size(type_, OutputFormat::NATIVE, DataTypeMode::INTERNAL)  * (row_count() - row);
+        const auto column_row_count = row_count();
+        if(row < static_cast<size_t>(column_row_count))
+            return;
+
+        auto bytes = data_type_size(type_, OutputFormat::NATIVE, DataTypeMode::INTERNAL)  * (column_row_count - row);
         data_.buffer().truncate_last_block(bytes);
     }
 }

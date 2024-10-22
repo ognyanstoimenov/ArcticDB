@@ -436,7 +436,7 @@ class ChunkedBufferImpl {
     void truncate_single_block(size_t start_offset, size_t end_offset) {
         auto [block, offset, ts] = block_and_offset(start_offset);
         util::check(blocks_.size() == 1, "Truncate single block expects buffer with only one block");
-        const auto removed_bytes = start_offset + end_offset; // End offset is counted from the end of the block
+        const auto removed_bytes = start_offset + (block->bytes() - end_offset);
         util::check(removed_bytes < block->bytes(), "Can't truncate {} bytes from a {} byte block", removed_bytes, block->bytes());
         auto remaining_bytes = block->bytes() - removed_bytes;
         auto new_block = create_block(remaining_bytes, 0);
