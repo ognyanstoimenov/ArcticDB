@@ -1,11 +1,12 @@
 from arcticdb_ext.version_store import OutputFormat
 import pandas as pd
 import numpy as np
+import pytest
 
 from pandas.testing import assert_frame_equal
 
 
-def test_basic_roundtrip(lmdb_version_store_v1):
+def test_basic(lmdb_version_store_v1):
     lib = lmdb_version_store_v1
     df = pd.DataFrame({"x": np.arange(10)})
     lib.write("arrow", df)
@@ -15,34 +16,41 @@ def test_basic_roundtrip(lmdb_version_store_v1):
     assert_frame_equal(result, df)
 
 
-def test_double_columns_roundtrip(lmdb_version_store_v1):
+def test_double_columns(lmdb_version_store_v1):
     lib = lmdb_version_store_v1
     df = pd.DataFrame({"x": np.arange(10), "y": np.arange(10.0, 20.0)})
     lib.write("arrow", df)
     vit = lib.read("arrow", output_format=OutputFormat.ARROW)
     result = vit.to_pandas()
-    print(vit)
     assert_frame_equal(result, df)
 
 
-def test_strings_roundtrip(lmdb_version_store_v1):
+def test_column_filtering(lmdb_version_store_v1):
+    lib = lmdb_version_store_v1
+    df = pd.DataFrame({"x": np.arange(10), "y": np.arange(10.0, 20.0)})
+    lib.write("arrow", df)
+    vit = lib.read("arrow", columns=['y'], output_format=OutputFormat.ARROW)
+    df = df.drop('x', axis=1)
+    result = vit.to_pandas()
+    assert_frame_equal(result, df)
+
+
+def test_strings(lmdb_version_store_v1):
     lib = lmdb_version_store_v1
     df = pd.DataFrame({"x": ["mene", "mene", "tekel", "upharsin"]})
     lib.write("arrow", df)
     vit = lib.read("arrow", output_format=OutputFormat.ARROW)
     result = vit.to_pandas()
-    print(vit)
     assert_frame_equal(result, df)
 
 
-def test_date_range(lmdb_version_store_v1):
+@pytest.mark.parametrize("start_offset,end_offset", [(2, 3), (3, 75), (4, 32), (0, 99), (7, 56)])
+def test_date_range(lmdb_version_store_v1, start_offset, end_offset):
     lib = lmdb_version_store_v1
     initial_timestamp = pd.Timestamp("2019-01-01")
     df = pd.DataFrame(data=np.arange(100), index=pd.date_range(initial_timestamp, periods=100), columns=['x'])
     sym = "arrow_date_test"
     lib.write(sym, df)
-    start_offset = 2
-    end_offset = 5
 
     query_start_ts = initial_timestamp + pd.DateOffset(start_offset)
     query_end_ts = initial_timestamp + pd.DateOffset(end_offset)
