@@ -61,8 +61,8 @@ struct MemBlock {
         if(owns_external_data_) {
             util::check(is_external(), "Cannot free inline allocated block");
             if(external_data_ != nullptr) {
-                //log::version().warn("Unexpected release of detachable block memory");
-                //free(reinterpret_cast<void *>(external_data_));
+                log::version().warn("Unexpected release of detachable block memory");
+                delete[] external_data_;
             }
         }
     }
@@ -121,6 +121,7 @@ struct MemBlock {
         util::check(is_external() && owns_external_data_, "Cannot release inlined or external data pointer");
         auto* tmp = external_data_;
         external_data_ = nullptr;
+        owns_external_data_ = false;
         return tmp;
     }
 

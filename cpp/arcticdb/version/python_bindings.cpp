@@ -217,6 +217,7 @@ void register_bindings(py::module &version, py::exception<arcticdb::ArcticExcept
         .def_property_readonly("arrays", &ArrowOutputFrame::arrays)
         .def_property_readonly("schemas", &ArrowOutputFrame::schemas)
         .def_property_readonly("names", &ArrowOutputFrame::names)
+        .def_property_readonly("num_blocks", &ArrowOutputFrame::num_blocks)
         ;
 
     py::enum_<VersionRequestType>(version, "VersionRequestType", R"pbdoc(

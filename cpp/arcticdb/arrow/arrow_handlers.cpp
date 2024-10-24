@@ -53,7 +53,7 @@ void ArrowStringHandler::convert_type(
     const std::shared_ptr<StringPool>& string_pool) const {
     size_t bytes = 0;
     using ArcticStringColumnTag = ScalarTagType<DataTypeTag<DataType::UTF_DYNAMIC64>>;
-    auto offset_ptr = reinterpret_cast<uint32_t*>(dest_column.bytes_at(mapping.offset_bytes_));
+    auto offset_ptr = reinterpret_cast<uint32_t*>(dest_column.bytes_at(mapping.offset_bytes_, source_column.row_count() * sizeof(uint32_t)));
     auto input_data = source_column.data();
     auto pos = input_data.cbegin<ArcticStringColumnTag>();
     const auto end = input_data.cend<ArcticStringColumnTag>();

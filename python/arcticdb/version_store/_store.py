@@ -1734,12 +1734,16 @@ class NativeVersionStore:
         if read_options.output_format == OutputFormat.ARROW:
             vit, frame, meta = self.version_store.read_dataframe_version_arrow(symbol, version_query, read_query, read_options)
             import pyarrow as pa
-            arrow_arrays = []
-            for arr, schema in zip(frame.arrays, frame.schemas):
-                print("Arr: {} Schema: {}".format(arr, schema));
-                arrow_arrays.append(pa.Array._import_from_c(arr[0], schema[0]))
+            record_batches = []
+            for i in range(frame.num_blocks):
+                arrays = []
+                for arr, schema in zip(frame.arrays, frame.schemas):
+                    print("Arr: {} Schema: {}".format(arr, schema));
+                    arrays.append(pa.Array._import_from_c(arr[i], schema[i]))
 
-            return pa.Table.from_arrays(arrow_arrays, names=frame.names)
+                record_batches.append(pa.RecordBatch.from_arrays(arrays, names=frame.names))
+
+            return pa.Table.from_batches(record_batches)
 
         else:
             read_result = self._read_dataframe(symbol, version_query, read_query, read_options)

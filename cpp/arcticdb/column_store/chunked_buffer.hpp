@@ -269,8 +269,9 @@ class ChunkedBufferImpl {
     };
 
     [[nodiscard]] BlockAndOffset block_and_offset(size_t pos_bytes) const {
-        if(blocks_.size() == 1u)
+        if(blocks_.size() == 1u) {
             return BlockAndOffset(blocks_[0], pos_bytes, 0);
+        }
 
         if (is_regular_sized() || pos_bytes < regular_sized_until_) {
             size_t block_offset = pos_bytes / DefaultBlockSize;
@@ -278,6 +279,7 @@ class ChunkedBufferImpl {
                         "Request for out of range block {}, only have {} blocks",
                         block_offset,
                         blocks_.size());
+            ARCTICDB_TRACE(log::inmem(), "Chunked buffer returning regular block {}, position {}", block_offset, pos_bytes % DefaultBlockSize);
             MemBlock *block = blocks_[block_offset];
             block->magic_.check();
             return BlockAndOffset(block, pos_bytes % DefaultBlockSize, block_offset);
@@ -290,12 +292,16 @@ class ChunkedBufferImpl {
 
         auto irregular_block_num = std::distance(block_offsets_.begin(), block_offset);
         auto first_irregular_block = regular_sized_until_ / DefaultBlockSize;
+        const auto block_pos = irregular_block_num + first_irregular_block;
+        util::check(block_pos < blocks_.size(), "Block {} out of bounds in blocks buffer of size {}", block_pos, blocks_.size());
         auto block = blocks_[first_irregular_block + irregular_block_num];
+        ARCTICDB_TRACE(log::inmem(), "Chunked buffer returning irregular block {}, position {}", first_irregular_block + irregular_block_num, pos_bytes - *block_offset);
         return BlockAndOffset(block, pos_bytes - *block_offset, first_irregular_block + irregular_block_num);
     }
 
     uint8_t &operator[](size_t pos_bytes) {
         auto [block, pos, _] = block_and_offset(pos_bytes);
+        util::check(pos < block->bytes(), "Block overflow, position {} is greater than block capacity {}", pos, block->bytes());
         return (*block)[pos];
     }
 
@@ -397,6 +403,10 @@ class ChunkedBufferImpl {
             free_last_block();
 
         blocks_.emplace_back(create_detachable_block(capacity));
+        if(block_offsets_.empty())
+            block_offsets_.emplace_back(0);
+
+        block_offsets_.emplace_back(last_offset() + capacity);
     }
 
     [[nodiscard]] bool empty() const { return bytes_ == 0; }
@@ -483,7 +493,7 @@ class ChunkedBufferImpl {
 
     MemBlock* create_detachable_block(size_t capacity) const {
         auto [ptr, ts] = Allocator::aligned_alloc(sizeof(MemBlock));
-        auto* data = reinterpret_cast<uint8_t*>(malloc(capacity));
+        auto* data = new uint8_t[capacity];
         new(ptr) MemBlock(data, capacity, 0UL, ts, true);
         return reinterpret_cast<BlockType*>(ptr);
     }
@@ -491,6 +501,7 @@ class ChunkedBufferImpl {
     void free_block(BlockType* block) const {
         ARCTICDB_TRACE(log::storage(), "Freeing block at address {:x}", uintptr_t(block));
         block->magic_.check();
+        block->~MemBlock();
         Allocator::free(std::make_pair(reinterpret_cast<uint8_t *>(block), block->timestamp_));
     }
 

@@ -1018,7 +1018,7 @@ void copy_frame_data_to_buffer(
     dst_column.assert_size(offset + total_size);
 
     auto src_data = src_column.data();
-    auto dst_ptr = dst_column.bytes_at(offset);
+    auto dst_ptr = dst_column.bytes_at(offset, total_size);
 
     auto type_promotion_error_msg = fmt::format("Can't promote type {} to type {} in field {}",
                                                 src_column.type(), dst_column.type(), destination.field(target_index).name());

@@ -27,5 +27,7 @@ struct ArrowOutputFrame {
     std::vector<std::vector<uintptr_t>> schemas();
 
     std::vector<std::string> names() const;
+
+    size_t num_blocks() const;
 };
 } // namespace arcticdb

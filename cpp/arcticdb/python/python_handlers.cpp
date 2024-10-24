@@ -84,7 +84,7 @@ void PythonEmptyHandler::convert_type(
         const DecodePathData& shared_data,
         std::any& handler_data,
         const std::shared_ptr<StringPool>&) const {
-    auto dest_data = dest_column.bytes_at(mapping.offset_bytes_);
+    auto dest_data = dest_column.bytes_at(mapping.offset_bytes_, mapping.num_rows_ * sizeof(PyObject*));
     util::check(dest_data != nullptr, "Got null destination pointer");
     ARCTICDB_TRACE(
         log::version(),
@@ -161,7 +161,7 @@ void PythonBoolHandler::convert_type(
     const auto& sparse_map = source_column.opt_sparse_map();
     const auto num_bools = sparse_map.has_value() ? sparse_map->count() : mapping.num_rows_;
     auto ptr_src = source_column.template ptr_cast<uint8_t>(0, num_bools * sizeof(uint8_t));
-    auto dest_data = dest_column.bytes_at(mapping.offset_bytes_);
+    auto dest_data = dest_column.bytes_at(mapping.offset_bytes_, mapping.num_rows_ * sizeof(PyObject*));
     util::check(dest_data != nullptr, "Got null destination pointer");
     auto ptr_dest = reinterpret_cast<PyObject**>(dest_data);
     if (sparse_map.has_value()) {
@@ -216,7 +216,7 @@ void PythonStringHandler::handle_type(
             return Column(m.source_type_desc_, bytes / get_type_size(m.source_type_desc_.data_type()), AllocationType::DYNAMIC, Sparsity::PERMITTED);
         } else {
             Column column(m.source_type_desc_, Sparsity::NOT_PERMITTED);
-            column.buffer().add_external_block(dest_column.bytes_at(m.offset_bytes_), bytes, 0UL);
+            column.buffer().add_external_block(dest_column.bytes_at(m.offset_bytes_, m.num_rows_ * sizeof(PyObject*)), bytes, 0UL);
             return column;
         }
     }();
@@ -241,7 +241,7 @@ void PythonStringHandler::convert_type(
         const DecodePathData& shared_data,
         std::any& handler_data,
         const std::shared_ptr<StringPool>& string_pool) const {
-    auto dest_data = dest_column.bytes_at(mapping.offset_bytes_);
+    auto dest_data = dest_column.bytes_at(mapping.offset_bytes_, mapping.num_rows_ * sizeof(PyObject*));
     auto ptr_dest = reinterpret_cast<PyObject**>(dest_data);
     DynamicStringReducer string_reducer{shared_data, get_handler_data(handler_data), ptr_dest, mapping.num_rows_};
     string_reducer.reduce(source_column, mapping.source_type_desc_, mapping.dest_type_desc_, mapping.num_rows_, *string_pool, source_column.opt_sparse_map());

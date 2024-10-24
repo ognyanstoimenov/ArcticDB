@@ -102,7 +102,7 @@ SegmentInMemory allocate_chunked_frame(const std::shared_ptr<PipelineContext>& c
     ARCTICDB_SAMPLE_DEFAULT(AllocContiguousFrame)
     auto [offset, row_count] = offset_and_row_count(context);
     auto block_row_counts = output_block_row_counts(context);
-    ARCTICDB_DEBUG(log::version(), "Allocated contiguous frame with offset {} and row count {}", offset, row_count);
+    ARCTICDB_DEBUG(log::version(), "Allocated chunked frame with offset {} and row count {}", offset, row_count);
     SegmentInMemory output{get_filtered_descriptor(context, output_format), 0, allocation_type, Sparsity::NOT_PERMITTED, output_format, DataTypeMode::EXTERNAL};
     auto handlers = TypeHandlerRegistry::instance();
 
@@ -278,16 +278,17 @@ void decode_or_expand(
     OutputFormat output_format) {
     const auto source_type_desc = mapping.source_type_desc_;
     const auto dest_type_desc = mapping.dest_type_desc_;
-
+    auto* dest = dest_column.bytes_at(mapping.offset_bytes_, mapping.dest_bytes_);
     if(auto handler = get_type_handler(output_format, source_type_desc, dest_type_desc); handler) {
         handler->handle_type(data, dest_column, encoded_field_info, mapping, shared_data, handler_data, encoding_version, string_pool);
     } else {
-        auto* dest = dest_column.bytes_at(mapping.offset_bytes_);
+        ARCTICDB_TRACE(log::version(), "Decoding standard field to position {}", mapping.offset_bytes_);
         const auto dest_bytes = mapping.dest_bytes_;
         std::optional<util::BitMagic> bv;
         if (encoded_field_info.has_ndarray() && encoded_field_info.ndarray().sparse_map_bytes() > 0) {
             const auto &ndarray = encoded_field_info.ndarray();
             const auto bytes = encoding_sizes::data_uncompressed_size(ndarray);
+
             ChunkedBuffer sparse{bytes};
             SliceDataSink sparse_sink{sparse.data(), bytes};
             data += decode_field(source_type_desc, encoded_field_info, data, sparse_sink, bv, encoding_version);
@@ -301,6 +302,7 @@ void decode_or_expand(
             SliceDataSink sink(dest, dest_bytes);
             const auto &ndarray = encoded_field_info.ndarray();
             if (const auto bytes = encoding_sizes::data_uncompressed_size(ndarray); bytes < dest_bytes) {
+                ARCTICDB_TRACE(log::version(), "Default initializing as only have {} bytes of {}", bytes, dest_bytes);
                 source_type_desc.visit_tag([dest, bytes, dest_bytes](const auto tdt) {
                     using TagType = decltype(tdt);
                     util::default_initialize<TagType>(dest + bytes, dest_bytes - bytes);
@@ -537,7 +539,7 @@ void decode_into_frame_static(
                 read_options.output_format_
             );
 
-            ARCTICDB_TRACE(log::codec(), "Decoded column {} to position {}", field_name, data - begin);
+            ARCTICDB_TRACE(log::codec(), "Decoded or expanded static column {} to position {}", field_name, data - begin);
 
             it.advance();
             if(it.at_end_of_selected()) {
@@ -576,8 +578,8 @@ void promote_integral_type(
     const auto src_ptr_offset = src_data_type_size * (m.num_rows_ - 1);
     const auto dest_ptr_offset = dest_data_type_size * (m.num_rows_ - 1);
 
-    auto src_ptr = reinterpret_cast<SourceType*>(column.bytes_at(src_ptr_offset));
-    auto dest_ptr = reinterpret_cast<DestinationType*>(column.bytes_at(dest_ptr_offset));
+    auto src_ptr = reinterpret_cast<SourceType*>(column.bytes_at(src_ptr_offset, 0UL)); // No bytes required as we are at the end
+    auto dest_ptr = reinterpret_cast<DestinationType*>(column.bytes_at(dest_ptr_offset, 0UL));
     for (auto i = 0u; i < m.num_rows_; ++i) {
         *dest_ptr-- = static_cast<DestinationType>(*src_ptr--);
     }
@@ -671,7 +673,7 @@ void decode_into_frame_dynamic(
             );
 
             handle_type_promotion(mapping, shared_data, read_options, column);
-            ARCTICDB_TRACE(log::codec(), "Decoded column {} to position {}", frame.field(dst_col).name(), data - begin);
+            ARCTICDB_TRACE(log::codec(), "Decoded or expanded dynamic column {} to position {}", frame.field(dst_col).name(), data - begin);
         }
     } else {
         ARCTICDB_DEBUG(log::version(), "Empty segment");

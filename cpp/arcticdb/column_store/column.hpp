@@ -622,12 +622,13 @@ public:
         return data_.buffer();
     }
 
-    uint8_t* bytes_at(size_t bytes) {
-        return data_.bytes_at(bytes);
+    uint8_t* bytes_at(size_t bytes, size_t required) {
+        ARCTICDB_TRACE(log::inmem(), "Column returning {} bytes at position {}", required, bytes);
+        return data_.bytes_at(bytes, required);
     }
 
-    const uint8_t* bytes_at(size_t bytes) const {
-        return data_.bytes_at(bytes);
+    const uint8_t* bytes_at(size_t bytes, size_t required) const {
+        return data_.bytes_at(bytes, required);
     }
 
     void assert_size(size_t bytes) const {

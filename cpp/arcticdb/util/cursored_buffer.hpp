@@ -140,11 +140,13 @@ public:
         cursor_.reset();
     }
 
-    uint8_t* bytes_at(size_t bytes) {
+    uint8_t* bytes_at(size_t bytes, size_t required) {
+        util::check(bytes + required <= buffer_.bytes(), "Bytes overflow, can't write {} bytes at position {} in buffer of size {}", required, bytes, buffer_.bytes());
         return &buffer_[bytes];
     }
 
-    const uint8_t* bytes_at(size_t bytes) const {
+    const uint8_t* bytes_at(size_t bytes, size_t required) const {
+        util::check(bytes + required <= buffer_.bytes(), "Bytes overflow, can't write {} bytes at position {} in buffer of size {}", required, bytes, buffer_.bytes());
         return &buffer_[bytes];
     }
 
