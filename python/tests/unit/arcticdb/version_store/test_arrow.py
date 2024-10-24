@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from pandas.testing import assert_frame_equal
-
+from arcticdb.version_store.processing import QueryBuilder
 
 def test_basic(lmdb_version_store_v1):
     lib = lmdb_version_store_v1
@@ -21,7 +21,6 @@ def test_basic_small_slices(lmdb_version_store_tiny_segment):
     lib.write("arrow", df)
     vit = lib.read("arrow", output_format=OutputFormat.ARROW)
     result = vit.to_pandas()
-    print(vit)
     assert_frame_equal(result, df)
 
 
@@ -72,5 +71,19 @@ def test_date_range(lmdb_version_store_v1, start_offset, end_offset):
     assert query_end_ts == pd.Timestamp(df.index[-1])
     assert df['x'].iloc[0] == start_offset
     assert df['x'].iloc[-1] == end_offset
+
+
+def test_with_querybuilder(lmdb_version_store_v1):
+    lib = lmdb_version_store_v1
+    df = pd.DataFrame({"x": np.arange(10), "y": np.arange(10.0, 20.0)})
+    q = QueryBuilder()
+    q = q[q["x"] < 5]
+    lib.write("arrow", df)
+    vit = lib.read("arrow", output_format=OutputFormat.ARROW, query_builder=q)
+    expected = df[df["x"] < 5]
+    result = vit.to_pandas()
+    assert_frame_equal(result, expected)
+
+
 
 
