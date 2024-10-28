@@ -85,5 +85,32 @@ def test_with_querybuilder(lmdb_version_store_v1):
     assert_frame_equal(result, expected)
 
 
+def test_dynamic_schema(lmdb_version_store_dynamic_schema):
+    lib = lmdb_version_store_dynamic_schema
+    df1 = pd.DataFrame({"x": np.arange(10), "y": np.arange(10.0, 20.0)})
+
+    lib.write("arrow", df1)
+    df2 = pd.DataFrame({"y": np.arange(20.0, 30.0), "z": np.arange(10.0, 20.0)})
+    lib.append("arrow", df2)
+    vit = lib.read("arrow", output_format=OutputFormat.ARROW)
+    result = vit.to_pandas()
+    expected = pd.concat([df1, df2])
+    expected.reset_index(drop=True, inplace=True)
+    assert_frame_equal(result.astype(float).fillna(0), expected.fillna(0))
+
+
+def test_dynamic_schema_column_change(lmdb_version_store_dynamic_schema):
+    lib = lmdb_version_store_dynamic_schema
+    df1 = pd.DataFrame({"x": np.arange(10)})
+
+    lib.write("arrow", df1)
+    df2 = pd.DataFrame({"x": np.arange(20.0, 30.0)})
+    lib.append("arrow", df2)
+    vit = lib.read("arrow", output_format=OutputFormat.ARROW)
+    result = vit.to_pandas()
+    expected = pd.concat([df1, df2])
+    expected.reset_index(drop=True, inplace=True)
+    assert_frame_equal(result.astype(float).fillna(0), expected.fillna(0))
+
 
 
