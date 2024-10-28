@@ -30,7 +30,11 @@
 namespace arcticdb::version_store {
 
 [[nodiscard]] static std::pair<timestamp, timestamp> compute_first_last_dates(
-    timestamp start, timestamp end, timestamp rule, ResampleBoundary closed_boundary_arg, timestamp offset
+    timestamp start,
+    timestamp end,
+    timestamp rule,
+    ResampleBoundary closed_boundary_arg,
+    timestamp offset
 ) {
     const timestamp ns_to_prev_offset_start = (start - offset) % rule;
     const timestamp ns_to_prev_offset_end = (end - offset) % rule;
@@ -48,7 +52,11 @@ namespace arcticdb::version_store {
 }
 
 std::vector<timestamp> generate_buckets(
-    timestamp start, timestamp end, std::string_view rule, ResampleBoundary closed_boundary_arg, timestamp offset
+    timestamp start,
+    timestamp end,
+    std::string_view rule,
+    ResampleBoundary closed_boundary_arg,
+    timestamp offset
 ) {
     timestamp rule_ns;
     {

@@ -129,7 +129,9 @@ FrameAndDescriptor read_column_stats_impl(const std::shared_ptr<Store>& store, c
 ColumnStats get_column_stats_info_impl(const std::shared_ptr<Store>& store, const VersionedItem& versioned_item);
 
 FrameAndDescriptor read_multi_key(
-    const std::shared_ptr<Store>& store, const SegmentInMemory& index_key_seg, std::any& handler_data
+    const std::shared_ptr<Store>& store,
+    const SegmentInMemory& index_key_seg,
+    std::any& handler_data
 );
 
 FrameAndDescriptor read_segment_impl(const std::shared_ptr<Store>& store, const VariantKey& key);
@@ -207,7 +209,8 @@ VersionedItem sort_merge_impl(
 );
 
 void modify_descriptor(
-    const std::shared_ptr<pipelines::PipelineContext>& pipeline_context, const ReadOptions& read_options
+    const std::shared_ptr<pipelines::PipelineContext>& pipeline_context,
+    const ReadOptions& read_options
 );
 
 void read_indexed_keys_to_pipeline(

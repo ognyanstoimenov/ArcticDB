@@ -140,7 +140,9 @@ bool MemoryStorage::do_fast_delete() {
 }
 
 bool MemoryStorage::do_iterate_type_until_match(
-    KeyType key_type, const IterateTypePredicate& visitor, const std::string& prefix
+    KeyType key_type,
+    const IterateTypePredicate& visitor,
+    const std::string& prefix
 ) {
     ARCTICDB_SAMPLE(MemoryStorageItType, 0)
     auto& key_vec = data_[key_type];

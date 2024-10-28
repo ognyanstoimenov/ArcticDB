@@ -33,11 +33,13 @@ class SegmentInMemoryImpl;
 
 namespace {
 inline std::shared_ptr<SegmentInMemoryImpl> allocate_sparse_segment(
-    const StreamId& id, const IndexDescriptorImpl& index
+    const StreamId& id,
+    const IndexDescriptorImpl& index
 );
 
 inline std::shared_ptr<SegmentInMemoryImpl> allocate_dense_segment(
-    const StreamDescriptor& descriptor, size_t row_count
+    const StreamDescriptor& descriptor,
+    size_t row_count
 );
 
 inline void check_output_bitset(
@@ -370,7 +372,11 @@ class SegmentInMemoryImpl {
     void generate_column_map() const;
 
     void create_columns(
-        size_t old_size, size_t expected_column_size, AllocationType presize, Sparsity allow_sparse, DataTypeMode mode
+        size_t old_size,
+        size_t expected_column_size,
+        AllocationType presize,
+        Sparsity allow_sparse,
+        DataTypeMode mode
     );
 
     size_t on_descriptor_change(
@@ -666,7 +672,9 @@ class SegmentInMemoryImpl {
     std::shared_ptr<SegmentInMemoryImpl> get_output_segment(size_t num_values, bool pre_allocate = true) const;
 
     std::shared_ptr<SegmentInMemoryImpl> filter(
-        util::BitSet&& filter_bitset, bool filter_down_stringpool = false, bool validate = false
+        util::BitSet&& filter_bitset,
+        bool filter_down_stringpool = false,
+        bool validate = false
     ) const;
 
     bool has_index_descriptor() const { return tsd_.has_value(); }
@@ -693,7 +701,8 @@ class SegmentInMemoryImpl {
     // segment_counts is the length of the number of output segments, and should be greater than or equal to the max
     // value in row_to_segment
     std::vector<std::shared_ptr<SegmentInMemoryImpl>> partition(
-        const std::vector<uint8_t>& row_to_segment, const std::vector<uint64_t>& segment_counts
+        const std::vector<uint8_t>& row_to_segment,
+        const std::vector<uint64_t>& segment_counts
     ) const;
 
     std::vector<std::shared_ptr<SegmentInMemoryImpl>> split(size_t rows) const;
@@ -716,7 +725,8 @@ class SegmentInMemoryImpl {
 
 namespace {
 inline std::shared_ptr<SegmentInMemoryImpl> allocate_sparse_segment(
-    const StreamId& id, const IndexDescriptorImpl& index
+    const StreamId& id,
+    const IndexDescriptorImpl& index
 ) {
     return std::make_shared<SegmentInMemoryImpl>(
         StreamDescriptor{id, index}, 0, AllocationType::DYNAMIC, Sparsity::PERMITTED
@@ -724,7 +734,8 @@ inline std::shared_ptr<SegmentInMemoryImpl> allocate_sparse_segment(
 }
 
 inline std::shared_ptr<SegmentInMemoryImpl> allocate_dense_segment(
-    const StreamDescriptor& descriptor, size_t row_count
+    const StreamDescriptor& descriptor,
+    size_t row_count
 ) {
     return std::make_shared<SegmentInMemoryImpl>(
         descriptor, row_count, AllocationType::PRESIZED, Sparsity::NOT_PERMITTED

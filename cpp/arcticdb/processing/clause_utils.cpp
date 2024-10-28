@@ -13,7 +13,8 @@ namespace arcticdb {
 using namespace pipelines;
 
 std::vector<std::vector<EntityId>> structure_by_row_slice(
-    ComponentManager& component_manager, std::vector<std::vector<EntityId>>&& entity_ids_vec
+    ComponentManager& component_manager,
+    std::vector<std::vector<EntityId>>&& entity_ids_vec
 ) {
     auto entity_ids = flatten_entities(std::move(entity_ids_vec));
     auto [row_ranges, col_ranges] =
@@ -35,7 +36,8 @@ std::vector<std::vector<EntityId>> structure_by_row_slice(
 }
 
 std::vector<std::vector<EntityId>> offsets_to_entity_ids(
-    const std::vector<std::vector<size_t>>& offsets, const std::vector<RangesAndEntity>& ranges_and_entities
+    const std::vector<std::vector<size_t>>& offsets,
+    const std::vector<RangesAndEntity>& ranges_and_entities
 ) {
     std::vector<std::vector<EntityId>> res(offsets.size());
     for (const auto&& [outer_idx, vec] : folly::enumerate(offsets)) {
@@ -53,7 +55,9 @@ std::vector<std::vector<EntityId>> offsets_to_entity_ids(
  * the user if this is the final clause in the pipeline.
  */
 std::vector<EntityId> push_entities(
-    ComponentManager& component_manager, ProcessingUnit&& proc, EntityFetchCount entity_fetch_count
+    ComponentManager& component_manager,
+    ProcessingUnit&& proc,
+    EntityFetchCount entity_fetch_count
 ) {
     std::vector<EntityFetchCount> entity_fetch_counts(proc.segments_->size(), entity_fetch_count);
     std::vector<EntityId> ids;

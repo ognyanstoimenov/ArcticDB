@@ -204,7 +204,9 @@ void MongoStorage::do_remove(Composite<VariantKey>&& ks, RemoveOpts opts) {
 }
 
 bool MongoStorage::do_iterate_type_until_match(
-    KeyType key_type, const IterateTypePredicate& visitor, const std::string& prefix
+    KeyType key_type,
+    const IterateTypePredicate& visitor,
+    const std::string& prefix
 ) {
     auto collection = collection_name(key_type);
     ARCTICDB_SAMPLE(MongoStorageItType, 0)

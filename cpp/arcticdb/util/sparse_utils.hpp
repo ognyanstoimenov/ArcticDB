@@ -26,7 +26,9 @@ namespace arcticdb::util {
 
 template<typename RawType>
 void densify_buffer_using_bitmap(
-    const util::BitSet& block_bitset, arcticdb::ChunkedBuffer& dense_buffer, const uint8_t* sparse_ptr
+    const util::BitSet& block_bitset,
+    arcticdb::ChunkedBuffer& dense_buffer,
+    const uint8_t* sparse_ptr
 ) {
     auto en = block_bitset.first();
     auto en_end = block_bitset.end();
@@ -103,7 +105,11 @@ inline void default_initialize(uint8_t* data, size_t bytes) {
 
 template<typename TagType>
 inline void default_initialize(
-    ChunkedBuffer& buffer, size_t offset, size_t bytes, DecodePathData shared_data, std::any& handler_data
+    ChunkedBuffer& buffer,
+    size_t offset,
+    size_t bytes,
+    DecodePathData shared_data,
+    std::any& handler_data
 ) {
     using RawType = typename TagType::DataTypeTag::raw_type;
     const auto num_rows ARCTICDB_UNUSED = bytes / sizeof(RawType);

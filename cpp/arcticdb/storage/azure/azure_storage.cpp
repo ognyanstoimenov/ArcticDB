@@ -257,7 +257,10 @@ void do_remove_impl(
 }
 
 std::string prefix_handler(
-    const std::string& prefix, const std::string& key_type_dir, const KeyDescriptor& key_descriptor, KeyType
+    const std::string& prefix,
+    const std::string& key_type_dir,
+    const KeyDescriptor& key_descriptor,
+    KeyType
 ) {
     return !prefix.empty() ? fmt::format("{}/{}*{}", key_type_dir, key_descriptor, prefix) : key_type_dir;
 }
@@ -347,7 +350,9 @@ void AzureStorage::do_remove(Composite<VariantKey>&& ks, RemoveOpts) {
 }
 
 bool AzureStorage::do_iterate_type_until_match(
-    KeyType key_type, const IterateTypePredicate& visitor, const std::string& prefix
+    KeyType key_type,
+    const IterateTypePredicate& visitor,
+    const std::string& prefix
 ) {
     return detail::do_iterate_type_impl(key_type, visitor, root_folder_, *azure_client_, prefix);
 }

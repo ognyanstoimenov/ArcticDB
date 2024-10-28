@@ -49,7 +49,9 @@ struct StreamDescriptor {
           fields_(std::move(fields)) {}
 
     StreamDescriptor(
-        std::shared_ptr<SegmentDescriptorImpl> data, std::shared_ptr<FieldCollection> fields, StreamId stream_id
+        std::shared_ptr<SegmentDescriptorImpl> data,
+        std::shared_ptr<FieldCollection> fields,
+        StreamId stream_id
     )
         : segment_desc_(std::move(data)),
           fields_(std::move(fields)),

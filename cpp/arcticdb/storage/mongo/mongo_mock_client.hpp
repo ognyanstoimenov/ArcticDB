@@ -67,23 +67,34 @@ class MockMongoClient : public MongoClientWrapper {
     ARCTICDB_MOVE_ONLY_DEFAULT(MockMongoClient)
 
     static std::string get_failure_trigger(
-        const std::string& key, StorageOperation operation_to_fail, MongoError error_code
+        const std::string& key,
+        StorageOperation operation_to_fail,
+        MongoError error_code
     );
 
     bool write_segment(
-        const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv
+        const std::string& database_name,
+        const std::string& collection_name,
+        storage::KeySegmentPair&& kv
     ) override;
 
     UpdateResult update_segment(
-        const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv, bool upsert
+        const std::string& database_name,
+        const std::string& collection_name,
+        storage::KeySegmentPair&& kv,
+        bool upsert
     ) override;
 
     std::optional<KeySegmentPair> read_segment(
-        const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+        const std::string& database_name,
+        const std::string& collection_name,
+        const entity::VariantKey& key
     ) override;
 
     DeleteResult remove_keyvalue(
-        const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+        const std::string& database_name,
+        const std::string& collection_name,
+        const entity::VariantKey& key
     ) override;
 
     std::vector<VariantKey> list_keys(

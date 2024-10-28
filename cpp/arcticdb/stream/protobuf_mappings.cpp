@@ -47,7 +47,9 @@ arcticdb::proto::descriptors::NormalizationMetadata make_rowcount_norm_meta(cons
  * Set the minimum defaults into norm_meta. Originally created to synthesize norm_meta for incomplete compaction.
  */
 void ensure_timeseries_norm_meta(
-    arcticdb::proto::descriptors::NormalizationMetadata& norm_meta, const StreamId& stream_id, bool set_tz
+    arcticdb::proto::descriptors::NormalizationMetadata& norm_meta,
+    const StreamId& stream_id,
+    bool set_tz
 ) {
     if (norm_meta.input_type_case() == arcticdb::proto::descriptors::NormalizationMetadata::INPUT_TYPE_NOT_SET) {
         norm_meta.CopyFrom(make_timeseries_norm_meta(stream_id));
@@ -58,7 +60,8 @@ void ensure_timeseries_norm_meta(
 }
 
 void ensure_rowcount_norm_meta(
-    arcticdb::proto::descriptors::NormalizationMetadata& norm_meta, const StreamId& stream_id
+    arcticdb::proto::descriptors::NormalizationMetadata& norm_meta,
+    const StreamId& stream_id
 ) {
     if (norm_meta.input_type_case() == arcticdb::proto::descriptors::NormalizationMetadata::INPUT_TYPE_NOT_SET) {
         norm_meta.CopyFrom(make_rowcount_norm_meta(stream_id));

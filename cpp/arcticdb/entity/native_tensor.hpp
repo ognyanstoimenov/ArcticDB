@@ -211,7 +211,14 @@ struct TypedTensor : public NativeTensor {
     /// expanded_dim
     TypedTensor(const shape_t* shapes, ssize_t ndim, DataType dt, ssize_t elsize, const T* data, ssize_t expanded_dim)
         : NativeTensor(
-              calc_elements(shapes, ndim) * itemsize(), ndim, nullptr, shapes, dt, elsize, data, expanded_dim
+              calc_elements(shapes, ndim) * itemsize(),
+              ndim,
+              nullptr,
+              shapes,
+              dt,
+              elsize,
+              data,
+              expanded_dim
           ) {}
 
     explicit TypedTensor(const NativeTensor& tensor) : NativeTensor(tensor) {}

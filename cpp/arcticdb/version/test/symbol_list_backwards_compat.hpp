@@ -11,7 +11,9 @@ namespace arcticdb {
 using BackwardsCompatCollectionType = std::set<StreamId>;
 
 void backwards_compat_read_list_from_storage(
-    const std::shared_ptr<StreamSource>& store, const AtomKey& key, BackwardsCompatCollectionType& symbols
+    const std::shared_ptr<StreamSource>& store,
+    const AtomKey& key,
+    BackwardsCompatCollectionType& symbols
 ) {
     ARCTICDB_DEBUG(log::version(), "Reading list from storage with key {}", key);
     auto key_seg = store->read(key).get().second;
@@ -61,7 +63,8 @@ std::vector<AtomKey> backwards_compat_get_all_symbol_list_keys(const std::shared
 }
 
 BackwardsCompatCollectionType backwards_compat_load(
-    const std::shared_ptr<StreamSource>& store, const std::vector<AtomKey>& keys
+    const std::shared_ptr<StreamSource>& store,
+    const std::vector<AtomKey>& keys
 ) {
     BackwardsCompatCollectionType symbols{};
     for (const auto& key : keys) {
@@ -88,7 +91,8 @@ BackwardsCompatCollectionType backwards_compat_get_symbols(const std::shared_ptr
 }
 
 inline StreamDescriptor backwards_compat_symbol_stream_descriptor(
-    const StreamId& stream_id, const StreamId& type_holder
+    const StreamId& stream_id,
+    const StreamId& type_holder
 ) {
     auto data_type = std::holds_alternative<StringId>(type_holder) ? DataType::ASCII_DYNAMIC64 : DataType::UINT64;
     return StreamDescriptor{stream_descriptor(stream_id, RowCountIndex(), {scalar_field(data_type, "symbol")})};
@@ -155,7 +159,10 @@ folly::Future<VariantKey> backwards_compat_write(
 
 // Very old internal ArcticDB clients (2021) wrote non-zero version IDs in symbol list entries. This API supports that.
 void extremely_backwards_compat_write_journal(
-    const std::shared_ptr<Store>& store, const StreamId& symbol, const std::string& action, VersionId version_id
+    const std::shared_ptr<Store>& store,
+    const StreamId& symbol,
+    const std::string& action,
+    VersionId version_id
 ) {
     SegmentInMemory seg{backward_compat_journal_stream_descriptor(action, symbol)};
     util::variant_match(
@@ -177,13 +184,17 @@ void extremely_backwards_compat_write_journal(
 
 // Internal ArcticDB clients (2021) write symbol list entries with an obsolete schema, and always with version ID 0.
 void backwards_compat_write_journal(
-    const std::shared_ptr<Store>& store, const StreamId& symbol, const std::string& action
+    const std::shared_ptr<Store>& store,
+    const StreamId& symbol,
+    const std::string& action
 ) {
     extremely_backwards_compat_write_journal(store, symbol, action, 0);
 }
 
 void backwards_compat_compact(
-    const std::shared_ptr<Store>& store, std::vector<AtomKey>&& old_keys, const BackwardsCompatCollectionType& symbols
+    const std::shared_ptr<Store>& store,
+    std::vector<AtomKey>&& old_keys,
+    const BackwardsCompatCollectionType& symbols
 ) {
     auto compacted_key =
         backwards_compat_write(store, symbols, StreamId{std::string{CompactionId}}, timestamp(12), StringId{}).get();

@@ -139,7 +139,9 @@ inline MemorySummary get_memory_use_summary() {
 }
 
 inline void print_total_mem_usage(
-    const char* file ARCTICDB_UNUSED, int line ARCTICDB_UNUSED, const char* function ARCTICDB_UNUSED
+    const char* file ARCTICDB_UNUSED,
+    int line ARCTICDB_UNUSED,
+    const char* function ARCTICDB_UNUSED
 ) {
 #if defined(_WIN32) || defined(__APPLE__)
     ARCTICDB_RUNTIME_DEBUG(log::memory(), "print_total_mem_usage not implemented on Windows or Apple");

@@ -276,7 +276,9 @@ folly::Future<entity::AtomKey> append_frame(
 /// certain row or from a certain row to the end. Thus the row range will always be
 /// either [0, row) or [row, end).
 static RowRange partial_rewrite_row_range(
-    const SegmentInMemory& segment, const IndexRange& range, AffectedSegmentPart affected_end
+    const SegmentInMemory& segment,
+    const IndexRange& range,
+    AffectedSegmentPart affected_end
 ) {
     if (affected_end == AffectedSegmentPart::START) {
         const timestamp start = std::get<timestamp>(range.start_);
@@ -325,7 +327,8 @@ std::optional<SliceAndKey> rewrite_partial_segment(
 }
 
 std::vector<SliceAndKey> flatten_and_fix_rows(
-    const std::array<std::vector<SliceAndKey>, 5>& groups, size_t& global_count
+    const std::array<std::vector<SliceAndKey>, 5>& groups,
+    size_t& global_count
 ) {
     std::vector<SliceAndKey> output;
     output.reserve(groups.size());

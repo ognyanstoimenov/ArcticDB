@@ -112,7 +112,9 @@ std::vector<std::vector<size_t>> structure_by_row_slice(std::vector<T>& ranges) 
 
 template<ResampleBoundary closed_boundary>
 bool index_range_outside_bucket_range(
-    timestamp start_index, timestamp end_index, const std::vector<timestamp>& bucket_boundaries
+    timestamp start_index,
+    timestamp end_index,
+    const std::vector<timestamp>& bucket_boundaries
 ) {
     if constexpr (closed_boundary == ResampleBoundary::LEFT) {
         return start_index >= bucket_boundaries.back() || end_index < bucket_boundaries.front();
@@ -152,7 +154,8 @@ void advance_boundary_past_value(
 template<ResampleBoundary closed_boundary, typename T>
 requires std::is_same_v<T, RangesAndKey> || std::is_same_v<T, RangesAndEntity>
 std::vector<std::vector<size_t>> structure_by_time_bucket(
-    std::vector<T>& ranges, const std::vector<timestamp>& bucket_boundaries
+    std::vector<T>& ranges,
+    const std::vector<timestamp>& bucket_boundaries
 ) {
     std::erase_if(ranges, [&bucket_boundaries](const T& range) {
         auto start_index = range.start_time();
@@ -209,11 +212,13 @@ std::vector<std::vector<size_t>> structure_by_time_bucket(
 }
 
 std::vector<std::vector<EntityId>> structure_by_row_slice(
-    ComponentManager& component_manager, std::vector<std::vector<EntityId>>&& entity_ids_vec
+    ComponentManager& component_manager,
+    std::vector<std::vector<EntityId>>&& entity_ids_vec
 );
 
 std::vector<std::vector<EntityId>> offsets_to_entity_ids(
-    const std::vector<std::vector<size_t>>& offsets, const std::vector<RangesAndEntity>& ranges_and_entities
+    const std::vector<std::vector<size_t>>& offsets,
+    const std::vector<RangesAndEntity>& ranges_and_entities
 );
 
 /*
@@ -249,7 +254,9 @@ ProcessingUnit gather_entities(ComponentManager& component_manager, std::vector<
 }
 
 std::vector<EntityId> push_entities(
-    ComponentManager& component_manager, ProcessingUnit&& proc, EntityFetchCount entity_fetch_count = 1
+    ComponentManager& component_manager,
+    ProcessingUnit&& proc,
+    EntityFetchCount entity_fetch_count = 1
 );
 
 std::vector<EntityId> flatten_entities(std::vector<std::vector<EntityId>>&& entity_ids_vec);

@@ -87,7 +87,9 @@ class MetaBuffer {
 } // namespace
 
 std::optional<google::protobuf::Any> decode_metadata(
-    const SegmentHeader& hdr, const uint8_t*& data, const uint8_t* begin ARCTICDB_UNUSED
+    const SegmentHeader& hdr,
+    const uint8_t*& data,
+    const uint8_t* begin ARCTICDB_UNUSED
 ) {
     if (hdr.has_metadata_field()) {
         hdr.metadata_field().validate();
@@ -111,7 +113,10 @@ std::optional<google::protobuf::Any> decode_metadata(
 }
 
 void decode_metadata(
-    const SegmentHeader& hdr, const uint8_t*& data, const uint8_t* begin ARCTICDB_UNUSED, SegmentInMemory& res
+    const SegmentHeader& hdr,
+    const uint8_t*& data,
+    const uint8_t* begin ARCTICDB_UNUSED,
+    SegmentInMemory& res
 ) {
     auto maybe_any = decode_metadata(hdr, data, begin);
     if (maybe_any) {
@@ -135,7 +140,9 @@ std::optional<google::protobuf::Any> decode_metadata_from_segment(const Segment&
 }
 
 EncodedFieldCollection decode_encoded_fields(
-    const SegmentHeader& hdr, const uint8_t* data, const uint8_t* begin ARCTICDB_UNUSED
+    const SegmentHeader& hdr,
+    const uint8_t* data,
+    const uint8_t* begin ARCTICDB_UNUSED
 ) {
     ARCTICDB_TRACE(log::codec(), "Decoding encoded fields");
 
@@ -174,7 +181,10 @@ SegmentDescriptorImpl read_segment_descriptor(const uint8_t*& data) {
 }
 
 std::shared_ptr<FieldCollection> decode_index_fields(
-    const SegmentHeader& hdr, const uint8_t*& data, const uint8_t* begin ARCTICDB_UNUSED, const uint8_t* end
+    const SegmentHeader& hdr,
+    const uint8_t*& data,
+    const uint8_t* begin ARCTICDB_UNUSED,
+    const uint8_t* end
 ) {
     auto fields = std::make_shared<FieldCollection>();
     if (hdr.has_index_descriptor_field() && hdr.index_descriptor_field().has_ndarray()) {
@@ -209,7 +219,10 @@ inline arcticdb::proto::descriptors::FrameMetadata frame_metadata_from_any(const
 } // namespace
 
 std::optional<FieldCollection> decode_descriptor_fields(
-    const SegmentHeader& hdr, const uint8_t*& data, const uint8_t* begin ARCTICDB_UNUSED, const uint8_t* end
+    const SegmentHeader& hdr,
+    const uint8_t*& data,
+    const uint8_t* begin ARCTICDB_UNUSED,
+    const uint8_t* end
 ) {
     if (hdr.has_descriptor_field()) {
         ARCTICDB_TRACE(log::codec(), "Decoding index fields");
@@ -226,7 +239,9 @@ std::optional<FieldCollection> decode_descriptor_fields(
 }
 
 TimeseriesDescriptor unpack_timeseries_descriptor_from_proto(
-    const google::protobuf::Any& any, const StreamDescriptor& stream_desc, bool is_decoding_incompletes
+    const google::protobuf::Any& any,
+    const StreamDescriptor& stream_desc,
+    bool is_decoding_incompletes
 ) {
 
     auto tsd = timeseries_descriptor_from_any(any);
@@ -251,7 +266,10 @@ TimeseriesDescriptor unpack_timeseries_descriptor_from_proto(
 }
 
 std::optional<TimeseriesDescriptor> decode_timeseries_descriptor_v1(
-    const SegmentHeader& hdr, const uint8_t* data, const uint8_t* begin, const StreamDescriptor& descriptor
+    const SegmentHeader& hdr,
+    const uint8_t* data,
+    const uint8_t* begin,
+    const StreamDescriptor& descriptor
 ) {
     auto maybe_any = decode_metadata(hdr, data, begin);
     if (!maybe_any)
@@ -270,7 +288,10 @@ void skip_descriptor(const uint8_t*& data, const SegmentHeader& hdr) {
 }
 
 std::optional<TimeseriesDescriptor> decode_timeseries_descriptor_v2(
-    const SegmentHeader& hdr, const uint8_t* data, const uint8_t* begin, const uint8_t* end
+    const SegmentHeader& hdr,
+    const uint8_t* data,
+    const uint8_t* begin,
+    const uint8_t* end
 ) {
     util::check_magic<MetadataMagic>(data);
 
@@ -549,7 +570,10 @@ void decode_v1(
 }
 
 void decode_into_memory_segment(
-    const Segment& segment, SegmentHeader& hdr, SegmentInMemory& res, const StreamDescriptor& desc
+    const Segment& segment,
+    SegmentHeader& hdr,
+    SegmentInMemory& res,
+    const StreamDescriptor& desc
 ) {
     if (EncodingVersion(segment.header().encoding_version()) == EncodingVersion::V2)
         decode_v2(segment, hdr, res, desc);
@@ -622,7 +646,9 @@ HashedValue get_segment_hash(Segment& seg) {
 }
 
 void add_bitmagic_compressed_size(
-    const ColumnData& column_data, size_t& max_compressed_bytes, size_t& uncompressed_bytes
+    const ColumnData& column_data,
+    size_t& max_compressed_bytes,
+    size_t& uncompressed_bytes
 ) {
     if (column_data.bit_vector() != nullptr && column_data.bit_vector()->count() > 0) {
         bm::serializer<util::BitMagic>::statistics_type stat{};

@@ -119,7 +119,8 @@ class ComponentManager {
     // Get a collection of entities. Returns a tuple of vectors, one for each component requested via Args
     template<class... Args>
     std::tuple<std::vector<Args>...> get_entities(
-        const std::vector<EntityId>& ids, const bool decrement_fetch_count = true
+        const std::vector<EntityId>& ids,
+        const bool decrement_fetch_count = true
     ) {
         std::vector<std::tuple<Args...>> tuple_res;
         tuple_res.reserve(ids.size());

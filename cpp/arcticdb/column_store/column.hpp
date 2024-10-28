@@ -80,7 +80,9 @@ void initialise_output_column(const Column& input_column, Column& output_column)
 void initialise_output_column(const Column& left_input_column, const Column& right_input_column, Column& output_column);
 
 void initialise_output_bitset(
-    const util::BitSet& input_bitset, bool sparse_missing_value_output, util::BitSet& output_bitset
+    const util::BitSet& input_bitset,
+    bool sparse_missing_value_output,
+    util::BitSet& output_bitset
 );
 
 class Column {
@@ -411,7 +413,11 @@ class Column {
     void string_array_epilogue(size_t num_strings);
 
     void set_string_array(
-        ssize_t row_offset, size_t string_size, size_t num_strings, char* input, StringPool& string_pool
+        ssize_t row_offset,
+        size_t string_size,
+        size_t num_strings,
+        char* input,
+        StringPool& string_pool
     );
     void set_string_list(ssize_t row_offset, const std::vector<std::string>& input, StringPool& string_pool);
 
@@ -659,13 +665,16 @@ class Column {
     }
 
     [[nodiscard]] static std::vector<std::shared_ptr<Column>> split(
-        const std::shared_ptr<Column>& column, size_t num_rows
+        const std::shared_ptr<Column>& column,
+        size_t num_rows
     );
     /// @brief Produces a new column containing only the data in range [start_row, end_row)
     /// @param[in] start_row Inclusive start of the row range
     /// @param[in] end_row Exclusive end of the row range
     [[nodiscard]] static std::shared_ptr<Column> truncate(
-        const std::shared_ptr<Column>& column, size_t start_row, size_t end_row
+        const std::shared_ptr<Column>& column,
+        size_t start_row,
+        size_t end_row
     );
 
     template<typename input_tdt, typename functor>
@@ -717,7 +726,10 @@ class Column {
         typename left_input_tdt::DataTypeTag::raw_type,
         typename right_input_tdt::DataTypeTag::raw_type>
     static void transform(
-        const Column& left_input_column, const Column& right_input_column, Column& output_column, functor&& f
+        const Column& left_input_column,
+        const Column& right_input_column,
+        Column& output_column,
+        functor&& f
     ) {
         auto left_input_data = left_input_column.data();
         auto right_input_data = right_input_column.data();
@@ -785,7 +797,10 @@ class Column {
 
     template<typename input_tdt, std::predicate<typename input_tdt::DataTypeTag::raw_type> functor>
     static void transform(
-        const Column& input_column, util::BitSet& output_bitset, bool sparse_missing_value_output, functor&& f
+        const Column& input_column,
+        util::BitSet& output_bitset,
+        bool sparse_missing_value_output,
+        functor&& f
     ) {
         if (input_column.is_sparse()) {
             initialise_output_bitset(input_column.sparse_map(), sparse_missing_value_output, output_bitset);

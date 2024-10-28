@@ -92,7 +92,8 @@ void adjust_slice_rowcounts(const std::shared_ptr<pipelines::PipelineContext>& p
 }
 
 size_t adjust_slice_rowcounts(
-    std::vector<pipelines::SliceAndKey>& slice_and_keys, const std::optional<size_t>& first_row
+    std::vector<pipelines::SliceAndKey>& slice_and_keys,
+    const std::optional<size_t>& first_row
 ) {
     using namespace arcticdb::pipelines;
     if (slice_and_keys.empty())

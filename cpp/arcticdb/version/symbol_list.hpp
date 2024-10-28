@@ -29,7 +29,9 @@ struct SymbolListData {
     std::atomic<bool> warned_expected_slowdown_ = false;
 
     explicit SymbolListData(
-        std::shared_ptr<VersionMap> version_map, StreamId type_indicator = StringId(), uint32_t seed = 0
+        std::shared_ptr<VersionMap> version_map,
+        StreamId type_indicator = StringId(),
+        uint32_t seed = 0
     );
 };
 
@@ -108,7 +110,9 @@ struct SymbolVectorResult {
 };
 
 ProblematicResult is_problematic(
-    const SymbolListEntry& existing, const std::vector<SymbolEntryData>& updated, timestamp min_allowed_interval
+    const SymbolListEntry& existing,
+    const std::vector<SymbolEntryData>& updated,
+    timestamp min_allowed_interval
 );
 
 ProblematicResult is_problematic(const std::vector<SymbolEntryData>& updated, timestamp min_allowed_interval);
@@ -118,12 +122,16 @@ class SymbolList {
 
   public:
     explicit SymbolList(
-        std::shared_ptr<VersionMap> version_map, StreamId type_indicator = StringId(), uint32_t seed = 0
+        std::shared_ptr<VersionMap> version_map,
+        StreamId type_indicator = StringId(),
+        uint32_t seed = 0
     )
         : data_(std::move(version_map), std::move(type_indicator), seed) {}
 
     std::set<StreamId> load(
-        const std::shared_ptr<VersionMap>& version_map, const std::shared_ptr<Store>& store, bool no_compaction
+        const std::shared_ptr<VersionMap>& version_map,
+        const std::shared_ptr<Store>& store,
+        bool no_compaction
     );
 
     std::vector<StreamId> get_symbols(const std::shared_ptr<Store>& store, bool no_compaction = false) {
@@ -140,7 +148,9 @@ class SymbolList {
     static void add_symbol(const std::shared_ptr<Store>& store, const StreamId& symbol, entity::VersionId reference_id);
 
     static void remove_symbol(
-        const std::shared_ptr<Store>& store, const StreamId& symbol, entity::VersionId reference_id
+        const std::shared_ptr<Store>& store,
+        const StreamId& symbol,
+        entity::VersionId reference_id
     );
 
     static void clear(const std::shared_ptr<Store>& store);
@@ -152,7 +162,9 @@ class SymbolList {
 };
 
 std::vector<Store::RemoveKeyResultType> delete_keys(
-    const std::shared_ptr<Store>& store, std::vector<AtomKey>&& remove, const AtomKey& exclude
+    const std::shared_ptr<Store>& store,
+    std::vector<AtomKey>&& remove,
+    const AtomKey& exclude
 );
 
 struct WriteSymbolTask : async::BaseTask {

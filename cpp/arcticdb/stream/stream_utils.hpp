@@ -199,7 +199,9 @@ class KeyRangeIterator : public IndexRangeFilter {
 };
 
 inline auto generate_segments_from_keys(
-    arcticdb::stream::StreamSource& read_store, std::size_t prefetch_window, const storage::ReadKeyOpts& opts
+    arcticdb::stream::StreamSource& read_store,
+    std::size_t prefetch_window,
+    const storage::ReadKeyOpts& opts
 ) {
     using namespace folly::gen;
     return map([&read_store](auto&& key) {
@@ -254,7 +256,8 @@ inline auto generate_keys_from_segments(
 
 template<typename SegmentIteratorType>
 std::optional<KeyMemSegmentPair> next_non_empty_segment(
-    SegmentIteratorType& iterator_segments, folly::Duration timeout
+    SegmentIteratorType& iterator_segments,
+    folly::Duration timeout
 ) {
     std::optional<KeyMemSegmentPair> ks_pair;
     while (!ks_pair) {
@@ -354,7 +357,8 @@ class KeysFromSegIterator : public IndexRangeFilter {
 };
 
 inline std::set<StreamId> filter_by_regex(
-    const std::set<StreamId>& results, const std::optional<std::string>& opt_regex
+    const std::set<StreamId>& results,
+    const std::optional<std::string>& opt_regex
 ) {
     if (!opt_regex) {
         return results;
@@ -412,7 +416,11 @@ inline IndexRange get_range_from_segment(const Index& index, const SegmentInMemo
 
 template<typename ClockType>
 storage::KeySegmentPair make_target_key(
-    KeyType key_type, const StreamId& stream_id, VersionId version_id, const VariantKey& source_key, Segment&& segment
+    KeyType key_type,
+    const StreamId& stream_id,
+    VersionId version_id,
+    const VariantKey& source_key,
+    Segment&& segment
 ) {
     if (is_ref_key_class(key_type)) {
         return {RefKey{stream_id, key_type}, std::move(segment)};

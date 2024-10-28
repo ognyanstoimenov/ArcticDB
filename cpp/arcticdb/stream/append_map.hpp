@@ -24,7 +24,8 @@ using FilterRange = std::variant<std::monostate, IndexRange, RowRange>;
 namespace arcticdb {
 
 std::pair<std::optional<entity::AtomKey>, size_t> read_head(
-    const std::shared_ptr<stream::StreamSource>& store, StreamId stream_id
+    const std::shared_ptr<stream::StreamSource>& store,
+    StreamId stream_id
 );
 
 std::set<StreamId> get_incomplete_refs(const std::shared_ptr<Store>& store);
@@ -78,6 +79,8 @@ SegmentInMemory incomplete_segment_from_frame(
 std::optional<int64_t> latest_incomplete_timestamp(const std::shared_ptr<Store>& store, const StreamId& stream_id);
 
 std::vector<VariantKey> read_incomplete_keys_for_symbol(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, bool via_iteration
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    bool via_iteration
 );
 } // namespace arcticdb

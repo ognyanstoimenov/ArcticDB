@@ -40,7 +40,8 @@ bool trivially_compatible_types(const entity::TypeDescriptor& left, const entity
 }
 
 std::optional<entity::TypeDescriptor> has_valid_type_promotion(
-    const entity::TypeDescriptor& source, const entity::TypeDescriptor& target
+    const entity::TypeDescriptor& source,
+    const entity::TypeDescriptor& target
 ) {
 
     if (source.dimension() != target.dimension()) {
@@ -130,7 +131,8 @@ std::optional<entity::TypeDescriptor> has_valid_type_promotion(
 }
 
 std::optional<entity::TypeDescriptor> has_valid_common_type(
-    const entity::TypeDescriptor& left, const entity::TypeDescriptor& right
+    const entity::TypeDescriptor& left,
+    const entity::TypeDescriptor& right
 ) {
     auto maybe_common_type = has_valid_type_promotion(left, right);
     if (!maybe_common_type) {

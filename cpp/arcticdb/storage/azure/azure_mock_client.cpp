@@ -33,7 +33,9 @@ std::string MockAzureClient::get_failure_trigger(
 }
 
 Azure::Core::RequestFailedException get_exception(
-    const std::string& message, const std::string& error_code, Azure::Core::Http::HttpStatusCode status_code
+    const std::string& message,
+    const std::string& error_code,
+    Azure::Core::Http::HttpStatusCode status_code
 ) {
     auto rawResponse = std::make_unique<Azure::Core::Http::RawResponse>(0, 0, status_code, message);
     rawResponse->SetHeader("x-ms-error-code", error_code);
@@ -44,7 +46,8 @@ Azure::Core::RequestFailedException get_exception(
 }
 
 std::optional<Azure::Core::RequestFailedException> has_failure_trigger(
-    const std::string& blob_name, StorageOperation operation
+    const std::string& blob_name,
+    StorageOperation operation
 ) {
     auto failure_string_for_operation = "#Failure_" + operation_to_string(operation) + "_";
     auto position = blob_name.rfind(failure_string_for_operation);
@@ -86,7 +89,9 @@ void MockAzureClient::write_blob(
 }
 
 Segment MockAzureClient::read_blob(
-    const std::string& blob_name, const Azure::Storage::Blobs::DownloadBlobToOptions&, unsigned int
+    const std::string& blob_name,
+    const Azure::Storage::Blobs::DownloadBlobToOptions&,
+    unsigned int
 ) {
 
     auto maybe_exception = has_failure_trigger(blob_name, StorageOperation::READ);

@@ -31,7 +31,10 @@ class DynamicStringReducer {
 
   public:
     DynamicStringReducer(
-        DecodePathData shared_data, PythonHandlerData& handler_data, PyObject** ptr_dest_, size_t total_rows
+        DecodePathData shared_data,
+        PythonHandlerData& handler_data,
+        PyObject** ptr_dest_,
+        size_t total_rows
     );
 
     void reduce(

@@ -85,7 +85,8 @@ bool IndexSegmentReader::is_pickled() const {
 bool IndexSegmentReader::has_timestamp_index() const { return tsd().index().type_ == IndexDescriptor::Type::TIMESTAMP; }
 
 void check_column_and_date_range_filterable(
-    const pipelines::index::IndexSegmentReader& index_segment_reader, const ReadQuery& read_query
+    const pipelines::index::IndexSegmentReader& index_segment_reader,
+    const ReadQuery& read_query
 ) {
     util::check(
         !index_segment_reader.is_pickled() ||

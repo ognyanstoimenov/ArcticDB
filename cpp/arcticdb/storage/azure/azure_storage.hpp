@@ -74,7 +74,8 @@ inline arcticdb::proto::storage::VariantStorage pack_config(const std::string& c
 }
 
 inline arcticdb::proto::storage::VariantStorage pack_config(
-    const std::string& container_name, const std::string& endpoint
+    const std::string& container_name,
+    const std::string& endpoint
 ) {
     arcticdb::proto::storage::VariantStorage output;
     arcticdb::proto::azure_storage::Config cfg;

@@ -373,7 +373,9 @@ class SortedAggregator {
 
     template<DataType input_data_type, typename Aggregator, typename T>
     void push_to_aggregator(
-        Aggregator& bucket_aggregator, T value, ARCTICDB_UNUSED const ColumnWithStrings& column_with_strings
+        Aggregator& bucket_aggregator,
+        T value,
+        ARCTICDB_UNUSED const ColumnWithStrings& column_with_strings
     ) const {
         if constexpr (is_time_type(input_data_type) && aggregation_operator == AggregationOperator::COUNT) {
             bucket_aggregator.template push<timestamp, true>(value);

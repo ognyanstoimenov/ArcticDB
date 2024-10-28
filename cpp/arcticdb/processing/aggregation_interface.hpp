@@ -25,7 +25,9 @@ struct IGroupingAggregatorData {
             folly::poly_call<1>(*this, input_column, groups, unique_values);
         }
         [[nodiscard]] SegmentInMemory finalize(
-            const ColumnName& output_column_name, bool dynamic_schema, size_t unique_values
+            const ColumnName& output_column_name,
+            bool dynamic_schema,
+            size_t unique_values
         ) {
             return folly::poly_call<2>(*this, output_column_name, dynamic_schema, unique_values);
         }

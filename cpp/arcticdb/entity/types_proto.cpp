@@ -83,7 +83,9 @@ DataType data_type_from_proto(const arcticdb::proto::descriptors::TypeDescriptor
 }
 
 arcticdb::proto::descriptors::StreamDescriptor_FieldDescriptor field_proto(
-    DataType dt, Dimension dim, std::string_view name
+    DataType dt,
+    Dimension dim,
+    std::string_view name
 ) {
     arcticdb::proto::descriptors::StreamDescriptor_FieldDescriptor output;
     if (!name.empty())

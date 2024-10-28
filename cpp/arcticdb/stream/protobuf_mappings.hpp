@@ -28,11 +28,14 @@ arcticdb::proto::descriptors::NormalizationMetadata make_timeseries_norm_meta(co
 arcticdb::proto::descriptors::NormalizationMetadata make_rowcount_norm_meta(const StreamId& stream_id);
 
 void ensure_timeseries_norm_meta(
-    arcticdb::proto::descriptors::NormalizationMetadata& norm_meta, const StreamId& stream_id, bool set_tz
+    arcticdb::proto::descriptors::NormalizationMetadata& norm_meta,
+    const StreamId& stream_id,
+    bool set_tz
 );
 
 void ensure_rowcount_norm_meta(
-    arcticdb::proto::descriptors::NormalizationMetadata& norm_meta, const StreamId& stream_id
+    arcticdb::proto::descriptors::NormalizationMetadata& norm_meta,
+    const StreamId& stream_id
 );
 
 FrameDescriptorImpl frame_descriptor_from_proto(arcticdb::proto::descriptors::TimeSeriesDescriptor& tsd);

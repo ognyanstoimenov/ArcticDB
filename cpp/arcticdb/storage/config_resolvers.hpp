@@ -30,7 +30,8 @@ class ConfigResolver {
         const EnvironmentName& environment_name
     ) const = 0;
     virtual void add_library(
-        const EnvironmentName& environment_name, const arcticdb::proto::storage::LibraryDescriptor& library_descriptor
+        const EnvironmentName& environment_name,
+        const arcticdb::proto::storage::LibraryDescriptor& library_descriptor
     ) = 0;
     virtual void add_storage(
         const EnvironmentName& environment_name,
@@ -77,7 +78,8 @@ class InMemoryConfigResolver final : public ConfigResolver {
     ) const override;
 
     void add_library(
-        const EnvironmentName& environment_name, const arcticdb::proto::storage::LibraryDescriptor& library_descriptor
+        const EnvironmentName& environment_name,
+        const arcticdb::proto::storage::LibraryDescriptor& library_descriptor
     ) override;
     void add_storage(
         const EnvironmentName& environment_name,

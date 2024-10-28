@@ -34,7 +34,12 @@ struct TurboPForBlockCodec<arcticdb::proto::encoding::VariantCodec::TurboPfor::F
 
     template<class T>
     inline static std::size_t encode_block(
-        const T* in, Block& block, HashAccum& hasher, T* t_out, std::size_t out_capacity, std::ptrdiff_t& pos
+        const T* in,
+        Block& block,
+        HashAccum& hasher,
+        T* t_out,
+        std::size_t out_capacity,
+        std::ptrdiff_t& pos
     ) {
         hasher(in, block.count);
         auto* out = reinterpret_cast<std::uint8_t*>(t_out);

@@ -27,21 +27,26 @@ struct StreamSource {
     virtual ~StreamSource() = default;
 
     virtual folly::Future<std::pair<entity::VariantKey, SegmentInMemory>> read(
-        const entity::VariantKey& key, storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
+        const entity::VariantKey& key,
+        storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
     ) = 0;
 
     virtual std::pair<entity::VariantKey, SegmentInMemory> read_sync(
-        const entity::VariantKey& key, storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
+        const entity::VariantKey& key,
+        storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
     ) = 0;
 
     virtual folly::Future<storage::KeySegmentPair> read_compressed(
-        const entity::VariantKey& key, storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
+        const entity::VariantKey& key,
+        storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
     ) = 0;
 
     virtual storage::KeySegmentPair read_compressed_sync(const entity::VariantKey& key, storage::ReadKeyOpts opts) = 0;
 
     virtual void iterate_type(
-        KeyType type, const entity::IterateTypeVisitor& func, const std::string& prefix = std::string{}
+        KeyType type,
+        const entity::IterateTypeVisitor& func,
+        const std::string& prefix = std::string{}
     ) = 0;
 
     virtual bool scan_for_matching_key(KeyType key_type, const IterateTypePredicate& predicate) = 0;
@@ -54,7 +59,8 @@ struct StreamSource {
     using ReadContinuation = folly::Function<entity::VariantKey(storage::KeySegmentPair&&)>;
 
     virtual folly::Future<std::vector<VariantKey>> batch_read_compressed(
-        std::vector<std::pair<entity::VariantKey, ReadContinuation>>&& ks, const BatchReadArgs& args
+        std::vector<std::pair<entity::VariantKey, ReadContinuation>>&& ks,
+        const BatchReadArgs& args
     ) = 0;
 
     [[nodiscard]] virtual std::vector<folly::Future<bool>> batch_key_exists(const std::vector<entity::VariantKey>& keys
@@ -68,18 +74,21 @@ struct StreamSource {
     ) = 0;
 
     virtual folly::Future<std::pair<std::optional<VariantKey>, std::optional<google::protobuf::Any>>> read_metadata(
-        const entity::VariantKey& key, storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
+        const entity::VariantKey& key,
+        storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
     ) = 0;
 
     virtual folly::Future<std::tuple<VariantKey, std::optional<google::protobuf::Any>, StreamDescriptor>>
     read_metadata_and_descriptor(const entity::VariantKey& key, storage::ReadKeyOpts opts = storage::ReadKeyOpts{}) = 0;
 
     virtual folly::Future<std::pair<VariantKey, TimeseriesDescriptor>> read_timeseries_descriptor(
-        const entity::VariantKey& key, storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
+        const entity::VariantKey& key,
+        storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
     ) = 0;
 
     virtual folly::Future<std::pair<VariantKey, TimeseriesDescriptor>> read_timeseries_descriptor_for_incompletes(
-        const entity::VariantKey& key, storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
+        const entity::VariantKey& key,
+        storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
     ) = 0;
 };
 

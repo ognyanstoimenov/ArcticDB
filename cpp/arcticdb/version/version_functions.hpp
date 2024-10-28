@@ -16,7 +16,9 @@
 namespace arcticdb {
 
 inline std::optional<AtomKey> get_latest_undeleted_version(
-    const std::shared_ptr<Store>& store, const std::shared_ptr<VersionMap>& version_map, const StreamId& stream_id
+    const std::shared_ptr<Store>& store,
+    const std::shared_ptr<VersionMap>& version_map,
+    const StreamId& stream_id
 ) {
     ARCTICDB_RUNTIME_SAMPLE(GetLatestUndeletedVersion, 0)
     LoadStrategy load_strategy{LoadType::LATEST, LoadObjective::UNDELETED_ONLY};
@@ -25,7 +27,9 @@ inline std::optional<AtomKey> get_latest_undeleted_version(
 }
 
 inline std::pair<std::optional<AtomKey>, bool> get_latest_version(
-    const std::shared_ptr<Store>& store, const std::shared_ptr<VersionMap>& version_map, const StreamId& stream_id
+    const std::shared_ptr<Store>& store,
+    const std::shared_ptr<VersionMap>& version_map,
+    const StreamId& stream_id
 ) {
     ARCTICDB_SAMPLE(GetLatestVersion, 0)
     LoadStrategy load_strategy{LoadType::LATEST, LoadObjective::INCLUDE_DELETED};
@@ -36,7 +40,9 @@ inline std::pair<std::optional<AtomKey>, bool> get_latest_version(
 // The next version ID returned will be 0 for brand new symbols, or one greater than the largest ever version created so
 // far
 inline version_store::UpdateInfo get_latest_undeleted_version_and_next_version_id(
-    const std::shared_ptr<Store>& store, const std::shared_ptr<VersionMap>& version_map, const StreamId& stream_id
+    const std::shared_ptr<Store>& store,
+    const std::shared_ptr<VersionMap>& version_map,
+    const StreamId& stream_id
 ) {
     ARCTICDB_SAMPLE(GetLatestUndeletedVersionAndHighestVersionId, 0)
     LoadStrategy load_strategy{LoadType::LATEST, LoadObjective::UNDELETED_ONLY};
@@ -48,7 +54,9 @@ inline version_store::UpdateInfo get_latest_undeleted_version_and_next_version_i
 }
 
 inline std::vector<AtomKey> get_all_versions(
-    const std::shared_ptr<Store>& store, const std::shared_ptr<VersionMap>& version_map, const StreamId& stream_id
+    const std::shared_ptr<Store>& store,
+    const std::shared_ptr<VersionMap>& version_map,
+    const StreamId& stream_id
 ) {
     ARCTICDB_SAMPLE(GetAllVersions, 0)
     LoadStrategy load_strategy{LoadType::ALL, LoadObjective::UNDELETED_ONLY};
@@ -116,7 +124,9 @@ inline bool get_matching_prev_and_next_versions(
 }
 
 inline bool has_undeleted_version(
-    const std::shared_ptr<Store>& store, const std::shared_ptr<VersionMap>& version_map, const StreamId& id
+    const std::shared_ptr<Store>& store,
+    const std::shared_ptr<VersionMap>& version_map,
+    const StreamId& id
 ) {
     auto maybe_undeleted = get_latest_undeleted_version(store, version_map, id);
     return static_cast<bool>(maybe_undeleted);
@@ -134,7 +144,9 @@ inline void insert_if_undeleted(
 }
 
 inline std::unordered_map<VersionId, bool> get_all_tombstoned_versions(
-    const std::shared_ptr<Store>& store, const std::shared_ptr<VersionMap>& version_map, const StreamId& stream_id
+    const std::shared_ptr<Store>& store,
+    const std::shared_ptr<VersionMap>& version_map,
+    const StreamId& stream_id
 ) {
     LoadStrategy load_strategy{LoadType::ALL, LoadObjective::INCLUDE_DELETED};
     auto entry = version_map->check_reload(store, stream_id, load_strategy, __FUNCTION__);
@@ -224,7 +236,9 @@ inline std::optional<AtomKey> load_index_key_from_time(
 }
 
 inline std::vector<AtomKey> get_index_and_tombstone_keys(
-    const std::shared_ptr<Store>& store, const std::shared_ptr<VersionMap>& version_map, const StreamId& stream_id
+    const std::shared_ptr<Store>& store,
+    const std::shared_ptr<VersionMap>& version_map,
+    const StreamId& stream_id
 ) {
     LoadStrategy load_strategy{LoadType::ALL, LoadObjective::INCLUDE_DELETED};
     const auto entry = version_map->check_reload(store, stream_id, load_strategy, __FUNCTION__);

@@ -161,7 +161,8 @@ std::vector<EntityId> ProjectClause::process(std::vector<EntityId>&& entity_ids)
 }
 
 AggregationClause::AggregationClause(
-    const std::string& grouping_column, const std::vector<NamedAggregator>& named_aggregators
+    const std::string& grouping_column,
+    const std::vector<NamedAggregator>& named_aggregators
 )
     : grouping_column_(grouping_column) {
     clause_info_.input_structure_ = ProcessingStructure::HASH_BUCKETED;
@@ -693,7 +694,9 @@ template<ResampleBoundary closed_boundary>
 
 template<ResampleBoundary closed_boundary>
 std::vector<timestamp> ResampleClause<closed_boundary>::generate_bucket_boundaries(
-    timestamp first_ts, timestamp last_ts, bool responsible_for_first_overlapping_bucket
+    timestamp first_ts,
+    timestamp last_ts,
+    bool responsible_for_first_overlapping_bucket
 ) const {
     auto first_it = std::lower_bound(
         bucket_boundaries_.begin(),
@@ -733,7 +736,8 @@ std::vector<timestamp> ResampleClause<closed_boundary>::generate_bucket_boundari
 
 template<ResampleBoundary closed_boundary>
 std::shared_ptr<Column> ResampleClause<closed_boundary>::generate_output_index_column(
-    const std::vector<std::shared_ptr<Column>>& input_index_columns, const std::vector<timestamp>& bucket_boundaries
+    const std::vector<std::shared_ptr<Column>>& input_index_columns,
+    const std::vector<timestamp>& bucket_boundaries
 ) const {
     constexpr auto data_type = DataType::NANOSECONDS_UTC64;
     using IndexTDT = ScalarTagType<DataTypeTag<data_type>>;

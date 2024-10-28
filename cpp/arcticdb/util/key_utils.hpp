@@ -78,7 +78,10 @@ inline void delete_keys_of_type_if_sync(
 }
 
 inline void delete_keys_of_type_for_stream(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, KeyType key_type, bool continue_on_error = false
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    KeyType key_type,
+    bool continue_on_error = false
 ) {
     auto prefix = std::holds_alternative<StringId>(stream_id) ? std::get<StringId>(stream_id) : std::string();
     auto match_stream_id = [&stream_id](const VariantKey& k) { return variant_key_id(k) == stream_id; };
@@ -86,7 +89,10 @@ inline void delete_keys_of_type_for_stream(
 }
 
 inline void delete_keys_of_type_for_stream_sync(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, KeyType key_type, bool continue_on_error = false
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    KeyType key_type,
+    bool continue_on_error = false
 ) {
     auto prefix = std::holds_alternative<StringId>(stream_id) ? std::get<StringId>(stream_id) : std::string();
     auto match_stream_id = [&stream_id](const VariantKey& k) { return variant_key_id(k) == stream_id; };
@@ -99,7 +105,9 @@ inline void delete_all_keys_of_type(KeyType key_type, const std::shared_ptr<Stor
 }
 
 inline void delete_all_for_stream(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, bool continue_on_error = false
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    bool continue_on_error = false
 ) {
     foreach_key_type([&store, &stream_id, continue_on_error](KeyType key_type) {
         delete_keys_of_type_for_stream(store, stream_id, key_type, continue_on_error);
@@ -117,7 +125,9 @@ template<
     typename KeyContainer,
     typename = std::enable_if<std::is_base_of_v<AtomKey, typename KeyContainer::value_type>>>
 inline std::vector<AtomKey> get_data_keys(
-    const std::shared_ptr<stream::StreamSource>& store, const KeyContainer& keys, storage::ReadKeyOpts opts
+    const std::shared_ptr<stream::StreamSource>& store,
+    const KeyContainer& keys,
+    storage::ReadKeyOpts opts
 ) {
     using KeySupplier = folly::Function<KeyContainer()>;
     using StreamReader = arcticdb::stream::StreamReader<AtomKey, KeySupplier, SegmentInMemory::Row>;
@@ -127,7 +137,9 @@ inline std::vector<AtomKey> get_data_keys(
 }
 
 inline std::vector<AtomKey> get_data_keys(
-    const std::shared_ptr<stream::StreamSource>& store, const AtomKey& key, storage::ReadKeyOpts opts
+    const std::shared_ptr<stream::StreamSource>& store,
+    const AtomKey& key,
+    storage::ReadKeyOpts opts
 ) {
     const std::vector<AtomKey> keys{key};
     return get_data_keys(store, keys, opts);
@@ -190,7 +202,9 @@ template<
     typename KeyContainer,
     typename = std::enable_if<std::is_base_of_v<AtomKey, typename KeyContainer::value_type>>>
 inline ankerl::unordered_dense::set<AtomKey> recurse_index_keys(
-    const std::shared_ptr<stream::StreamSource>& store, const KeyContainer& keys, storage::ReadKeyOpts opts
+    const std::shared_ptr<stream::StreamSource>& store,
+    const KeyContainer& keys,
+    storage::ReadKeyOpts opts
 ) {
     ankerl::unordered_dense::set<AtomKey> res;
     ankerl::unordered_dense::set<AtomKeyPacked> res_packed;
@@ -285,7 +299,10 @@ inline void iterate_keys_of_type_if(
 
 template<class Function>
 inline void iterate_keys_of_type_for_stream(
-    std::shared_ptr<Store> store, KeyType key_type, const StreamId& stream_id, Function&& function
+    std::shared_ptr<Store> store,
+    KeyType key_type,
+    const StreamId& stream_id,
+    Function&& function
 ) {
     auto prefix = std::holds_alternative<StringId>(stream_id) ? std::get<StringId>(stream_id) : std::string();
     auto match_stream_id = [&stream_id](const VariantKey& k) { return variant_key_id(k) == stream_id; };

@@ -89,17 +89,22 @@ class LocalVersionedEngine : public VersionedEngine {
     ) override;
 
     VersionedItem delete_range_internal(
-        const StreamId& stream_id, const UpdateQuery& query, const DeleteRangeOptions& option
+        const StreamId& stream_id,
+        const UpdateQuery& query,
+        const DeleteRangeOptions& option
     ) override;
 
     void append_incomplete_segment(const StreamId& stream_id, SegmentInMemory&& seg) override;
 
     std::pair<VersionedItem, TimeseriesDescriptor> restore_version(
-        const StreamId& id, const VersionQuery& version_query
+        const StreamId& id,
+        const VersionQuery& version_query
     ) override;
 
     void append_incomplete_frame(
-        const StreamId& stream_id, const std::shared_ptr<InputTensorFrame>& frame, bool validate_index
+        const StreamId& stream_id,
+        const std::shared_ptr<InputTensorFrame>& frame,
+        bool validate_index
     ) const override;
 
     void remove_incomplete(const StreamId& stream_id) override;
@@ -107,11 +112,15 @@ class LocalVersionedEngine : public VersionedEngine {
     std::optional<VersionedItem> get_latest_version(const StreamId& stream_id);
 
     std::optional<VersionedItem> get_specific_version(
-        const StreamId& stream_id, SignedVersionId signed_version_id, const VersionQuery& version_query
+        const StreamId& stream_id,
+        SignedVersionId signed_version_id,
+        const VersionQuery& version_query
     );
 
     std::optional<VersionedItem> get_version_at_time(
-        const StreamId& stream_id, timestamp as_of, const VersionQuery& version_query
+        const StreamId& stream_id,
+        timestamp as_of,
+        const VersionQuery& version_query
     );
 
     std::optional<VersionedItem> get_version_from_snapshot(const StreamId& stream_id, const SnapshotId& snap_name);
@@ -131,11 +140,14 @@ class LocalVersionedEngine : public VersionedEngine {
     DescriptorItem read_descriptor_internal(const StreamId& stream_id, const VersionQuery& version_query);
 
     void write_parallel_frame(
-        const StreamId& stream_id, const std::shared_ptr<InputTensorFrame>& frame, bool validate_index
+        const StreamId& stream_id,
+        const std::shared_ptr<InputTensorFrame>& frame,
+        bool validate_index
     ) const override;
 
     void delete_tree(
-        const std::vector<IndexTypeKey>& idx_to_be_deleted, const PreDeleteChecks& checks = default_pre_delete_checks
+        const std::vector<IndexTypeKey>& idx_to_be_deleted,
+        const PreDeleteChecks& checks = default_pre_delete_checks
     ) override {
         auto snapshot_map = get_master_snapshots_map(store());
         delete_trees_responsibly(store(), version_map(), idx_to_be_deleted, snapshot_map, std::nullopt, checks).get();
@@ -184,7 +196,9 @@ class LocalVersionedEngine : public VersionedEngine {
     );
 
     void create_column_stats_internal(
-        const VersionedItem& versioned_item, ColumnStats& column_stats, const ReadOptions& read_options
+        const VersionedItem& versioned_item,
+        ColumnStats& column_stats,
+        const ReadOptions& read_options
     );
 
     void create_column_stats_version_internal(
@@ -195,7 +209,8 @@ class LocalVersionedEngine : public VersionedEngine {
     );
 
     void drop_column_stats_internal(
-        const VersionedItem& versioned_item, const std::optional<ColumnStats>& column_stats_to_drop
+        const VersionedItem& versioned_item,
+        const std::optional<ColumnStats>& column_stats_to_drop
     );
 
     void drop_column_stats_version_internal(
@@ -213,7 +228,9 @@ class LocalVersionedEngine : public VersionedEngine {
     ColumnStats get_column_stats_info_version_internal(const StreamId& stream_id, const VersionQuery& version_query);
 
     VersionedItem write_individual_segment(
-        const StreamId& stream_id, SegmentInMemory&& segment, bool prune_previous_versions
+        const StreamId& stream_id,
+        SegmentInMemory&& segment,
+        bool prune_previous_versions
     ) override;
 
     std::set<StreamId> get_incomplete_symbols() override;
@@ -276,13 +293,15 @@ class LocalVersionedEngine : public VersionedEngine {
     );
 
     std::vector<std::pair<VersionedItem, TimeseriesDescriptor>> batch_restore_version_internal(
-        const std::vector<StreamId>& stream_ids, const std::vector<VersionQuery>& version_queries
+        const std::vector<StreamId>& stream_ids,
+        const std::vector<VersionQuery>& version_queries
     );
 
     timestamp get_update_time_internal(const StreamId& stream_id, const VersionQuery& version_query);
 
     std::vector<timestamp> batch_get_update_times(
-        const std::vector<StreamId>& stream_ids, const std::vector<VersionQuery>& version_queries
+        const std::vector<StreamId>& stream_ids,
+        const std::vector<VersionQuery>& version_queries
     );
 
     std::vector<std::variant<std::pair<VariantKey, std::optional<google::protobuf::Any>>, DataError>>
@@ -293,13 +312,16 @@ class LocalVersionedEngine : public VersionedEngine {
     );
 
     std::pair<std::optional<VariantKey>, std::optional<google::protobuf::Any>> read_metadata_internal(
-        const StreamId& stream_id, const VersionQuery& version_query
+        const StreamId& stream_id,
+        const VersionQuery& version_query
     );
 
     bool is_symbol_fragmented(const StreamId& stream_id, std::optional<size_t> segment_size) override;
 
     VersionedItem defragment_symbol_data(
-        const StreamId& stream_id, std::optional<size_t> segment_size, bool prune_previous_versions
+        const StreamId& stream_id,
+        std::optional<size_t> segment_size,
+        bool prune_previous_versions
     ) override;
 
     StorageLockWrapper get_storage_lock(const StreamId& stream_id) override;
@@ -321,7 +343,9 @@ class LocalVersionedEngine : public VersionedEngine {
     void force_release_lock(const StreamId& name);
 
     std::shared_ptr<DeDupMap> get_de_dup_map(
-        const StreamId& stream_id, const std::optional<AtomKey>& maybe_prev, const WriteOptions& write_options
+        const StreamId& stream_id,
+        const std::optional<AtomKey>& maybe_prev,
+        const WriteOptions& write_options
     );
 
     folly::Future<VersionedItem> write_index_key_to_version_map_async(
@@ -333,7 +357,9 @@ class LocalVersionedEngine : public VersionedEngine {
     );
 
     void write_version_and_prune_previous(
-        bool prune_previous_versions, const AtomKey& new_version, const std::optional<IndexTypeKey>& previous_key
+        bool prune_previous_versions,
+        const AtomKey& new_version,
+        const std::optional<IndexTypeKey>& previous_key
     );
 
     std::vector<std::variant<VersionedItem, DataError>> batch_write_versioned_dataframe_internal(
@@ -345,7 +371,9 @@ class LocalVersionedEngine : public VersionedEngine {
     );
 
     VersionIdAndDedupMapInfo create_version_id_and_dedup_map(
-        const version_store::UpdateInfo&& update_info, const StreamId& stream_id, const WriteOptions& write_options
+        const version_store::UpdateInfo&& update_info,
+        const StreamId& stream_id,
+        const WriteOptions& write_options
     );
 
     std::unordered_map<KeyType, KeySizesInfo> scan_object_sizes();
@@ -384,7 +412,8 @@ class LocalVersionedEngine : public VersionedEngine {
      * @param pruned_indexes Must all share the same id() and should be tombstoned.
      */
     folly::Future<folly::Unit> delete_unreferenced_pruned_indexes(
-        std::vector<AtomKey>&& pruned_indexes, const AtomKey& key_to_keep
+        std::vector<AtomKey>&& pruned_indexes,
+        const AtomKey& key_to_keep
     );
 
     std::shared_ptr<Store>& store() override { return store_; }
@@ -403,13 +432,16 @@ class LocalVersionedEngine : public VersionedEngine {
      * queries that we haven't specified any version.
      */
     SpecificAndLatestVersionKeys get_stream_index_map(
-        const std::vector<StreamId>& stream_ids, const std::vector<VersionQuery>& version_queries
+        const std::vector<StreamId>& stream_ids,
+        const std::vector<VersionQuery>& version_queries
     );
 
   private:
     void initialize(const std::shared_ptr<storage::Library>& library);
     void add_to_symbol_list_on_compaction(
-        const StreamId& stream_id, const CompactIncompleteOptions& options, const UpdateInfo& update_info
+        const StreamId& stream_id,
+        const CompactIncompleteOptions& options,
+        const UpdateInfo& update_info
     );
 
     std::shared_ptr<Store> store_;

@@ -32,7 +32,10 @@ class LibraryManager {
     ARCTICDB_NO_MOVE_OR_COPY(LibraryManager)
 
     void write_library_config(
-        const py::object& lib_cfg, const LibraryPath& path, const StorageOverride& storage_override, bool validate
+        const py::object& lib_cfg,
+        const LibraryPath& path,
+        const StorageOverride& storage_override,
+        bool validate
     ) const;
 
     void modify_library_option(
@@ -42,7 +45,8 @@ class LibraryManager {
     ) const;
 
     [[nodiscard]] py::object get_library_config(
-        const LibraryPath& path, const StorageOverride& storage_override = StorageOverride{}
+        const LibraryPath& path,
+        const StorageOverride& storage_override = StorageOverride{}
     ) const;
 
     // [get_unaltered_library_config] should be used solely for tests and debugging. Hence, it's separated from
@@ -54,7 +58,9 @@ class LibraryManager {
     void remove_library_config(const LibraryPath& path) const;
 
     [[nodiscard]] std::shared_ptr<Library> get_library(
-        const LibraryPath& path, const StorageOverride& storage_override, bool ignore_cache
+        const LibraryPath& path,
+        const StorageOverride& storage_override,
+        bool ignore_cache
     );
 
     void cleanup_library_if_open(const LibraryPath& path);
@@ -65,10 +71,13 @@ class LibraryManager {
 
   private:
     void write_library_config_internal(
-        const arcticdb::proto::storage::LibraryConfig& lib_cfg_proto, const LibraryPath& path, bool validate
+        const arcticdb::proto::storage::LibraryConfig& lib_cfg_proto,
+        const LibraryPath& path,
+        bool validate
     ) const;
     [[nodiscard]] arcticdb::proto::storage::LibraryConfig get_config_internal(
-        const LibraryPath& path, const std::optional<StorageOverride>& storage_override
+        const LibraryPath& path,
+        const std::optional<StorageOverride>& storage_override
     ) const;
 
     std::shared_ptr<Store> store_;

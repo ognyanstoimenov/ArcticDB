@@ -57,15 +57,21 @@ class VersionedEngine {
     ) = 0;
 
     virtual VersionedItem delete_range_internal(
-        const StreamId& stream_id, const UpdateQuery& query, const DeleteRangeOptions& option
+        const StreamId& stream_id,
+        const UpdateQuery& query,
+        const DeleteRangeOptions& option
     ) = 0;
 
     virtual VersionedItem sort_index(
-        const StreamId& stream_id, bool dynamic_schema, bool prune_previous_versions = false
+        const StreamId& stream_id,
+        bool dynamic_schema,
+        bool prune_previous_versions = false
     ) = 0;
 
     virtual void append_incomplete_frame(
-        const StreamId& stream_id, const std::shared_ptr<InputTensorFrame>& frame, bool validate_index
+        const StreamId& stream_id,
+        const std::shared_ptr<InputTensorFrame>& frame,
+        bool validate_index
     ) const = 0;
 
     virtual void append_incomplete_segment(const StreamId& stream_id, SegmentInMemory&& seg) = 0;
@@ -73,7 +79,9 @@ class VersionedEngine {
     virtual void remove_incomplete(const StreamId& stream_id) = 0;
 
     virtual void write_parallel_frame(
-        const StreamId& stream_id, const std::shared_ptr<InputTensorFrame>& frame, bool validate_index
+        const StreamId& stream_id,
+        const std::shared_ptr<InputTensorFrame>& frame,
+        bool validate_index
     ) const = 0;
 
     /**
@@ -84,7 +92,8 @@ class VersionedEngine {
     virtual void delete_tree(const std::vector<IndexTypeKey>& idx_to_be_deleted, const PreDeleteChecks& checks) = 0;
 
     virtual std::pair<VersionedItem, TimeseriesDescriptor> restore_version(
-        const StreamId& id, const VersionQuery& version_query
+        const StreamId& id,
+        const VersionQuery& version_query
     ) = 0;
 
     virtual ReadVersionOutput read_dataframe_version_internal(
@@ -104,7 +113,9 @@ class VersionedEngine {
     ) = 0;
 
     virtual VersionedItem write_individual_segment(
-        const StreamId& stream_id, SegmentInMemory&& segment, bool prune_previous_versions
+        const StreamId& stream_id,
+        SegmentInMemory&& segment,
+        bool prune_previous_versions
     ) = 0;
 
     virtual std::set<StreamId> list_streams_internal(
@@ -128,7 +139,9 @@ class VersionedEngine {
     virtual bool is_symbol_fragmented(const StreamId& stream_id, std::optional<size_t> segment_size) = 0;
 
     virtual VersionedItem defragment_symbol_data(
-        const StreamId& stream_id, std::optional<size_t> segment_size, bool prune_previous_versions
+        const StreamId& stream_id,
+        std::optional<size_t> segment_size,
+        bool prune_previous_versions
     ) = 0;
 
     virtual void move_storage(KeyType key_type, timestamp horizon, size_t storage_index) = 0;

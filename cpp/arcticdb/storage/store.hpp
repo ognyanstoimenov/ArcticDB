@@ -33,11 +33,17 @@ class Store : public stream::StreamSink, public stream::StreamSource, public std
     virtual void move_storage(KeyType key_type, timestamp horizon, size_t storage_index) = 0;
 
     virtual folly::Future<VariantKey> copy(
-        KeyType key_type, const StreamId& stream_id, VersionId version_id, const VariantKey& source_key
+        KeyType key_type,
+        const StreamId& stream_id,
+        VersionId version_id,
+        const VariantKey& source_key
     ) = 0;
 
     virtual VariantKey copy_sync(
-        KeyType key_type, const StreamId& stream_id, VersionId version_id, const VariantKey& source_key
+        KeyType key_type,
+        const StreamId& stream_id,
+        VersionId version_id,
+        const VariantKey& source_key
     ) = 0;
 
     virtual std::string name() const = 0;

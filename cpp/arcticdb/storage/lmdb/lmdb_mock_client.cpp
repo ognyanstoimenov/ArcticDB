@@ -17,7 +17,9 @@
 namespace arcticdb::storage::lmdb {
 
 std::string MockLmdbClient::get_failure_trigger(
-    const std::string& path, StorageOperation operation_to_fail, int error_code
+    const std::string& path,
+    StorageOperation operation_to_fail,
+    int error_code
 ) {
     return fmt::format("{}#Failure_{}_{}", path, operation_to_string(operation_to_fail), error_code);
 }
@@ -89,7 +91,12 @@ std::optional<Segment> MockLmdbClient::read(const std::string& db_name, std::str
 }
 
 void MockLmdbClient::write(
-    const std::string& db_name, std::string& path, arcticdb::Segment&& segment, ::lmdb::txn&, ::lmdb::dbi&, int64_t
+    const std::string& db_name,
+    std::string& path,
+    arcticdb::Segment&& segment,
+    ::lmdb::txn&,
+    ::lmdb::dbi&,
+    int64_t
 ) {
     LmdbKey key = {db_name, path};
     raise_if_has_failure_trigger(key, StorageOperation::WRITE);
@@ -114,7 +121,11 @@ bool MockLmdbClient::remove(const std::string& db_name, std::string& path, ::lmd
 }
 
 std::vector<VariantKey> MockLmdbClient::list(
-    const std::string& db_name, const std::string& prefix, ::lmdb::txn&, ::lmdb::dbi&, KeyType key_type
+    const std::string& db_name,
+    const std::string& prefix,
+    ::lmdb::txn&,
+    ::lmdb::dbi&,
+    KeyType key_type
 ) const {
     std::vector<VariantKey> found_keys;
 

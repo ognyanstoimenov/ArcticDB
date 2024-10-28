@@ -47,7 +47,9 @@ inline void merge_string_column(
 }
 
 inline void merge_string_columns(
-    const SegmentInMemory& segment, const std::shared_ptr<StringPool>& merged_pool, bool verify
+    const SegmentInMemory& segment,
+    const std::shared_ptr<StringPool>& merged_pool,
+    bool verify
 ) {
     for (size_t c = 0; c < segment.descriptor().field_count(); ++c) {
         auto& frame_field = segment.field(c);

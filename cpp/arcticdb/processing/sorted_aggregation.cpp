@@ -230,7 +230,8 @@ DataType SortedAggregator<aggregation_operator, closed_boundary>::generate_outpu
 
 template<AggregationOperator aggregation_operator, ResampleBoundary closed_boundary>
 bool SortedAggregator<aggregation_operator, closed_boundary>::index_value_past_end_of_bucket(
-    timestamp index_value, timestamp bucket_end
+    timestamp index_value,
+    timestamp bucket_end
 ) const {
     if constexpr (closed_boundary == ResampleBoundary::LEFT) {
         return index_value >= bucket_end;

@@ -12,7 +12,10 @@
 
 namespace arcticdb {
 ColumnMapping::ColumnMapping(
-    SegmentInMemory& frame, size_t dst_col, size_t field_col, pipelines::PipelineContextRow& context
+    SegmentInMemory& frame,
+    size_t dst_col,
+    size_t field_col,
+    pipelines::PipelineContextRow& context
 )
     : source_type_desc_(context.descriptor().fields(field_col).type()),
       dest_type_desc_(frame.field(dst_col).type()),
@@ -24,7 +27,8 @@ ColumnMapping::ColumnMapping(
       dest_bytes_(dest_size_ * num_rows_) {}
 
 StaticColumnMappingIterator::StaticColumnMappingIterator(
-    pipelines::PipelineContextRow& context, size_t index_fieldcount
+    pipelines::PipelineContextRow& context,
+    size_t index_fieldcount
 )
     : index_fieldcount_(index_fieldcount),
       field_count_(context.slice_and_key().slice_.col_range.diff() + index_fieldcount),

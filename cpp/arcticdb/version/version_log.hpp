@@ -26,7 +26,10 @@ inline StreamDescriptor log_stream_descriptor(const StreamId& event) {
 };
 
 inline void log_event(
-    const std::shared_ptr<StreamSink>& store, const StreamId& id, std::string action, VersionId version_id = 0
+    const std::shared_ptr<StreamSink>& store,
+    const StreamId& id,
+    std::string action,
+    VersionId version_id = 0
 ) {
     ExponentialBackoff<StorageException>(100, 2000).go([&store, &id, &action, &version_id]() {
         SegmentInMemory seg{log_stream_descriptor(action)};

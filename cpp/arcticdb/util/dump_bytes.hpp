@@ -14,7 +14,10 @@
 // based on this: https://codereview.stackexchange.com/questions/165120/printing-hex-dumps-for-diagnostics
 namespace arcticdb {
 inline std::ostream& hex_dump(
-    std::ostream& os, const void* buffer, std::size_t buf_size, bool show_printable_chars = true
+    std::ostream& os,
+    const void* buffer,
+    std::size_t buf_size,
+    bool show_printable_chars = true
 ) {
     if (buffer == nullptr) {
         return os;

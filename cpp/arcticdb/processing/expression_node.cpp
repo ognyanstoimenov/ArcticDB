@@ -18,7 +18,8 @@
 namespace arcticdb {
 
 [[nodiscard]] std::optional<std::string_view> ColumnWithStrings::string_at_offset(
-    entity::position_t offset, bool strip_fixed_width_trailing_nulls
+    entity::position_t offset,
+    bool strip_fixed_width_trailing_nulls
 ) const {
     if (UNLIKELY(!column_ || !string_pool_))
         return std::nullopt;

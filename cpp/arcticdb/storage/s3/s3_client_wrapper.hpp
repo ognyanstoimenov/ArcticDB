@@ -57,15 +57,20 @@ class S3ClientWrapper {
     virtual S3Result<Segment> get_object(const std::string& s3_object_name, const std::string& bucket_name) const = 0;
 
     virtual S3Result<std::monostate> put_object(
-        const std::string& s3_object_name, Segment&& segment, const std::string& bucket_name
+        const std::string& s3_object_name,
+        Segment&& segment,
+        const std::string& bucket_name
     ) = 0;
 
     virtual S3Result<DeleteOutput> delete_objects(
-        const std::vector<std::string>& s3_object_names, const std::string& bucket_name
+        const std::vector<std::string>& s3_object_names,
+        const std::string& bucket_name
     ) = 0;
 
     virtual S3Result<ListObjectsOutput> list_objects(
-        const std::string& prefix, const std::string& bucket_name, const std::optional<std::string> continuation_token
+        const std::string& prefix,
+        const std::string& bucket_name,
+        const std::optional<std::string> continuation_token
     ) const = 0;
 
     virtual ~S3ClientWrapper() = default;

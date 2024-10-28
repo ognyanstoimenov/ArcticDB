@@ -29,7 +29,9 @@ void initialise_output_column(const Column& input_column, Column& output_column)
 }
 
 void initialise_output_column(
-    const Column& left_input_column, const Column& right_input_column, Column& output_column
+    const Column& left_input_column,
+    const Column& right_input_column,
+    Column& output_column
 ) {
     if (&left_input_column != &output_column && &right_input_column != &output_column) {
         size_t output_physical_rows;
@@ -77,7 +79,9 @@ void initialise_output_column(
 }
 
 void initialise_output_bitset(
-    const util::BitSet& input_bitset, bool sparse_missing_value_output, util::BitSet& output_bitset
+    const util::BitSet& input_bitset,
+    bool sparse_missing_value_output,
+    util::BitSet& output_bitset
 ) {
     if (sparse_missing_value_output) {
         output_bitset = input_bitset;
@@ -215,7 +219,11 @@ void Column::string_array_epilogue(size_t num_strings) {
 }
 
 void Column::set_string_array(
-    ssize_t row_offset, size_t string_size, size_t num_strings, char* input, StringPool& string_pool
+    ssize_t row_offset,
+    size_t string_size,
+    size_t num_strings,
+    char* input,
+    StringPool& string_pool
 ) {
     string_array_prologue(row_offset, num_strings);
     auto data_ptr = reinterpret_cast<entity::position_t*>(data_.cursor());
@@ -635,7 +643,9 @@ std::vector<std::shared_ptr<Column>> Column::split(const std::shared_ptr<Column>
 
 /// Bytes from the underlying chunked buffer to include when truncating. Inclusive of start_byte, exclusive of end_byte
 [[nodiscard]] static std::pair<size_t, size_t> column_start_end_bytes(
-    const Column& column, size_t start_row, size_t end_row
+    const Column& column,
+    size_t start_row,
+    size_t end_row
 ) {
     const size_t type_size = get_type_size(column.type().data_type());
     size_t start_byte = start_row * type_size;
@@ -664,7 +674,9 @@ std::vector<std::shared_ptr<Column>> Column::split(const std::shared_ptr<Column>
 }
 
 [[nodiscard]] static util::BitMagic truncate_sparse_map(
-    const util::BitMagic& input_sparse_map, size_t start_row, size_t end_row
+    const util::BitMagic& input_sparse_map,
+    size_t start_row,
+    size_t end_row
 ) {
     // The output sparse map is the slice [start_row, end_row) of the input sparse map
     // BitMagic doesn't have a method for this, so hand-roll it here

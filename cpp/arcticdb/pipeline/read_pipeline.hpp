@@ -62,7 +62,8 @@ void foreach_active_bit(const util::BitSet& bs, C&& visitor) {
 
 template<typename ContainerType>
 std::vector<SliceAndKey> filter_index(
-    const ContainerType& container, std::optional<CombinedQuery<ContainerType>>&& query
+    const ContainerType& container,
+    std::optional<CombinedQuery<ContainerType>>&& query
 ) {
     ARCTICDB_SAMPLE_DEFAULT(FilterIndex)
     std::vector<SliceAndKey> output{};
@@ -84,7 +85,8 @@ std::vector<SliceAndKey> filter_index(
 }
 
 inline util::BitSet build_column_bitset(
-    const StreamDescriptor& desc, const folly::F14FastSet<std::string_view>& columns
+    const StreamDescriptor& desc,
+    const folly::F14FastSet<std::string_view>& columns
 ) {
     util::BitSet col_bitset(static_cast<util::BitSetSizeType>(desc.fields().size()));
     for (std::size_t c = 0; c < static_cast<std::size_t>(desc.fields().size()); ++c) {
@@ -113,7 +115,8 @@ inline bool contains_index_column(const std::vector<std::string>& columns, const
 }
 
 inline std::optional<util::BitSet> requested_column_bitset_including_index(
-    const StreamDescriptor& desc, const std::optional<std::vector<std::string>>& columns
+    const StreamDescriptor& desc,
+    const std::optional<std::vector<std::string>>& columns
 ) {
     // Add the index column if it's not there
     if (columns.has_value()) {
@@ -128,7 +131,8 @@ inline std::optional<util::BitSet> requested_column_bitset_including_index(
 }
 
 inline std::optional<util::BitSet> clause_column_bitset(
-    const StreamDescriptor& desc, const std::vector<std::shared_ptr<Clause>>& clauses
+    const StreamDescriptor& desc,
+    const std::vector<std::shared_ptr<Clause>>& clauses
 ) {
     folly::F14FastSet<std::string_view> column_set;
     for (const auto& clause : clauses) {
@@ -177,7 +181,8 @@ inline std::optional<util::BitSet> overall_column_bitset(
 }
 
 inline void generate_filtered_field_descriptors(
-    PipelineContext& context, const std::optional<std::vector<std::string>>& columns
+    PipelineContext& context,
+    const std::optional<std::vector<std::string>>& columns
 ) {
     if (columns.has_value()) {
         const ankerl::unordered_dense::set<std::string_view> column_set{std::begin(*columns), std::end(*columns)};
@@ -197,7 +202,8 @@ inline void generate_filtered_field_descriptors(
 }
 
 inline void generate_filtered_field_descriptors(
-    std::shared_ptr<PipelineContext>& context, const std::optional<std::vector<std::string>>& columns
+    std::shared_ptr<PipelineContext>& context,
+    const std::optional<std::vector<std::string>>& columns
 ) {
     generate_filtered_field_descriptors(*context, columns);
 }

@@ -47,7 +47,9 @@ VariantData visit_binary_boolean(const VariantData& left, const VariantData& rig
 
 template<typename Func>
 inline std::string binary_operation_column_name(
-    std::string_view left_column, Func&& func, std::string_view right_column
+    std::string_view left_column,
+    Func&& func,
+    std::string_view right_column
 ) {
     return fmt::format("({} {} {})", left_column, func, right_column);
 }

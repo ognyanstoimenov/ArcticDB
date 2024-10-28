@@ -112,7 +112,8 @@ AtomKey key_from_proto(const arcticdb::proto::descriptors::AtomKey& input) {
 }
 
 void copy_stream_descriptor_to_proto(
-    const StreamDescriptor& desc, arcticdb::proto::descriptors::StreamDescriptor& proto
+    const StreamDescriptor& desc,
+    arcticdb::proto::descriptors::StreamDescriptor& proto
 ) {
     proto.set_in_bytes(desc.uncompressed_bytes());
     proto.set_out_bytes(desc.compressed_bytes());

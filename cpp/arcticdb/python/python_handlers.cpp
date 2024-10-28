@@ -109,7 +109,11 @@ void EmptyHandler::
 int EmptyHandler::type_size() const { return sizeof(PyObject*); }
 
 void EmptyHandler::default_initialize(
-    ChunkedBuffer& buffer, size_t bytes_offset, size_t byte_size, const DecodePathData&, std::any& any
+    ChunkedBuffer& buffer,
+    size_t bytes_offset,
+    size_t byte_size,
+    const DecodePathData&,
+    std::any& any
 ) const {
     auto& handler_data = get_handler_data(any);
     fill_with_none(buffer, bytes_offset, byte_size / type_size(), handler_data.spin_lock());
@@ -174,7 +178,11 @@ void BoolHandler::
 int BoolHandler::type_size() const { return sizeof(PyObject*); }
 
 void BoolHandler::default_initialize(
-    ChunkedBuffer& buffer, size_t bytes_offset, size_t byte_size, const DecodePathData&, std::any& any
+    ChunkedBuffer& buffer,
+    size_t bytes_offset,
+    size_t byte_size,
+    const DecodePathData&,
+    std::any& any
 ) const {
     auto& handler_data = get_handler_data(any);
     fill_with_none(buffer, bytes_offset, byte_size / type_size(), handler_data.spin_lock());
@@ -252,7 +260,11 @@ void StringHandler::convert_type(
 int StringHandler::type_size() const { return sizeof(PyObject*); }
 
 void StringHandler::default_initialize(
-    ChunkedBuffer& buffer, size_t bytes_offset, size_t byte_size, const DecodePathData&, std::any& any
+    ChunkedBuffer& buffer,
+    size_t bytes_offset,
+    size_t byte_size,
+    const DecodePathData&,
+    std::any& any
 ) const {
     auto& handler_data = get_handler_data(any);
     fill_with_none(buffer, bytes_offset, byte_size / type_size(), handler_data.spin_lock());
@@ -280,7 +292,9 @@ void ArrayHandler::
 }
 
 [[nodiscard]] static inline PyObject* initialize_array(
-    pybind11::dtype& descr, const shape_t* shape_ptr, const void* source_ptr
+    pybind11::dtype& descr,
+    const shape_t* shape_ptr,
+    const void* source_ptr
 ) {
     descr.inc_ref();
     auto& api = pybind11::detail::npy_api::get();
@@ -356,7 +370,11 @@ void ArrayHandler::convert_type(
 int ArrayHandler::type_size() const { return sizeof(PyObject*); }
 
 void ArrayHandler::default_initialize(
-    ChunkedBuffer& buffer, size_t offset, size_t byte_size, const DecodePathData&, std::any& any
+    ChunkedBuffer& buffer,
+    size_t offset,
+    size_t byte_size,
+    const DecodePathData&,
+    std::any& any
 ) const {
     auto& handler_data = get_handler_data(any);
     fill_with_none(buffer, offset, byte_size / type_size(), handler_data.spin_lock());

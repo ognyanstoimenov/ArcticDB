@@ -25,7 +25,10 @@ class LmdbClientWrapper {
     virtual bool exists(const std::string& db_name, std::string& path, ::lmdb::txn& txn, ::lmdb::dbi& dbi) const = 0;
 
     virtual std::optional<Segment> read(
-        const std::string& db_name, std::string& path, ::lmdb::txn& txn, ::lmdb::dbi& dbi
+        const std::string& db_name,
+        std::string& path,
+        ::lmdb::txn& txn,
+        ::lmdb::dbi& dbi
     ) const = 0;
 
     virtual void write(
@@ -40,7 +43,11 @@ class LmdbClientWrapper {
     virtual bool remove(const std::string& db_name, std::string& path, ::lmdb::txn& txn, ::lmdb::dbi& dbi) = 0;
 
     virtual std::vector<VariantKey> list(
-        const std::string& db_name, const std::string& prefix, ::lmdb::txn& txn, ::lmdb::dbi& dbi, KeyType key_type
+        const std::string& db_name,
+        const std::string& prefix,
+        ::lmdb::txn& txn,
+        ::lmdb::dbi& dbi,
+        KeyType key_type
     ) const = 0;
 
     virtual ~LmdbClientWrapper() = default;

@@ -165,7 +165,9 @@ class Storages {
 };
 
 inline std::shared_ptr<Storages> create_storages(
-    const LibraryPath& library_path, OpenMode mode, const arcticdb::proto::storage::VariantStorage& storage_config
+    const LibraryPath& library_path,
+    OpenMode mode,
+    const arcticdb::proto::storage::VariantStorage& storage_config
 ) {
     Storages::StorageVector storages;
     storages.push_back(create_storage(library_path, mode, storage_config));

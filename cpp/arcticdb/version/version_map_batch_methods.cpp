@@ -66,7 +66,8 @@ std::optional<AtomKey> get_specific_version_from_entry(
 }
 
 std::optional<AtomKey> get_version_map_entry_by_timestamp(
-    const std::shared_ptr<VersionMapEntry>& version_map_entry, const pipelines::TimestampVersionQuery& timestamp_version
+    const std::shared_ptr<VersionMapEntry>& version_map_entry,
+    const pipelines::TimestampVersionQuery& timestamp_version
 ) {
     auto version_key = get_index_key_from_time(timestamp_version.timestamp_, version_map_entry->get_indexes(false));
     if (version_key.has_value()) {
@@ -78,7 +79,8 @@ std::optional<AtomKey> get_version_map_entry_by_timestamp(
 }
 
 inline std::optional<AtomKey> get_key_for_version_query(
-    const std::shared_ptr<VersionMapEntry>& version_map_entry, const pipelines::VersionQuery& version_query
+    const std::shared_ptr<VersionMapEntry>& version_map_entry,
+    const pipelines::VersionQuery& version_query
 ) {
     return util::variant_match(
         version_query.content_,

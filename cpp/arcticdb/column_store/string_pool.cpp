@@ -187,7 +187,8 @@ std::optional<position_t> StringPool::get_offset_for_column(std::string_view str
 }
 
 ankerl::unordered_dense::set<position_t> StringPool::get_offsets_for_column(
-    const std::shared_ptr<std::unordered_set<std::string>>& strings, const Column& column
+    const std::shared_ptr<std::unordered_set<std::string>>& strings,
+    const Column& column
 ) {
     auto unique_values = unique_values_for_string_column(column);
     remove_nones_and_nans(unique_values);

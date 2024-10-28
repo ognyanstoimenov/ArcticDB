@@ -17,7 +17,8 @@ namespace arcticdb::stream {
 
 template<typename Derived>
 StreamDescriptor BaseIndex<Derived>::create_stream_descriptor(
-    StreamId stream_id, std::initializer_list<FieldRef> fields
+    StreamId stream_id,
+    std::initializer_list<FieldRef> fields
 ) const {
     std::vector<FieldRef> fds{fields};
     return create_stream_descriptor(stream_id, folly::range(fds));

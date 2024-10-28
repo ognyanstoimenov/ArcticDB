@@ -79,7 +79,10 @@ void LibraryTool::overwrite_segment_in_memory(VariantKey key, SegmentInMemory& s
 }
 
 SegmentInMemory LibraryTool::overwrite_append_data(
-    VariantKey key, const py::tuple& item, const py::object& norm, const py::object& user_meta
+    VariantKey key,
+    const py::tuple& item,
+    const py::object& norm,
+    const py::object& user_meta
 ) {
     user_input::check<ErrorCode::E_INVALID_USER_ARGUMENT>(
         std::holds_alternative<AtomKey>(key) && std::get<AtomKey>(key).type() == KeyType::APPEND_DATA,

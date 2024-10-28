@@ -26,7 +26,9 @@ inline std::optional<RefKey> get_symbol_ref_key(const std::shared_ptr<StreamSour
 }
 
 std::deque<AtomKey> backwards_compat_delete_all_versions(
-    const std::shared_ptr<Store>& store, std::shared_ptr<VersionMap>& version_map, const StreamId& stream_id
+    const std::shared_ptr<Store>& store,
+    std::shared_ptr<VersionMap>& version_map,
+    const StreamId& stream_id
 ) {
     std::deque<AtomKey> output;
     auto entry = version_map->check_reload(
@@ -44,7 +46,9 @@ std::deque<AtomKey> backwards_compat_delete_all_versions(
 }
 
 std::vector<AtomKey> backwards_compat_write_and_prune_previous(
-    std::shared_ptr<Store>& store, std::shared_ptr<VersionMap>& version_map, const AtomKey& key
+    std::shared_ptr<Store>& store,
+    std::shared_ptr<VersionMap>& version_map,
+    const AtomKey& key
 ) {
     log::version().debug("Version map pruning previous versions for stream {}", key.id());
 

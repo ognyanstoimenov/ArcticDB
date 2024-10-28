@@ -34,7 +34,10 @@ void merge_frames_for_keys_impl(
 
     struct StreamMergeWrapper {
         StreamMergeWrapper(
-            KeySupplier&& key_supplier, std::shared_ptr<StreamSource> store, const IndexRange& index_range, StreamId id
+            KeySupplier&& key_supplier,
+            std::shared_ptr<StreamSource> store,
+            const IndexRange& index_range,
+            StreamId id
         )
             : stream_reader_(std::move(key_supplier), std::move(store), storage::ReadKeyOpts{}, index_range),
               iterator_(stream_reader_.iterator_rows()),

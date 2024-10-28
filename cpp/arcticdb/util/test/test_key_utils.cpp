@@ -13,7 +13,9 @@
 using namespace arcticdb;
 
 auto write_version_frame_with_three_segments(
-    const arcticdb::StreamId& stream_id, arcticdb::VersionId v_id, arcticdb::version_store::PythonVersionStore& pvs
+    const arcticdb::StreamId& stream_id,
+    arcticdb::VersionId v_id,
+    arcticdb::version_store::PythonVersionStore& pvs
 ) {
     using namespace arcticdb;
     using namespace arcticdb::storage;

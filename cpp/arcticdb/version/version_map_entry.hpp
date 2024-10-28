@@ -459,7 +459,8 @@ inline bool is_live_index_type_key(const AtomKeyImpl& key, const std::shared_ptr
 }
 
 inline std::optional<VersionId> get_prev_version_in_entry(
-    const std::shared_ptr<VersionMapEntry>& entry, VersionId version_id
+    const std::shared_ptr<VersionMapEntry>& entry,
+    VersionId version_id
 ) {
     // sorted in decreasing order
     // entry->keys_ is not sorted in version_id anymore (due to tombstones), we only need to fetch live index keys
@@ -479,7 +480,8 @@ inline std::optional<VersionId> get_prev_version_in_entry(
 }
 
 inline std::optional<VersionId> get_next_version_in_entry(
-    const std::shared_ptr<VersionMapEntry>& entry, VersionId version_id
+    const std::shared_ptr<VersionMapEntry>& entry,
+    VersionId version_id
 ) {
     // sorted in decreasing order
     // entry->keys_ is not sorted in version_id any more (due to tombstones), we only need to fetch live index keys
@@ -500,7 +502,8 @@ inline std::optional<VersionId> get_next_version_in_entry(
 }
 
 inline VersionDetails find_index_key_for_version_id_and_tombstone_status(
-    VersionId version_id, const std::shared_ptr<VersionMapEntry>& entry
+    VersionId version_id,
+    const std::shared_ptr<VersionMapEntry>& entry
 ) {
     auto key = std::find_if(std::begin(entry->keys_), std::end(entry->keys_), [version_id](const auto& key) {
         return is_index_key_type(key.type()) && key.version_id() == version_id;
@@ -511,7 +514,9 @@ inline VersionDetails find_index_key_for_version_id_and_tombstone_status(
 }
 
 inline std::optional<AtomKey> find_index_key_for_version_id(
-    VersionId version_id, const std::shared_ptr<VersionMapEntry>& entry, bool included_deleted = true
+    VersionId version_id,
+    const std::shared_ptr<VersionMapEntry>& entry,
+    bool included_deleted = true
 ) {
     auto version_details = find_index_key_for_version_id_and_tombstone_status(version_id, entry);
     if ((version_details.version_status_ == VersionStatus::TOMBSTONED && included_deleted) ||

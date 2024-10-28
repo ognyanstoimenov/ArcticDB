@@ -62,7 +62,8 @@ std::variant<StringEncodingError, PyStringWrapper> pystring_to_buffer(PyObject* 
 ///     the type is determined at the point when obj_to_tensor is called. We need to make it possible to change the
 ///     the column type in aggregator_set_data in order not to iterate all arrays twice.
 [[nodiscard]] static std::tuple<ValueType, uint8_t, ssize_t> determine_python_array_type(
-    PyObject** begin, PyObject** end
+    PyObject** begin,
+    PyObject** end
 ) {
     auto none = py::none{};
     while (begin != end) {
@@ -87,7 +88,8 @@ std::variant<StringEncodingError, PyStringWrapper> pystring_to_buffer(PyObject* 
 }
 
 std::variant<StringEncodingError, PyStringWrapper> py_unicode_to_buffer(
-    PyObject* obj, std::optional<ScopedGILLock>& scoped_gil_lock
+    PyObject* obj,
+    std::optional<ScopedGILLock>& scoped_gil_lock
 ) {
     util::check(obj != nullptr, "Got null pointer in py_unicode_to_buffer");
     if (!is_unicode(obj)) {

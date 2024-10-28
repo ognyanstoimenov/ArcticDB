@@ -57,7 +57,8 @@ static inline void trim_leading_zeroes(std::string_view& str) {
 }
 
 [[nodiscard]] static inline boost::multiprecision::uint128_t to_uint128(
-    const uint64_t most_significant, const uint64_t least_significant
+    const uint64_t most_significant,
+    const uint64_t least_significant
 ) {
     boost::multiprecision::uint128_t number = most_significant;
     number <<= 64;

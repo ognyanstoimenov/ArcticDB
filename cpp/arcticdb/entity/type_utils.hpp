@@ -23,19 +23,23 @@ struct TypeDescriptor;
 [[nodiscard]] bool trivially_compatible_types(const entity::TypeDescriptor& left, const entity::TypeDescriptor& right);
 
 [[nodiscard]] std::optional<entity::TypeDescriptor> has_valid_type_promotion(
-    const entity::TypeDescriptor& source, const entity::TypeDescriptor& target
+    const entity::TypeDescriptor& source,
+    const entity::TypeDescriptor& target
 );
 
 [[nodiscard]] std::optional<entity::TypeDescriptor> has_valid_type_promotion(
-    const proto::descriptors::TypeDescriptor& source, const proto::descriptors::TypeDescriptor& target
+    const proto::descriptors::TypeDescriptor& source,
+    const proto::descriptors::TypeDescriptor& target
 );
 
 [[nodiscard]] std::optional<entity::TypeDescriptor> has_valid_common_type(
-    const entity::TypeDescriptor& left, const entity::TypeDescriptor& right
+    const entity::TypeDescriptor& left,
+    const entity::TypeDescriptor& right
 );
 
 [[nodiscard]] std::optional<entity::TypeDescriptor> has_valid_common_type(
-    const proto::descriptors::TypeDescriptor& left, const proto::descriptors::TypeDescriptor& right
+    const proto::descriptors::TypeDescriptor& left,
+    const proto::descriptors::TypeDescriptor& right
 );
 
 inline std::string get_user_friendly_type_string(const entity::TypeDescriptor& type) {

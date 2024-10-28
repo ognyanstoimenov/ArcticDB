@@ -158,7 +158,10 @@ class MongoClientImpl {
     using Config = arcticdb::proto::mongo_storage::Config;
 
     std::string get_connection_string(
-        std::string uri, uint64_t min_pool_size, uint64_t max_pool_size, uint64_t selection_timeout_ms
+        std::string uri,
+        uint64_t min_pool_size,
+        uint64_t max_pool_size,
+        uint64_t selection_timeout_ms
     ) {
         const auto uri_options = mongocxx::uri(uri).options();
         if (uri_options.find("minPoolSize") == uri_options.end())
@@ -172,26 +175,38 @@ class MongoClientImpl {
 
   public:
     explicit MongoClientImpl(
-        const Config& config, uint64_t min_pool_size, uint64_t max_pool_size, uint64_t selection_timeout_ms
+        const Config& config,
+        uint64_t min_pool_size,
+        uint64_t max_pool_size,
+        uint64_t selection_timeout_ms
     )
         : instance_(MongoInstance::instance()),
           connection_string_(get_connection_string(config.uri(), min_pool_size, max_pool_size, selection_timeout_ms)),
           pool_(mongocxx::uri(connection_string_)) {}
 
     bool write_segment(
-        const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv
+        const std::string& database_name,
+        const std::string& collection_name,
+        storage::KeySegmentPair&& kv
     );
 
     UpdateResult update_segment(
-        const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv, bool upsert
+        const std::string& database_name,
+        const std::string& collection_name,
+        storage::KeySegmentPair&& kv,
+        bool upsert
     );
 
     std::optional<KeySegmentPair> read_segment(
-        const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+        const std::string& database_name,
+        const std::string& collection_name,
+        const entity::VariantKey& key
     );
 
     DeleteResult remove_keyvalue(
-        const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+        const std::string& database_name,
+        const std::string& collection_name,
+        const entity::VariantKey& key
     );
 
     std::vector<VariantKey> list_keys(
@@ -206,7 +221,9 @@ class MongoClientImpl {
     void drop_collection(std::string database_name, std::string collection_name);
 
     bool key_exists(
-        const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+        const std::string& database_name,
+        const std::string& collection_name,
+        const entity::VariantKey& key
     );
 
     MongoClientImpl(const MongoClientImpl&) = delete;
@@ -230,7 +247,9 @@ class MongoClientImpl {
 };
 
 bool MongoClientImpl::write_segment(
-    const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv
+    const std::string& database_name,
+    const std::string& collection_name,
+    storage::KeySegmentPair&& kv
 ) {
     using namespace bsoncxx::builder::stream;
     using bsoncxx::builder::stream::document;
@@ -260,7 +279,10 @@ bool MongoClientImpl::write_segment(
 }
 
 UpdateResult MongoClientImpl::update_segment(
-    const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv, bool upsert
+    const std::string& database_name,
+    const std::string& collection_name,
+    storage::KeySegmentPair&& kv,
+    bool upsert
 ) {
     using namespace bsoncxx::builder::stream;
     using bsoncxx::builder::stream::document;
@@ -286,7 +308,9 @@ UpdateResult MongoClientImpl::update_segment(
 }
 
 std::optional<KeySegmentPair> MongoClientImpl::read_segment(
-    const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+    const std::string& database_name,
+    const std::string& collection_name,
+    const entity::VariantKey& key
 ) {
     using namespace bsoncxx::builder::stream;
     using bsoncxx::builder::stream::document;
@@ -325,7 +349,9 @@ std::optional<KeySegmentPair> MongoClientImpl::read_segment(
 }
 
 bool MongoClientImpl::key_exists(
-    const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+    const std::string& database_name,
+    const std::string& collection_name,
+    const entity::VariantKey& key
 ) {
     using namespace bsoncxx::builder::stream;
     using bsoncxx::builder::stream::document;
@@ -343,7 +369,9 @@ bool MongoClientImpl::key_exists(
 }
 
 DeleteResult MongoClientImpl::remove_keyvalue(
-    const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+    const std::string& database_name,
+    const std::string& collection_name,
+    const entity::VariantKey& key
 ) {
     using namespace bsoncxx::builder::stream;
     using bsoncxx::builder::stream::document;
@@ -429,32 +457,44 @@ void MongoClientImpl::drop_collection(std::string database_name, std::string col
  * rather promiscuous namespace usage.
  */
 MongoClient::MongoClient(
-    const Config& config, uint64_t min_pool_size, uint64_t max_pool_size, uint64_t selection_timeout_ms
+    const Config& config,
+    uint64_t min_pool_size,
+    uint64_t max_pool_size,
+    uint64_t selection_timeout_ms
 )
     : client_(new MongoClientImpl(config, min_pool_size, max_pool_size, selection_timeout_ms)) {}
 
 MongoClient::~MongoClient() { delete client_; }
 
 bool MongoClient::write_segment(
-    const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv
+    const std::string& database_name,
+    const std::string& collection_name,
+    storage::KeySegmentPair&& kv
 ) {
     return client_->write_segment(database_name, collection_name, std::move(kv));
 }
 
 UpdateResult MongoClient::update_segment(
-    const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv, bool upsert
+    const std::string& database_name,
+    const std::string& collection_name,
+    storage::KeySegmentPair&& kv,
+    bool upsert
 ) {
     return client_->update_segment(database_name, collection_name, std::move(kv), upsert);
 }
 
 std::optional<KeySegmentPair> MongoClient::read_segment(
-    const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+    const std::string& database_name,
+    const std::string& collection_name,
+    const entity::VariantKey& key
 ) {
     return client_->read_segment(database_name, collection_name, key);
 }
 
 DeleteResult MongoClient::remove_keyvalue(
-    const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+    const std::string& database_name,
+    const std::string& collection_name,
+    const entity::VariantKey& key
 ) {
     return client_->remove_keyvalue(database_name, collection_name, key);
 }
@@ -477,7 +517,9 @@ void MongoClient::drop_collection(std::string database_name, std::string collect
 }
 
 bool MongoClient::key_exists(
-    const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+    const std::string& database_name,
+    const std::string& collection_name,
+    const entity::VariantKey& key
 ) {
     return client_->key_exists(database_name, collection_name, key);
 }

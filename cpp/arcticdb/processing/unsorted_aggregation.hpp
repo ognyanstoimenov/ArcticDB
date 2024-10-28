@@ -32,7 +32,9 @@ class MinMaxAggregatorData {
 class MinMaxAggregator {
   public:
     explicit MinMaxAggregator(
-        ColumnName column_name, ColumnName output_column_name_min, ColumnName output_column_name_max
+        ColumnName column_name,
+        ColumnName output_column_name_min,
+        ColumnName output_column_name_max
     )
         : column_name_(std::move(column_name)),
           output_column_name_min_(std::move(output_column_name_min)),
@@ -65,7 +67,9 @@ class SumAggregatorData : private AggregatorDataBase {
   public:
     void add_data_type(DataType data_type);
     void aggregate(
-        const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+        const std::optional<ColumnWithStrings>& input_column,
+        const std::vector<size_t>& groups,
+        size_t unique_values
     );
     SegmentInMemory finalize(const ColumnName& output_column_name, bool dynamic_schema, size_t unique_values);
 
@@ -78,7 +82,9 @@ class MaxAggregatorData : private AggregatorDataBase {
   public:
     void add_data_type(DataType data_type);
     void aggregate(
-        const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+        const std::optional<ColumnWithStrings>& input_column,
+        const std::vector<size_t>& groups,
+        size_t unique_values
     );
     SegmentInMemory finalize(const ColumnName& output_column_name, bool dynamic_schema, size_t unique_values);
 
@@ -91,7 +97,9 @@ class MinAggregatorData : private AggregatorDataBase {
   public:
     void add_data_type(DataType data_type);
     void aggregate(
-        const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+        const std::optional<ColumnWithStrings>& input_column,
+        const std::vector<size_t>& groups,
+        size_t unique_values
     );
     SegmentInMemory finalize(const ColumnName& output_column_name, bool dynamic_schema, size_t unique_values);
 
@@ -105,7 +113,9 @@ class MeanAggregatorData : private AggregatorDataBase {
     // Mean values are always doubles so this is a no-op
     void add_data_type(DataType) {}
     void aggregate(
-        const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+        const std::optional<ColumnWithStrings>& input_column,
+        const std::vector<size_t>& groups,
+        size_t unique_values
     );
     SegmentInMemory finalize(const ColumnName& output_column_name, bool dynamic_schema, size_t unique_values);
 
@@ -125,7 +135,9 @@ class CountAggregatorData : private AggregatorDataBase {
     // Count values are always integers so this is a no-op
     void add_data_type(DataType) {}
     void aggregate(
-        const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+        const std::optional<ColumnWithStrings>& input_column,
+        const std::vector<size_t>& groups,
+        size_t unique_values
     );
     SegmentInMemory finalize(const ColumnName& output_column_name, bool dynamic_schema, size_t unique_values);
 
@@ -137,7 +149,9 @@ class FirstAggregatorData : private AggregatorDataBase {
   public:
     void add_data_type(DataType data_type);
     void aggregate(
-        const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+        const std::optional<ColumnWithStrings>& input_column,
+        const std::vector<size_t>& groups,
+        size_t unique_values
     );
     SegmentInMemory finalize(const ColumnName& output_column_name, bool dynamic_schema, size_t unique_values);
 
@@ -152,7 +166,9 @@ class LastAggregatorData : private AggregatorDataBase {
   public:
     void add_data_type(DataType data_type);
     void aggregate(
-        const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+        const std::optional<ColumnWithStrings>& input_column,
+        const std::vector<size_t>& groups,
+        size_t unique_values
     );
     SegmentInMemory finalize(const ColumnName& output_column_name, bool dynamic_schema, size_t unique_values);
 

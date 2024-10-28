@@ -28,7 +28,9 @@
 namespace arcticdb {
 
 inline size_t get_first_string_size(
-    const pipelines::PipelineContextRow& context_row, ChunkedBuffer& src, std::size_t first_row_in_frame
+    const pipelines::PipelineContextRow& context_row,
+    ChunkedBuffer& src,
+    std::size_t first_row_in_frame
 ) {
     auto offset = first_context_row(context_row.slice_and_key(), first_row_in_frame);
     auto num_rows = context_row.slice_and_key().slice_.row_range.diff();
@@ -37,7 +39,9 @@ inline size_t get_first_string_size(
 }
 
 inline size_t get_max_string_size(
-    const pipelines::PipelineContextRow& context_row, ChunkedBuffer& src, std::size_t first_row_in_frame
+    const pipelines::PipelineContextRow& context_row,
+    ChunkedBuffer& src,
+    std::size_t first_row_in_frame
 ) {
     auto offset = first_context_row(context_row.slice_and_key(), first_row_in_frame);
     auto num_rows = context_row.slice_and_key().slice_.row_range.diff();
@@ -327,7 +331,8 @@ struct PipelineContext;
 } // namespace pipelines
 
 size_t adjust_slice_rowcounts(
-    std::vector<pipelines::SliceAndKey>& slice_and_keys, const std::optional<size_t>& first_row = std::nullopt
+    std::vector<pipelines::SliceAndKey>& slice_and_keys,
+    const std::optional<size_t>& first_row = std::nullopt
 );
 
 void adjust_slice_rowcounts(const std::shared_ptr<pipelines::PipelineContext>& pipeline_context);

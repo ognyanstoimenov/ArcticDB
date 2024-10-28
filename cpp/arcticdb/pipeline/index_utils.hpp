@@ -37,7 +37,9 @@ inline std::vector<SliceAndKey> unfiltered_index(const index::IndexSegmentReader
 
 template<typename RowType>
 std::optional<IndexValue> index_value_from_row(
-    const RowType& row, IndexDescriptorImpl::Type index_type, int field_num
+    const RowType& row,
+    IndexDescriptorImpl::Type index_type,
+    int field_num
 ) {
     switch (index_type) {
     case IndexDescriptorImpl::Type::TIMESTAMP:
@@ -134,7 +136,8 @@ inline folly::Future<VersionedItem> index_and_version(
 }
 
 std::pair<index::IndexSegmentReader, std::vector<SliceAndKey>> read_index_to_vector(
-    const std::shared_ptr<Store>& store, const AtomKey& index_key
+    const std::shared_ptr<Store>& store,
+    const AtomKey& index_key
 );
 
 // Combines the stream descriptors of an existing index key and a new frame.

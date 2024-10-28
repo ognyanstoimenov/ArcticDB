@@ -51,7 +51,10 @@ class LibraryTool {
     void overwrite_segment_in_memory(VariantKey key, SegmentInMemory& segment_in_memory);
 
     SegmentInMemory overwrite_append_data(
-        VariantKey key, const py::tuple& item, const py::object& norm, const py::object& user_meta
+        VariantKey key,
+        const py::tuple& item,
+        const py::object& norm,
+        const py::object& user_meta
     );
 
     void remove(VariantKey key);

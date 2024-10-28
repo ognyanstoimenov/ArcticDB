@@ -29,7 +29,9 @@ Azure::Core::Context get_context(unsigned int request_timeout) {
 
 RealAzureClient::RealAzureClient(const Config& conf)
     : container_client(BlobContainerClient::CreateFromConnectionString(
-          conf.endpoint(), conf.container_name(), get_client_options(conf)
+          conf.endpoint(),
+          conf.container_name(),
+          get_client_options(conf)
       )) {}
 
 Azure::Storage::Blobs::BlobClientOptions RealAzureClient::get_client_options(const Config& conf) {

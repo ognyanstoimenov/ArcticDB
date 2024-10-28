@@ -623,7 +623,9 @@ TEST(VersionMap, StorageLogging) {
 }
 
 std::shared_ptr<VersionMapEntry> write_two_versions(
-    std::shared_ptr<InMemoryStore> store, std::shared_ptr<VersionMap> version_map, const StreamId& id
+    std::shared_ptr<InMemoryStore> store,
+    std::shared_ptr<VersionMap> version_map,
+    const StreamId& id
 ) {
     auto entry = version_map->check_reload(
         store, id, LoadStrategy{LoadType::NOT_LOADED, LoadObjective::INCLUDE_DELETED}, __FUNCTION__
@@ -642,7 +644,9 @@ std::shared_ptr<VersionMapEntry> write_two_versions(
 
 // Produces the following version chain: v0 <- tombstone_all <- v1 <- v2 <- tombstone
 void write_alternating_deleted_undeleted(
-    std::shared_ptr<InMemoryStore> store, std::shared_ptr<VersionMap> version_map, StreamId id
+    std::shared_ptr<InMemoryStore> store,
+    std::shared_ptr<VersionMap> version_map,
+    StreamId id
 ) {
     auto entry = version_map->check_reload(
         store, id, LoadStrategy{LoadType::NOT_LOADED, LoadObjective::INCLUDE_DELETED}, __FUNCTION__

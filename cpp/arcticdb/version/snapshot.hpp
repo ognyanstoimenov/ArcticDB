@@ -39,22 +39,29 @@ void tombstone_snapshot(
 );
 
 void tombstone_snapshot(
-    const std::shared_ptr<stream::StreamSink>& store, storage::KeySegmentPair&& key_segment_pair, bool log_changes
+    const std::shared_ptr<stream::StreamSink>& store,
+    storage::KeySegmentPair&& key_segment_pair,
+    bool log_changes
 );
 
 void iterate_snapshots(const std::shared_ptr<Store>& store, folly::Function<void(entity::VariantKey&)> visitor);
 
 std::optional<size_t> row_id_for_stream_in_snapshot_segment(
-    SegmentInMemory& seg, bool using_ref_key, const StreamId& stream_id
+    SegmentInMemory& seg,
+    bool using_ref_key,
+    const StreamId& stream_id
 );
 
 // Get a set of the index keys of a particular symbol that exist in any snapshot
 std::unordered_set<entity::AtomKey> get_index_keys_in_snapshots(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id
 );
 
 std::pair<std::vector<AtomKey>, std::unordered_set<AtomKey>> get_index_keys_partitioned_by_inclusion_in_snapshots(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, std::vector<entity::AtomKey>&& all_index_keys
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    std::vector<entity::AtomKey>&& all_index_keys
 );
 
 std::vector<AtomKey> get_versions_from_segment(const SegmentInMemory& snapshot_segment);
@@ -62,7 +69,8 @@ std::vector<AtomKey> get_versions_from_segment(const SegmentInMemory& snapshot_s
 std::optional<VariantKey> get_snapshot_key(const std::shared_ptr<Store>& store, const SnapshotId& snap_name);
 
 std::optional<std::pair<VariantKey, SegmentInMemory>> get_snapshot(
-    const std::shared_ptr<Store>& store, const SnapshotId& snap_name
+    const std::shared_ptr<Store>& store,
+    const SnapshotId& snap_name
 );
 
 std::set<StreamId> list_streams_in_snapshot(const std::shared_ptr<Store>& store, const SnapshotId& snap_name);
@@ -72,7 +80,8 @@ using SnapshotMap = std::unordered_map<SnapshotId, std::vector<AtomKey>>;
 SnapshotMap get_versions_from_snapshots(const std::shared_ptr<Store>& store);
 
 std::unordered_map<SnapshotId, std::optional<VariantKey>> get_keys_for_snapshots(
-    const std::shared_ptr<Store>& store, const std::vector<SnapshotId>& snap_names
+    const std::shared_ptr<Store>& store,
+    const std::vector<SnapshotId>& snap_names
 );
 
 /**

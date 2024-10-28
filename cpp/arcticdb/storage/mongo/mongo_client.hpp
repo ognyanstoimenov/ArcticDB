@@ -22,25 +22,37 @@ class MongoClient : public MongoClientWrapper {
 
   public:
     explicit MongoClient(
-        const Config& config, uint64_t min_pool_size, uint64_t max_pool_size, uint64_t selection_timeout_ms
+        const Config& config,
+        uint64_t min_pool_size,
+        uint64_t max_pool_size,
+        uint64_t selection_timeout_ms
     );
 
     ~MongoClient() override;
 
     bool write_segment(
-        const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv
+        const std::string& database_name,
+        const std::string& collection_name,
+        storage::KeySegmentPair&& kv
     ) override;
 
     UpdateResult update_segment(
-        const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv, bool upsert
+        const std::string& database_name,
+        const std::string& collection_name,
+        storage::KeySegmentPair&& kv,
+        bool upsert
     ) override;
 
     std::optional<KeySegmentPair> read_segment(
-        const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+        const std::string& database_name,
+        const std::string& collection_name,
+        const entity::VariantKey& key
     ) override;
 
     DeleteResult remove_keyvalue(
-        const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+        const std::string& database_name,
+        const std::string& collection_name,
+        const entity::VariantKey& key
     ) override;
 
     std::vector<VariantKey> list_keys(

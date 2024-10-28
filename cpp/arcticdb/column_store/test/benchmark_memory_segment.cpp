@@ -33,7 +33,10 @@ std::vector<uint64_t> get_random_permutation(size_t num_rows, std::mt19937 g) {
 }
 
 SegmentInMemory get_shuffled_segment(
-    const StreamId& id, size_t num_rows, size_t num_columns, std::optional<float> sparsity_percentage = std::nullopt
+    const StreamId& id,
+    size_t num_rows,
+    size_t num_columns,
+    std::optional<float> sparsity_percentage = std::nullopt
 ) {
     // We use a seed to get the same shuffled segment for given arguments.
     std::mt19937 g(0);

@@ -126,7 +126,9 @@ inline std::vector<pipelines::SliceAndKey> collect_segments(ProcessingUnit&& pro
 
 template<typename Grouper, typename Bucketizer>
 std::pair<std::vector<bucket_id>, std::vector<uint64_t>> get_buckets(
-    const ColumnWithStrings& col, const Grouper& grouper, const Bucketizer& bucketizer
+    const ColumnWithStrings& col,
+    const Grouper& grouper,
+    const Bucketizer& bucketizer
 ) {
     // Mapping from row to bucket
     // 255 reserved for Nones and NaNs in string/float columns
@@ -165,7 +167,9 @@ std::pair<std::vector<bucket_id>, std::vector<uint64_t>> get_buckets(
 
 template<typename GrouperType, typename BucketizerType>
 std::vector<ProcessingUnit> partition_processing_segment(
-    ProcessingUnit& input, const ColumnName& grouping_column_name, bool dynamic_schema
+    ProcessingUnit& input,
+    const ColumnName& grouping_column_name,
+    bool dynamic_schema
 ) {
 
     std::vector<ProcessingUnit> output;

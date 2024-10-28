@@ -23,7 +23,9 @@ class FieldCollection {
     static constexpr TypeDescriptor type_ = TypeDescriptor{DataType::UINT8, Dimension::Dim1};
 
     FieldCollection(
-        CursoredBuffer<ChunkedBuffer>&& buffer, CursoredBuffer<Buffer>&& offsets, CursoredBuffer<Buffer> shapes
+        CursoredBuffer<ChunkedBuffer>&& buffer,
+        CursoredBuffer<Buffer>&& offsets,
+        CursoredBuffer<Buffer> shapes
     )
         : buffer_(std::move(buffer)),
           offsets_(std::move(offsets)),

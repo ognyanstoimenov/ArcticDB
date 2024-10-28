@@ -57,7 +57,10 @@ void write_snapshot_entry(
 }
 
 void tombstone_snapshot(
-    const std::shared_ptr<StreamSink>& store, const RefKey& key, SegmentInMemory&& segment_in_memory, bool log_changes
+    const std::shared_ptr<StreamSink>& store,
+    const RefKey& key,
+    SegmentInMemory&& segment_in_memory,
+    bool log_changes
 ) {
     store->remove_key_sync(key); // Make the snapshot "disappear" to normal APIs
     if (log_changes) {
@@ -69,7 +72,9 @@ void tombstone_snapshot(
 }
 
 void tombstone_snapshot(
-    const std::shared_ptr<StreamSink>& store, storage::KeySegmentPair&& key_segment_pair, bool log_changes
+    const std::shared_ptr<StreamSink>& store,
+    storage::KeySegmentPair&& key_segment_pair,
+    bool log_changes
 ) {
     store->remove_key(key_segment_pair.ref_key()).get(); // Make the snapshot "disappear" to normal APIs
     if (log_changes) {
@@ -120,7 +125,9 @@ void iterate_snapshots(const std::shared_ptr<Store>& store, folly::Function<void
 }
 
 std::optional<size_t> row_id_for_stream_in_snapshot_segment(
-    SegmentInMemory& seg, bool using_ref_key, const StreamId& stream_id
+    SegmentInMemory& seg,
+    bool using_ref_key,
+    const StreamId& stream_id
 ) {
     if (using_ref_key) {
         // With ref keys we are sure the snapshot segment has the index atom keys sorted by stream_id.
@@ -145,7 +152,8 @@ std::optional<size_t> row_id_for_stream_in_snapshot_segment(
 }
 
 std::unordered_set<entity::AtomKey> get_index_keys_in_snapshots(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id
 ) {
     ARCTICDB_SAMPLE(GetIndexKeysInSnapshot, 0)
 
@@ -183,7 +191,9 @@ std::unordered_set<entity::AtomKey> get_index_keys_in_snapshots(
  * Returned pair has first: keys not in snapshots, second: keys in snapshots.
  */
 std::pair<std::vector<AtomKey>, std::unordered_set<AtomKey>> get_index_keys_partitioned_by_inclusion_in_snapshots(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, std::vector<entity::AtomKey>&& all_index_keys
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    std::vector<entity::AtomKey>&& all_index_keys
 ) {
     ARCTICDB_SAMPLE(GetIndexKeysPartitionedByInclusionInSnapshots, 0)
     auto index_keys_in_snapshot = get_index_keys_in_snapshots(store, stream_id);
@@ -219,7 +229,8 @@ std::optional<VariantKey> get_snapshot_key(const std::shared_ptr<Store>& store, 
 }
 
 std::unordered_map<SnapshotId, std::optional<VariantKey>> all_ref_keys(
-    const std::vector<SnapshotId>& snap_names, const std::vector<VariantKey>& ref_keys
+    const std::vector<SnapshotId>& snap_names,
+    const std::vector<VariantKey>& ref_keys
 ) {
     std::unordered_map<SnapshotId, std::optional<VariantKey>> output;
     output.reserve(snap_names.size());
@@ -254,7 +265,8 @@ std::unordered_map<SnapshotId, std::optional<VariantKey>> get_snapshot_keys_via_
 }
 
 std::unordered_map<SnapshotId, std::optional<VariantKey>> get_keys_for_snapshots(
-    const std::shared_ptr<Store>& store, const std::vector<SnapshotId>& snap_names
+    const std::shared_ptr<Store>& store,
+    const std::vector<SnapshotId>& snap_names
 ) {
     std::vector<VariantKey> ref_keys;
     ref_keys.resize(snap_names.size());
@@ -277,7 +289,8 @@ std::unordered_map<SnapshotId, std::optional<VariantKey>> get_keys_for_snapshots
 }
 
 std::optional<std::pair<VariantKey, SegmentInMemory>> get_snapshot(
-    const std::shared_ptr<Store>& store, const SnapshotId& snap_name
+    const std::shared_ptr<Store>& store,
+    const SnapshotId& snap_name
 ) {
     ARCTICDB_SAMPLE(getSnapshot, 0)
     auto opt_snap_key = get_snapshot_key(store, snap_name);

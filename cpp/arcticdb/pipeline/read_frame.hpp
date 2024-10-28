@@ -109,7 +109,8 @@ void reduce_and_fix_columns(
 );
 
 StreamDescriptor get_filtered_descriptor(
-    const StreamDescriptor& desc, const std::shared_ptr<FieldCollection>& filter_columns
+    const StreamDescriptor& desc,
+    const std::shared_ptr<FieldCollection>& filter_columns
 );
 
 size_t get_index_field_count(const SegmentInMemory& frame);

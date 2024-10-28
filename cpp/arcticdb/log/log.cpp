@@ -277,7 +277,9 @@ bool Loggers::configure(const arcticdb::proto::logger::LoggersConfig& conf, bool
 }
 
 void Loggers::Impl::configure_logger(
-    const arcticdb::proto::logger::LoggerConfig& conf, const std::string& name, std::unique_ptr<spdlog::logger>& logger
+    const arcticdb::proto::logger::LoggerConfig& conf,
+    const std::string& name,
+    std::unique_ptr<spdlog::logger>& logger
 ) {
     std::vector<spdlog::sink_ptr> sink_ptrs;
     for (const auto& sink_id : conf.sink_ids()) {

@@ -39,7 +39,8 @@ struct StreamDescriptorMismatch : ArcticSpecificException<ErrorCode::E_DESCRIPTO
 };
 
 inline IndexDescriptor::Type get_common_index_type(
-    const IndexDescriptor::Type& left, const IndexDescriptor::Type& right
+    const IndexDescriptor::Type& left,
+    const IndexDescriptor::Type& right
 ) {
     if (left == right) {
         return left;

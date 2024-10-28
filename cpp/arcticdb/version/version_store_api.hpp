@@ -52,7 +52,8 @@ class PythonVersionStore : public LocalVersionedEngine {
   public:
     template<class ClockType = util::SysClock>
     explicit PythonVersionStore(
-        const std::shared_ptr<storage::Library>& library, const ClockType& ct = util::SysClock{}
+        const std::shared_ptr<storage::Library>& library,
+        const ClockType& ct = util::SysClock{}
     )
         : LocalVersionedEngine(library, ct) {}
 
@@ -92,7 +93,9 @@ class PythonVersionStore : public LocalVersionedEngine {
     );
 
     ReadResult read_partitioned_dataframe(
-        const StreamId& stream_id, const ReadQuery& query, const ReadOptions& read_options
+        const StreamId& stream_id,
+        const ReadQuery& query,
+        const ReadOptions& read_options
     );
 
     VersionedItem append(
@@ -117,7 +120,10 @@ class PythonVersionStore : public LocalVersionedEngine {
     );
 
     VersionedItem delete_range(
-        const StreamId& stream_id, const UpdateQuery& query, bool dynamic_schema, bool prune_previous_versions
+        const StreamId& stream_id,
+        const UpdateQuery& query,
+        bool dynamic_schema,
+        bool prune_previous_versions
     );
 
     void append_incomplete(
@@ -151,7 +157,9 @@ class PythonVersionStore : public LocalVersionedEngine {
     VersionedItem write_metadata(const StreamId& stream_id, const py::object& user_meta, bool prune_previous_versions);
 
     void create_column_stats_version(
-        const StreamId& stream_id, ColumnStats& column_stats, const VersionQuery& version_query
+        const StreamId& stream_id,
+        ColumnStats& column_stats,
+        const VersionQuery& version_query
     );
 
     void drop_column_stats_version(
@@ -204,7 +212,8 @@ class PythonVersionStore : public LocalVersionedEngine {
     void delete_all_versions(const StreamId& stream_id);
 
     std::vector<timestamp> get_update_times(
-        const std::vector<StreamId>& stream_ids, const std::vector<VersionQuery>& version_queries
+        const std::vector<StreamId>& stream_ids,
+        const std::vector<VersionQuery>& version_queries
     );
 
     timestamp get_update_time(const StreamId& stream_id, const VersionQuery& version_query);
@@ -238,7 +247,9 @@ class PythonVersionStore : public LocalVersionedEngine {
     );
 
     void remove_from_snapshot(
-        const SnapshotId& snap_name, const std::vector<StreamId>& stream_ids, const std::vector<VersionId>& version_ids
+        const SnapshotId& snap_name,
+        const std::vector<StreamId>& stream_ids,
+        const std::vector<VersionId>& version_ids
     );
 
     std::vector<std::tuple<StreamId, VersionId, timestamp, std::vector<SnapshotId>, bool>> list_versions(
@@ -278,7 +289,8 @@ class PythonVersionStore : public LocalVersionedEngine {
     );
 
     std::vector<std::pair<VersionedItem, TimeseriesDescriptor>> batch_restore_version(
-        const std::vector<StreamId>& id, const std::vector<VersionQuery>& version_query
+        const std::vector<StreamId>& id,
+        const std::vector<VersionQuery>& version_query
     );
 
     std::vector<std::variant<ReadResult, DataError>> batch_read(

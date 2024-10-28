@@ -17,7 +17,8 @@ struct TypedBlockEncoderImpl {
     using ShapesBlockTDT = TypeDescriptorTag<DataTypeTag<DataType::INT64>, DimensionTag<Dimension::Dim0>>;
 
     static size_t max_compressed_size(
-        const arcticdb::proto::encoding::VariantCodec& codec_opts, const TypedBlock<TD>& typed_block
+        const arcticdb::proto::encoding::VariantCodec& codec_opts,
+        const TypedBlock<TD>& typed_block
     ) {
         return visit_encoder(codec_opts, [&](auto encoder_tag) {
             return decltype(encoder_tag)::Encoder::max_compressed_size(typed_block);

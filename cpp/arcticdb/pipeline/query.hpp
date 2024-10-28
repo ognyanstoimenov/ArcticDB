@@ -260,7 +260,9 @@ std::unique_ptr<util::BitSet> build_bitset_for_index(
 
 template<typename ContainerType>
 inline FilterQuery<ContainerType> create_index_filter(
-    const IndexRange& range, bool dynamic_schema, bool column_groups
+    const IndexRange& range,
+    bool dynamic_schema,
+    bool column_groups
 ) {
     static_assert(std::is_same_v<ContainerType, index::IndexSegmentReader>);
     return [rg = range,
@@ -287,7 +289,10 @@ inline FilterQuery<ContainerType> create_index_filter(
 
 template<typename ContainerType>
 inline void build_row_read_query_filters(
-    const FilterRange& range, bool dynamic_schema, bool column_groups, std::vector<FilterQuery<ContainerType>>& queries
+    const FilterRange& range,
+    bool dynamic_schema,
+    bool column_groups,
+    std::vector<FilterQuery<ContainerType>>& queries
 ) {
     util::variant_match(
         range,

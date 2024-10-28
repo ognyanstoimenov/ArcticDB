@@ -164,7 +164,8 @@ class PrometheusInstance {
         HistogramInfo() = default;
 
         HistogramInfo(
-            prometheus::Family<prometheus::Histogram>* histogram, prometheus::Histogram::BucketBoundaries buckets_list
+            prometheus::Family<prometheus::Histogram>* histogram,
+            prometheus::Histogram::BucketBoundaries buckets_list
         )
             : histogram_(histogram),
               buckets_list_(std::move(buckets_list)) {}

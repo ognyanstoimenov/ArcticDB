@@ -70,7 +70,8 @@ std::vector<std::pair<StorageName, arcticdb::proto::storage::VariantStorage>> In
 }
 
 void InMemoryConfigResolver::add_library(
-    const EnvironmentName& environment_name, const arcticdb::proto::storage::LibraryDescriptor& library_descriptor
+    const EnvironmentName& environment_name,
+    const arcticdb::proto::storage::LibraryDescriptor& library_descriptor
 ) {
     auto& config = get_or_add_environment(environment_name);
     config.libraries_.try_emplace(LibraryPath::from_delim_path(library_descriptor.name()), library_descriptor);

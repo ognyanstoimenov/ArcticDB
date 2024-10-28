@@ -41,7 +41,9 @@ struct StorageVisitor {
 };
 
 void apply_storage_override(
-    const StorageOverride& storage_override, arcticdb::proto::storage::LibraryConfig& lib_cfg_proto, bool override_https
+    const StorageOverride& storage_override,
+    arcticdb::proto::storage::LibraryConfig& lib_cfg_proto,
+    bool override_https
 ) {
     util::variant_match(
         storage_override.variant(),
@@ -55,7 +57,9 @@ void apply_storage_override(
 bool is_s3_credential_ok(std::string_view cred) { return cred.empty() || cred == s3::USE_AWS_CRED_PROVIDERS_TOKEN; }
 
 bool is_storage_config_ok(
-    const arcticdb::proto::storage::VariantStorage& storage, const std::string& error_message, bool throw_on_failure
+    const arcticdb::proto::storage::VariantStorage& storage,
+    const std::string& error_message,
+    bool throw_on_failure
 ) {
     bool is_ok{true};
     if (storage.config().Is<arcticdb::proto::s3_storage::Config>()) {
@@ -82,12 +86,17 @@ bool is_storage_config_ok(
 
 LibraryManager::LibraryManager(const std::shared_ptr<storage::Library>& library)
     : store_(std::make_shared<async::AsyncStore<util::SysClock>>(
-          library, codec::default_lz4_codec(), encoding_version(library->config())
+          library,
+          codec::default_lz4_codec(),
+          encoding_version(library->config())
       )),
       open_libraries_() {}
 
 void LibraryManager::write_library_config(
-    const py::object& lib_cfg, const LibraryPath& path, const StorageOverride& storage_override, const bool validate
+    const py::object& lib_cfg,
+    const LibraryPath& path,
+    const StorageOverride& storage_override,
+    const bool validate
 ) const {
     arcticdb::proto::storage::LibraryConfig lib_cfg_proto;
     python_util::pb_from_python(lib_cfg, lib_cfg_proto);
@@ -98,7 +107,9 @@ void LibraryManager::write_library_config(
 }
 
 void LibraryManager::write_library_config_internal(
-    const arcticdb::proto::storage::LibraryConfig& lib_cfg_proto, const LibraryPath& path, bool validate
+    const arcticdb::proto::storage::LibraryConfig& lib_cfg_proto,
+    const LibraryPath& path,
+    bool validate
 ) const {
     SegmentInMemory segment;
     segment.descriptor().set_index({0UL, IndexDescriptor::Type::ROWCOUNT});
@@ -211,7 +222,9 @@ void LibraryManager::remove_library_config(const LibraryPath& path) const {
 }
 
 std::shared_ptr<Library> LibraryManager::get_library(
-    const LibraryPath& path, const StorageOverride& storage_override, const bool ignore_cache
+    const LibraryPath& path,
+    const StorageOverride& storage_override,
+    const bool ignore_cache
 ) {
     if (!ignore_cache) {
         // Check global cache first, important for LMDB to only open once from a given process
@@ -263,7 +276,8 @@ bool LibraryManager::has_library(const LibraryPath& path) const {
 }
 
 arcticdb::proto::storage::LibraryConfig LibraryManager::get_config_internal(
-    const LibraryPath& path, const std::optional<StorageOverride>& storage_override
+    const LibraryPath& path,
+    const std::optional<StorageOverride>& storage_override
 ) const {
     auto [key, segment_in_memory] =
         store_->read_sync(RefKey{StreamId(path.to_delim_path()), entity::KeyType::LIBRARY_CONFIG});

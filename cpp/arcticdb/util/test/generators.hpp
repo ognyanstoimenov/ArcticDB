@@ -277,7 +277,9 @@ inline SegmentInMemory get_standard_timeseries_segment(const std::string& name, 
 }
 
 inline SegmentInMemory get_groupable_timeseries_segment(
-    const std::string& name, size_t rows_per_group, std::initializer_list<size_t> group_ids
+    const std::string& name,
+    size_t rows_per_group,
+    std::initializer_list<size_t> group_ids
 ) {
     auto wrapper = SinkWrapper(
         name,

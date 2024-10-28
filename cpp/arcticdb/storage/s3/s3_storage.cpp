@@ -62,7 +62,9 @@ void S3Storage::do_remove(Composite<VariantKey>&& ks, RemoveOpts) {
 }
 
 bool S3Storage::do_iterate_type_until_match(
-    KeyType key_type, const IterateTypePredicate& visitor, const std::string& prefix
+    KeyType key_type,
+    const IterateTypePredicate& visitor,
+    const std::string& prefix
 ) {
     auto prefix_handler =
         [](const std::string& prefix, const std::string& key_type_dir, const KeyDescriptor& key_descriptor, KeyType) {

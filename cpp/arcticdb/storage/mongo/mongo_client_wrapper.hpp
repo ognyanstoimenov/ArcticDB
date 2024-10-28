@@ -47,19 +47,28 @@ class MongoClientWrapper {
     virtual ~MongoClientWrapper() = default;
 
     virtual bool write_segment(
-        const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv
+        const std::string& database_name,
+        const std::string& collection_name,
+        storage::KeySegmentPair&& kv
     ) = 0;
 
     virtual UpdateResult update_segment(
-        const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv, bool upsert
+        const std::string& database_name,
+        const std::string& collection_name,
+        storage::KeySegmentPair&& kv,
+        bool upsert
     ) = 0;
 
     virtual std::optional<KeySegmentPair> read_segment(
-        const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+        const std::string& database_name,
+        const std::string& collection_name,
+        const entity::VariantKey& key
     ) = 0;
 
     virtual DeleteResult remove_keyvalue(
-        const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+        const std::string& database_name,
+        const std::string& collection_name,
+        const entity::VariantKey& key
     ) = 0;
 
     virtual std::vector<VariantKey> list_keys(
@@ -74,7 +83,9 @@ class MongoClientWrapper {
     virtual void drop_collection(std::string database_name, std::string collection_name) = 0;
 
     virtual bool key_exists(
-        const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+        const std::string& database_name,
+        const std::string& collection_name,
+        const entity::VariantKey& key
     ) = 0;
 };
 

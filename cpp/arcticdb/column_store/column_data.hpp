@@ -246,7 +246,10 @@ struct ColumnData {
     };
 
     ColumnData(
-        const ChunkedBuffer* data, const Buffer* shapes, const TypeDescriptor& type, const util::BitMagic* bit_vector
+        const ChunkedBuffer* data,
+        const Buffer* shapes,
+        const TypeDescriptor& type,
+        const util::BitMagic* bit_vector
     )
         : data_(data),
           shapes_(shapes),

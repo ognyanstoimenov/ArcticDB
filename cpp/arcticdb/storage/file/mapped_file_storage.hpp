@@ -103,7 +103,8 @@ inline arcticdb::proto::storage::VariantStorage pack_config(
 }
 
 inline arcticdb::proto::storage::VariantStorage pack_config(
-    const std::string& path, const arcticdb::proto::encoding::VariantCodec& codec_opts
+    const std::string& path,
+    const arcticdb::proto::encoding::VariantCodec& codec_opts
 ) {
     arcticdb::proto::storage::VariantStorage output;
     arcticdb::proto::mapped_file_storage::Config cfg;

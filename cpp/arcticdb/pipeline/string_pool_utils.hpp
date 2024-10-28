@@ -44,7 +44,9 @@ inline auto get_string_from_pool(entity::position_t offset_val, const StringPool
 /// @return If the string at @p string_pos is actual string inside @p string_pool return a
 ///  string view, otherwise return an (integer) placeholder representing not a string.
 inline std::variant<std::string_view, entity::position_t> get_string_from_buffer(
-    size_t string_pos, const ChunkedBuffer& src, const StringPool& string_pool
+    size_t string_pos,
+    const ChunkedBuffer& src,
+    const StringPool& string_pool
 ) {
     auto offset_val = get_offset_string_at(string_pos, src);
     if (offset_val == nan_placeholder() || offset_val == not_a_string())
@@ -56,11 +58,16 @@ inline std::variant<std::string_view, entity::position_t> get_string_from_buffer
 size_t first_context_row(const pipelines::SliceAndKey& slice_and_key, size_t first_row_in_frame);
 
 position_t get_offset_string(
-    const pipelines::PipelineContextRow& context_row, ChunkedBuffer& src, std::size_t first_row_in_frame
+    const pipelines::PipelineContextRow& context_row,
+    ChunkedBuffer& src,
+    std::size_t first_row_in_frame
 );
 
 inline size_t get_first_string_size(
-    size_t num_rows, ChunkedBuffer& src, std::size_t first_row_in_frame, const StringPool& string_pool
+    size_t num_rows,
+    ChunkedBuffer& src,
+    std::size_t first_row_in_frame,
+    const StringPool& string_pool
 ) {
     entity::position_t offset_val{0};
 

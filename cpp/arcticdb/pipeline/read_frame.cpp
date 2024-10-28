@@ -50,7 +50,8 @@ void mark_index_slices(const std::shared_ptr<PipelineContext>& context, bool dyn
 }
 
 StreamDescriptor get_filtered_descriptor(
-    StreamDescriptor&& descriptor, const std::shared_ptr<FieldCollection>& filter_columns
+    StreamDescriptor&& descriptor,
+    const std::shared_ptr<FieldCollection>& filter_columns
 ) {
     // We assume here that filter_columns_ will always contain the index.
 
@@ -269,7 +270,10 @@ void decode_or_expand(
 }
 
 size_t get_field_range_compressed_size(
-    size_t start_idx, size_t num_fields, const SegmentHeader& hdr, const EncodedFieldCollection& fields
+    size_t start_idx,
+    size_t num_fields,
+    const SegmentHeader& hdr,
+    const EncodedFieldCollection& fields
 ) {
     size_t total = 0ULL;
     const size_t magic_num_size =

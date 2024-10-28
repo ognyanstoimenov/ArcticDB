@@ -42,7 +42,11 @@ class FixedSchema {
     [[nodiscard]] StreamDescriptor default_descriptor() const { return desc_.clone(); }
 
     static position_t get_column_idx_by_name(
-        SegmentInMemory& seg, std::string_view col_name, TypeDescriptor, size_t, size_t
+        SegmentInMemory& seg,
+        std::string_view col_name,
+        TypeDescriptor,
+        size_t,
+        size_t
     ) {
         auto opt_col = seg.column_index(col_name);
         util::check(static_cast<bool>(opt_col), "Column {} not found", col_name);
@@ -78,7 +82,11 @@ class DynamicSchema {
     void check(std::size_t pos ARCTICDB_UNUSED, TypeDescriptor td ARCTICDB_UNUSED) const {}
 
     static position_t get_column_idx_by_name(
-        SegmentInMemory& seg, std::string_view col_name, TypeDescriptor desc, size_t expected_size, size_t existing_size
+        SegmentInMemory& seg,
+        std::string_view col_name,
+        TypeDescriptor desc,
+        size_t expected_size,
+        size_t existing_size
     ) {
         auto opt_col = seg.column_index(col_name);
         if (!opt_col) {

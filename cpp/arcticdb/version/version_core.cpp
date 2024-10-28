@@ -32,7 +32,8 @@
 namespace arcticdb::version_store {
 
 void modify_descriptor(
-    const std::shared_ptr<pipelines::PipelineContext>& pipeline_context, const ReadOptions& read_options
+    const std::shared_ptr<pipelines::PipelineContext>& pipeline_context,
+    const ReadOptions& read_options
 ) {
 
     if (opt_false(read_options.force_strings_to_object_) || opt_false(read_options.force_strings_to_fixed_))
@@ -477,7 +478,10 @@ VersionedItem update_impl(
 }
 
 void set_row_id_for_empty_columns_set(
-    const ReadQuery& read_query, const PipelineContext& pipeline_context, SegmentInMemory& frame, size_t row_id
+    const ReadQuery& read_query,
+    const PipelineContext& pipeline_context,
+    SegmentInMemory& frame,
+    size_t row_id
 ) {
     if (read_query.columns && read_query.columns->empty() &&
         pipeline_context.descriptor().index().type() == IndexDescriptor::Type::ROWCOUNT) {
@@ -536,7 +540,9 @@ folly::Future<version_store::ReadVersionOutput> async_read_direct_impl(
 }
 
 FrameAndDescriptor read_multi_key(
-    const std::shared_ptr<Store>& store, const SegmentInMemory& index_key_seg, std::any& handler_data
+    const std::shared_ptr<Store>& store,
+    const SegmentInMemory& index_key_seg,
+    std::any& handler_data
 ) {
     std::vector<AtomKey> keys;
     for (size_t idx = 0; idx < index_key_seg.row_count(); idx++) {
@@ -958,7 +964,8 @@ std::optional<pipelines::index::IndexSegmentReader> get_index_segment_reader(
 }
 
 void check_can_read_index_only_if_required(
-    const index::IndexSegmentReader& index_segment_reader, const ReadQuery& read_query
+    const index::IndexSegmentReader& index_segment_reader,
+    const ReadQuery& read_query
 ) {
     user_input::check<ErrorCode::E_INVALID_USER_ARGUMENT>(
         !(index_segment_reader.tsd().proto().normalization().has_custom() && read_query.columns &&
@@ -1116,7 +1123,8 @@ bool read_incompletes_to_pipeline(
 }
 
 void check_incompletes_index_ranges_dont_overlap(
-    const std::shared_ptr<PipelineContext>& pipeline_context, const std::optional<SortedValue>& previous_sorted_value
+    const std::shared_ptr<PipelineContext>& pipeline_context,
+    const std::optional<SortedValue>& previous_sorted_value
 ) {
     /*
      Does nothing if the symbol is not timestamp-indexed
@@ -2056,7 +2064,9 @@ VersionedItem defragment_symbol_data_impl(
 }
 
 void set_row_id_if_index_only(
-    const PipelineContext& pipeline_context, SegmentInMemory& frame, const ReadQuery& read_query
+    const PipelineContext& pipeline_context,
+    SegmentInMemory& frame,
+    const ReadQuery& read_query
 ) {
     if (read_query.columns && read_query.columns->empty() &&
         pipeline_context.descriptor().index().type() == IndexDescriptor::Type::ROWCOUNT) {

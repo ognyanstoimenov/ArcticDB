@@ -98,7 +98,8 @@ inline arcticdb::proto::storage::VariantStorage pack_config(
 }
 
 inline std::optional<Aws::Client::ClientConfiguration> parse_proxy_env_var(
-    Aws::Http::Scheme endpoint_scheme, const char* opt_env_var
+    Aws::Http::Scheme endpoint_scheme,
+    const char* opt_env_var
 ) {
     if (opt_env_var == nullptr) {
         return std::nullopt;

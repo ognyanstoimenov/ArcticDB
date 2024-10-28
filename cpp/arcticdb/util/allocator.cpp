@@ -245,7 +245,8 @@ void AllocatorImpl<TracingPolicy, ClockType>::destroy_instance() {
 
 template<typename TracingPolicy, typename ClockType>
 std::pair<uint8_t*, entity::timestamp> AllocatorImpl<TracingPolicy, ClockType>::alloc(
-    size_t size, bool no_realloc ARCTICDB_UNUSED
+    size_t size,
+    bool no_realloc ARCTICDB_UNUSED
 ) {
     util::check(size != 0, "Should not allocate zero bytes");
     auto ts = current_timestamp();
@@ -277,7 +278,8 @@ void AllocatorImpl<TracingPolicy, ClockType>::maybe_trim() {
 
 template<typename TracingPolicy, typename ClockType>
 std::pair<uint8_t*, entity::timestamp> AllocatorImpl<TracingPolicy, ClockType>::aligned_alloc(
-    size_t size, bool no_realloc ARCTICDB_UNUSED
+    size_t size,
+    bool no_realloc ARCTICDB_UNUSED
 ) {
     util::check(size != 0, "Should not allocate zero bytes");
     auto ts = current_timestamp();
@@ -291,7 +293,8 @@ std::pair<uint8_t*, entity::timestamp> AllocatorImpl<TracingPolicy, ClockType>::
 
 template<class TracingPolicy, class ClockType>
 std::pair<uint8_t*, entity::timestamp> AllocatorImpl<TracingPolicy, ClockType>::realloc(
-    std::pair<uint8_t*, entity::timestamp> ptr, size_t size
+    std::pair<uint8_t*, entity::timestamp> ptr,
+    size_t size
 ) {
     auto ret = internal_realloc(ptr.first, size);
 

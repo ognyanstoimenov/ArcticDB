@@ -45,7 +45,9 @@ RC_GTEST_PROP(ChunkedBuffer, ReadWriteRegular, (const std::vector<uint8_t>& inpu
 }
 
 RC_GTEST_PROP(
-    ChunkedBuffer, SplitBuffer, (const std::vector<uint8_t>& input, uint8_t chunk_size, uint32_t split_size)
+    ChunkedBuffer,
+    SplitBuffer,
+    (const std::vector<uint8_t>& input, uint8_t chunk_size, uint32_t split_size)
 ) {
     using namespace arcticdb;
     RC_PRE(input.size() > 0u);
@@ -126,7 +128,9 @@ RC_GTEST_PROP(ChunkedBuffer, ReadWriteIrregular, (const std::vector<std::vector<
 }
 
 RC_GTEST_PROP(
-    ChunkedBuffer, ReadWriteTransition, (const std::vector<std::vector<uint64_t>>& inputs, uint8_t regular_chunks)
+    ChunkedBuffer,
+    ReadWriteTransition,
+    (const std::vector<std::vector<uint64_t>>& inputs, uint8_t regular_chunks)
 ) {
     using namespace arcticdb;
     CursoredBuffer<ChunkedBufferImpl<64>> cb;

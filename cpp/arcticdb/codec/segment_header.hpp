@@ -15,9 +15,8 @@ namespace arcticdb {
 
 class SegmentInMemory;
 
-static constexpr std::array<std::string_view, 5> offset_names_ = {
-    "METADATA", "STRING_POOL", "DESCRIPTOR", "INDEX", "COLUMN"
-};
+static constexpr std::array<std::string_view, 5> offset_names_ =
+    {"METADATA", "STRING_POOL", "DESCRIPTOR", "INDEX", "COLUMN"};
 
 inline void write_fixed_header(std::uint8_t* dst, FixedHeader hdr) {
     ARCTICDB_DEBUG(log::codec(), "Writing header with size {}", hdr.header_bytes);

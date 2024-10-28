@@ -284,7 +284,9 @@ class VersionMapImpl {
     }
 
     std::vector<AtomKey> write_and_prune_previous(
-        std::shared_ptr<Store> store, const AtomKey& key, const std::optional<AtomKey>& previous_key
+        std::shared_ptr<Store> store,
+        const AtomKey& key,
+        const std::optional<AtomKey>& previous_key
     ) {
         ARCTICDB_DEBUG(log::version(), "Version map pruning previous versions for stream {}", key.id());
         auto entry =
@@ -301,7 +303,8 @@ class VersionMapImpl {
     }
 
     std::pair<VersionId, std::deque<AtomKey>> delete_all_versions(
-        std::shared_ptr<Store> store, const StreamId& stream_id
+        std::shared_ptr<Store> store,
+        const StreamId& stream_id
     ) {
         ARCTICDB_DEBUG(log::version(), "Version map deleting all versions for stream {}", stream_id);
         std::deque<AtomKey> output;
@@ -379,7 +382,9 @@ class VersionMapImpl {
     }
 
     VariantKey journal_single_key(
-        std::shared_ptr<StreamSink> store, const AtomKey& key, std::optional<AtomKey> prev_journal_key
+        std::shared_ptr<StreamSink> store,
+        const AtomKey& key,
+        std::optional<AtomKey> prev_journal_key
     ) {
         ARCTICDB_SAMPLE(WriteJournalEntry, 0)
         ARCTICDB_DEBUG(log::version(), "Version map writing version for key {}", key);
@@ -470,7 +475,9 @@ class VersionMapImpl {
     }
 
     void overwrite_symbol_tree(
-        std::shared_ptr<Store> store, const StreamId& stream_id, const std::vector<AtomKey>& index_keys
+        std::shared_ptr<Store> store,
+        const StreamId& stream_id,
+        const std::vector<AtomKey>& index_keys
     ) {
         auto entry =
             check_reload(store, stream_id, LoadStrategy{LoadType::ALL, LoadObjective::INCLUDE_DELETED}, __FUNCTION__);
@@ -508,7 +515,9 @@ class VersionMapImpl {
      * Returns the second undeleted index (after the write).
      */
     std::optional<AtomKey> do_write(
-        std::shared_ptr<Store> store, const AtomKey& key, const std::shared_ptr<VersionMapEntry>& entry
+        std::shared_ptr<Store> store,
+        const AtomKey& key,
+        const std::shared_ptr<VersionMapEntry>& entry
     ) {
         if (validate_)
             entry->validate();
@@ -539,13 +548,17 @@ class VersionMapImpl {
     }
 
     void remove_entry_version_keys(
-        const std::shared_ptr<Store>& store, const std::shared_ptr<VersionMapEntry>& entry, const StreamId& stream_id
+        const std::shared_ptr<Store>& store,
+        const std::shared_ptr<VersionMapEntry>& entry,
+        const StreamId& stream_id
     ) const {
         return remove_entry_version_keys(store, *entry, stream_id);
     }
 
     void remove_entry_version_keys(
-        const std::shared_ptr<Store>& store, const VersionMapEntry& entry, const StreamId& stream_id
+        const std::shared_ptr<Store>& store,
+        const VersionMapEntry& entry,
+        const StreamId& stream_id
     ) const {
         if (entry.head_) {
             util::check(
@@ -636,7 +649,9 @@ class VersionMapImpl {
 
   private:
     std::shared_ptr<VersionMapEntry> compact_entry(
-        std::shared_ptr<Store> store, const StreamId& stream_id, const std::shared_ptr<VersionMapEntry>& entry
+        std::shared_ptr<Store> store,
+        const StreamId& stream_id,
+        const std::shared_ptr<VersionMapEntry>& entry
     ) {
         // For compacting an entry, we compact from the second version key in the chain
         // This makes it concurrent safe (when use_tombstones is enabled)
@@ -783,7 +798,9 @@ class VersionMapImpl {
     }
 
     std::shared_ptr<VersionMapEntry> storage_reload(
-        std::shared_ptr<Store> store, const StreamId& stream_id, const LoadStrategy& load_strategy
+        std::shared_ptr<Store> store,
+        const StreamId& stream_id,
+        const LoadStrategy& load_strategy
     ) {
         /*
          * Goes to the storage for a given symbol, and recreates the VersionMapEntry from preferably the ref key
@@ -815,7 +832,9 @@ class VersionMapImpl {
     timestamp now() const { return Clock::nanos_since_epoch(); }
 
     std::shared_ptr<VersionMapEntry> rewrite_entry(
-        std::shared_ptr<Store> store, const StreamId& stream_id, const std::shared_ptr<VersionMapEntry>& entry
+        std::shared_ptr<Store> store,
+        const StreamId& stream_id,
+        const std::shared_ptr<VersionMapEntry>& entry
     ) {
         auto new_entry = std::make_shared<VersionMapEntry>();
         std::copy_if(
@@ -920,7 +939,9 @@ class VersionMapImpl {
     }
 
     std::vector<AtomKey> find_deleted_version_keys_for_entry(
-        std::shared_ptr<Store> store, const StreamId& stream_id, const std::shared_ptr<VersionMapEntry>& entry
+        std::shared_ptr<Store> store,
+        const StreamId& stream_id,
+        const std::shared_ptr<VersionMapEntry>& entry
     ) {
         std::vector<AtomKey> missing_versions;
 
@@ -1017,7 +1038,9 @@ class VersionMapImpl {
     }
 
     AtomKey write_tombstone_all_key_internal(
-        const std::shared_ptr<Store>& store, const AtomKey& previous_key, const std::shared_ptr<VersionMapEntry>& entry
+        const std::shared_ptr<Store>& store,
+        const AtomKey& previous_key,
+        const std::shared_ptr<VersionMapEntry>& entry
     ) {
         auto tombstone_key = get_tombstone_all_key(previous_key, store->current_timestamp());
         entry->try_set_tombstone_all(tombstone_key);

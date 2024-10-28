@@ -69,7 +69,8 @@ struct ARCTICDB_VISIBILITY_HIDDEN StringEncodingError {
 std::variant<StringEncodingError, PyStringWrapper> pystring_to_buffer(PyObject* obj, bool is_owned);
 
 std::variant<StringEncodingError, PyStringWrapper> py_unicode_to_buffer(
-    PyObject* obj, std::optional<ScopedGILLock>& scoped_gil_lock
+    PyObject* obj,
+    std::optional<ScopedGILLock>& scoped_gil_lock
 );
 
 NativeTensor obj_to_tensor(PyObject* ptr, bool empty_types);

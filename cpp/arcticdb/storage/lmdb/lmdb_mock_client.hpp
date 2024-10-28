@@ -54,7 +54,11 @@ class MockLmdbClient : public LmdbClientWrapper {
     bool remove(const std::string& db_name, std::string& path, ::lmdb::txn& txn, ::lmdb::dbi& dbi) override;
 
     std::vector<VariantKey> list(
-        const std::string& db_name, const std::string& prefix, ::lmdb::txn& txn, ::lmdb::dbi& dbi, KeyType key_type
+        const std::string& db_name,
+        const std::string& prefix,
+        ::lmdb::txn& txn,
+        ::lmdb::dbi& dbi,
+        KeyType key_type
     ) const override;
 
   private:

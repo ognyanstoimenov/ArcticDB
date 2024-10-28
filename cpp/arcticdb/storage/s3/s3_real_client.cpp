@@ -124,7 +124,9 @@ S3Result<Segment> RealS3Client::get_object(const std::string& s3_object_name, co
 }
 
 S3Result<std::monostate> RealS3Client::put_object(
-    const std::string& s3_object_name, Segment&& segment, const std::string& bucket_name
+    const std::string& s3_object_name,
+    Segment&& segment,
+    const std::string& bucket_name
 ) {
 
     ARCTICDB_SUBSAMPLE(S3StorageWritePreamble, 0)
@@ -149,7 +151,8 @@ S3Result<std::monostate> RealS3Client::put_object(
 }
 
 S3Result<DeleteOutput> RealS3Client::delete_objects(
-    const std::vector<std::string>& s3_object_names, const std::string& bucket_name
+    const std::vector<std::string>& s3_object_names,
+    const std::string& bucket_name
 ) {
 
     Aws::S3::Model::DeleteObjectsRequest request;
@@ -181,7 +184,9 @@ S3Result<DeleteOutput> RealS3Client::delete_objects(
 }
 
 S3Result<ListObjectsOutput> RealS3Client::list_objects(
-    const std::string& name_prefix, const std::string& bucket_name, const std::optional<std::string> continuation_token
+    const std::string& name_prefix,
+    const std::string& bucket_name,
+    const std::optional<std::string> continuation_token
 ) const {
 
     ARCTICDB_RUNTIME_DEBUG(

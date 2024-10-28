@@ -45,7 +45,8 @@ size_t column_fields_size(const SegmentHeader& seg_hdr) {
 }
 
 SegmentCompressedSize compressed(
-    const SegmentHeader& seg_hdr, const std::optional<SegmentHeaderProtoWrapper>& proto_wrapper
+    const SegmentHeader& seg_hdr,
+    const std::optional<SegmentHeaderProtoWrapper>& proto_wrapper
 ) {
     size_t string_pool_size = 0;
     if (seg_hdr.has_string_pool_field())
@@ -83,7 +84,9 @@ SegmentCompressedSize compressed(
 } // namespace segment_size
 
 FieldCollection decode_descriptor_fields(
-    const SegmentHeader& hdr, const uint8_t* data, const uint8_t* begin ARCTICDB_UNUSED
+    const SegmentHeader& hdr,
+    const uint8_t* data,
+    const uint8_t* begin ARCTICDB_UNUSED
 ) {
     FieldCollection fields;
     if (hdr.has_descriptor_field()) {

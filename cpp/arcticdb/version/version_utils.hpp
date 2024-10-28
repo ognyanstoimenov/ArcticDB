@@ -72,7 +72,9 @@ inline entity::VariantKey write_multi_index_entry(
 }
 
 inline std::optional<AtomKey> read_segment_with_keys(
-    const SegmentInMemory& seg, VersionMapEntry& entry, LoadProgress& load_progress
+    const SegmentInMemory& seg,
+    VersionMapEntry& entry,
+    LoadProgress& load_progress
 ) {
     ssize_t row = 0;
     std::optional<AtomKey> next;
@@ -123,7 +125,9 @@ inline std::optional<AtomKey> read_segment_with_keys(
 }
 
 inline std::optional<AtomKey> read_segment_with_keys(
-    const SegmentInMemory& seg, const std::shared_ptr<VersionMapEntry>& entry, LoadProgress& load_progress
+    const SegmentInMemory& seg,
+    const std::shared_ptr<VersionMapEntry>& entry,
+    LoadProgress& load_progress
 ) {
     return read_segment_with_keys(seg, *entry, load_progress);
 }
@@ -186,7 +190,9 @@ inline void check_is_version(const AtomKey& key) {
 }
 
 inline void read_symbol_ref(
-    const std::shared_ptr<StreamSource>& store, const StreamId& stream_id, VersionMapEntry& entry
+    const std::shared_ptr<StreamSource>& store,
+    const StreamId& stream_id,
+    VersionMapEntry& entry
 ) {
     std::pair<entity::VariantKey, SegmentInMemory> key_seg_pair;
     // Trying to read a missing ref key is expected e.g. when writing a previously missing symbol.
@@ -255,7 +261,9 @@ inline bool is_positive_version_query(const LoadStrategy& load_strategy) {
 }
 
 inline bool continue_when_loading_version(
-    const LoadStrategy& load_strategy, const LoadProgress& load_progress, const std::optional<VersionId>& latest_version
+    const LoadStrategy& load_strategy,
+    const LoadProgress& load_progress,
+    const std::optional<VersionId>& latest_version
 ) {
     if (!load_strategy.load_until_version_)
         // Should continue when not loading down to a version
@@ -290,7 +298,8 @@ inline bool continue_when_loading_version(
 }
 
 inline void set_latest_version(
-    const std::shared_ptr<VersionMapEntry>& entry, std::optional<VersionId>& latest_version
+    const std::shared_ptr<VersionMapEntry>& entry,
+    std::optional<VersionId>& latest_version
 ) {
     if (!latest_version) {
         auto latest = entry->get_first_index(true).first;
@@ -322,7 +331,8 @@ inline bool continue_when_loading_from_time(const LoadStrategy& load_strategy, c
 }
 
 inline bool continue_when_loading_latest(
-    const LoadStrategy& load_strategy, const std::shared_ptr<VersionMapEntry>& entry
+    const LoadStrategy& load_strategy,
+    const std::shared_ptr<VersionMapEntry>& entry
 ) {
     if (!(load_strategy.load_type_ == LoadType::LATEST &&
           entry->get_first_index(load_strategy.should_include_deleted()).first))
@@ -337,7 +347,9 @@ inline bool continue_when_loading_latest(
 }
 
 inline bool continue_when_loading_undeleted(
-    const LoadStrategy& load_strategy, const std::shared_ptr<VersionMapEntry>& entry, const LoadProgress& load_progress
+    const LoadStrategy& load_strategy,
+    const std::shared_ptr<VersionMapEntry>& entry,
+    const LoadProgress& load_progress
 ) {
     if (load_strategy.should_include_deleted()) {
         return true;
@@ -373,7 +385,9 @@ inline bool penultimate_key_contains_required_version_id(const AtomKey& key, con
 }
 
 inline bool key_exists_in_ref_entry(
-    const LoadStrategy& load_strategy, const VersionMapEntry& ref_entry, std::optional<AtomKey>& cached_penultimate_key
+    const LoadStrategy& load_strategy,
+    const VersionMapEntry& ref_entry,
+    std::optional<AtomKey>& cached_penultimate_key
 ) {
     // The 3 item ref key bypass can be used only when we are loading undeleted versions
     // because otherwise it might skip versions that are deleted but part of snapshots

@@ -26,12 +26,16 @@ class LibraryTool;
 namespace arcticdb::async {
 
 std::pair<VariantKey, std::optional<Segment>> lookup_match_in_dedup_map(
-    const std::shared_ptr<DeDupMap>& de_dup_map, storage::KeySegmentPair&& key_seg
+    const std::shared_ptr<DeDupMap>& de_dup_map,
+    storage::KeySegmentPair&& key_seg
 );
 
 template<typename Callable>
 auto read_and_continue(
-    const VariantKey& key, std::shared_ptr<storage::Library> library, const storage::ReadKeyOpts& opts, Callable&& c
+    const VariantKey& key,
+    std::shared_ptr<storage::Library> library,
+    const storage::ReadKeyOpts& opts,
+    Callable&& c
 ) {
     return async::submit_io_task(ReadCompressedTask{key, library, opts, std::forward<decltype(c)>(c)})
         .via(&async::cpu_executor())
@@ -186,7 +190,9 @@ class AsyncStore : public Store {
     }
 
     folly::Future<entity::VariantKey> update(
-        const entity::VariantKey& key, SegmentInMemory&& segment, storage::UpdateOpts opts
+        const entity::VariantKey& key,
+        SegmentInMemory&& segment,
+        storage::UpdateOpts opts
     ) override {
         auto stream_id = variant_key_id(key);
         util::check(
@@ -202,7 +208,10 @@ class AsyncStore : public Store {
     }
 
     folly::Future<VariantKey> copy(
-        KeyType key_type, const StreamId& stream_id, VersionId version_id, const VariantKey& source_key
+        KeyType key_type,
+        const StreamId& stream_id,
+        VersionId version_id,
+        const VariantKey& source_key
     ) override {
         return async::submit_io_task(
             CopyCompressedTask<ClockType>{source_key, key_type, stream_id, version_id, library_}
@@ -210,7 +219,10 @@ class AsyncStore : public Store {
     }
 
     VariantKey copy_sync(
-        KeyType key_type, const StreamId& stream_id, VersionId version_id, const VariantKey& source_key
+        KeyType key_type,
+        const StreamId& stream_id,
+        VersionId version_id,
+        const VariantKey& source_key
     ) override {
         return CopyCompressedTask<ClockType>{source_key, key_type, stream_id, version_id, library_}();
     }
@@ -226,7 +238,8 @@ class AsyncStore : public Store {
     }
 
     folly::Future<std::pair<entity::VariantKey, SegmentInMemory>> read(
-        const entity::VariantKey& key, storage::ReadKeyOpts opts
+        const entity::VariantKey& key,
+        storage::ReadKeyOpts opts
     ) override {
         return read_and_continue(key, library_, opts, DecodeSegmentTask{});
     }
@@ -246,7 +259,8 @@ class AsyncStore : public Store {
     }
 
     folly::Future<std::pair<std::optional<VariantKey>, std::optional<google::protobuf::Any>>> read_metadata(
-        const entity::VariantKey& key, storage::ReadKeyOpts opts
+        const entity::VariantKey& key,
+        storage::ReadKeyOpts opts
     ) override {
         return read_and_continue(key, library_, opts, DecodeMetadataTask{});
     }
@@ -257,13 +271,15 @@ class AsyncStore : public Store {
     }
 
     folly::Future<std::pair<VariantKey, TimeseriesDescriptor>> read_timeseries_descriptor(
-        const entity::VariantKey& key, storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
+        const entity::VariantKey& key,
+        storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
     ) override {
         return read_and_continue(key, library_, opts, DecodeTimeseriesDescriptorTask{});
     }
 
     folly::Future<std::pair<VariantKey, TimeseriesDescriptor>> read_timeseries_descriptor_for_incompletes(
-        const entity::VariantKey& key, storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
+        const entity::VariantKey& key,
+        storage::ReadKeyOpts opts = storage::ReadKeyOpts{}
     ) override {
         return read_and_continue(key, library_, opts, DecodeTimeseriesDescriptorForIncompletesTask{});
     }
@@ -303,21 +319,24 @@ class AsyncStore : public Store {
     }
 
     folly::Future<std::vector<RemoveKeyResultType>> remove_keys(
-        const std::vector<entity::VariantKey>& keys, storage::RemoveOpts opts
+        const std::vector<entity::VariantKey>& keys,
+        storage::RemoveOpts opts
     ) override {
         return keys.empty() ? std::vector<RemoveKeyResultType>()
                             : async::submit_io_task(RemoveBatchTask{keys, library_, opts});
     }
 
     folly::Future<std::vector<RemoveKeyResultType>> remove_keys(
-        std::vector<entity::VariantKey>&& keys, storage::RemoveOpts opts
+        std::vector<entity::VariantKey>&& keys,
+        storage::RemoveOpts opts
     ) override {
         return keys.empty() ? std::vector<RemoveKeyResultType>()
                             : async::submit_io_task(RemoveBatchTask{std::move(keys), library_, opts});
     }
 
     std::vector<RemoveKeyResultType> remove_keys_sync(
-        const std::vector<entity::VariantKey>& keys, storage::RemoveOpts opts
+        const std::vector<entity::VariantKey>& keys,
+        storage::RemoveOpts opts
     ) override {
         return keys.empty() ? std::vector<RemoveKeyResultType>() : RemoveBatchTask{keys, library_, opts}();
     }
@@ -328,7 +347,8 @@ class AsyncStore : public Store {
     }
 
     folly::Future<std::vector<VariantKey>> batch_read_compressed(
-        std::vector<std::pair<entity::VariantKey, ReadContinuation>>&& keys_and_continuations, const BatchReadArgs& args
+        std::vector<std::pair<entity::VariantKey, ReadContinuation>>&& keys_and_continuations,
+        const BatchReadArgs& args
     ) override {
         util::check(
             !keys_and_continuations.empty(), "Unexpected empty keys/continuation vector in batch_read_compressed"

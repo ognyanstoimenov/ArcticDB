@@ -18,7 +18,11 @@ struct KeyData {
           description_() {}
 
     KeyData(
-        const char* long_name, char short_name, VariantType variant_type, KeyClass key_class, const char* description
+        const char* long_name,
+        char short_name,
+        VariantType variant_type,
+        KeyClass key_class,
+        const char* description
     )
         : long_name_(long_name),
           short_name_(short_name),

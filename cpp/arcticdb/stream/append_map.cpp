@@ -46,15 +46,22 @@ struct AppendMapEntry {
 };
 
 AppendMapEntry entry_from_key(
-    const std::shared_ptr<stream::StreamSource>& store, const entity::AtomKey& key, bool load_data
+    const std::shared_ptr<stream::StreamSource>& store,
+    const entity::AtomKey& key,
+    bool load_data
 );
 
 std::vector<AppendMapEntry> get_incomplete_append_slices_for_stream_id(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, bool via_iteration, bool load_data
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    bool via_iteration,
+    bool load_data
 );
 
 inline std::vector<AppendMapEntry> load_via_iteration(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, bool load_data
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    bool load_data
 ) {
     auto prefix = std::holds_alternative<StringId>(stream_id) ? std::get<StringId>(stream_id) : std::string();
 
@@ -310,7 +317,9 @@ void remove_incomplete_segments(const std::shared_ptr<Store>& store, const Strea
 }
 
 std::vector<AppendMapEntry> load_via_list(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, bool load_data
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    bool load_data
 ) {
     using namespace arcticdb::pipelines;
 
@@ -446,7 +455,10 @@ void append_incomplete_segment(const std::shared_ptr<Store>& store, const Stream
 }
 
 std::vector<AppendMapEntry> get_incomplete_append_slices_for_stream_id(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, bool via_iteration, bool load_data
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    bool via_iteration,
+    bool load_data
 ) {
     using namespace arcticdb::pipelines;
     std::vector<AppendMapEntry> entries;
@@ -471,7 +483,9 @@ std::vector<AppendMapEntry> get_incomplete_append_slices_for_stream_id(
 }
 
 std::vector<VariantKey> read_incomplete_keys_for_symbol(
-    const std::shared_ptr<Store>& store, const StreamId& stream_id, bool via_iteration
+    const std::shared_ptr<Store>& store,
+    const StreamId& stream_id,
+    bool via_iteration
 ) {
     const std::vector<AppendMapEntry> entries =
         get_incomplete_append_slices_for_stream_id(store, stream_id, via_iteration, false);

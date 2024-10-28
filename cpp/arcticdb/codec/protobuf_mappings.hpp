@@ -65,7 +65,8 @@ inline void set_zstd(const ZstdCodec& zstd_in, arcticdb::proto::encoding::Varian
 }
 
 inline void set_passthrough(
-    const PassthroughCodec& passthrough_in, arcticdb::proto::encoding::VariantCodec::Passthrough& passthrough_out
+    const PassthroughCodec& passthrough_in,
+    arcticdb::proto::encoding::VariantCodec::Passthrough& passthrough_out
 ) {
     passthrough_out.set_mark(passthrough_in.unused_);
 }

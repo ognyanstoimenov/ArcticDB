@@ -138,7 +138,9 @@ class InMemoryStore : public Store {
     bool is_path_valid(const std::string_view) const override { return true; }
 
     folly::Future<entity::VariantKey> write(
-        stream::KeyType key_type, const StreamId& stream_id, SegmentInMemory&& segment
+        stream::KeyType key_type,
+        const StreamId& stream_id,
+        SegmentInMemory&& segment
     ) override {
         util::check(is_ref_key_class(key_type), "Cannot write ref key with atom key type {}", key_type);
         auto key = entity::RefKey{stream_id, key_type};
@@ -299,7 +301,8 @@ class InMemoryStore : public Store {
     }
 
     folly::Future<std::vector<RemoveKeyResultType>> remove_keys(
-        const std::vector<entity::VariantKey>& keys, storage::RemoveOpts opts
+        const std::vector<entity::VariantKey>& keys,
+        storage::RemoveOpts opts
     ) override {
         std::vector<RemoveKeyResultType> output;
         for (const auto& key : keys) {
@@ -310,7 +313,8 @@ class InMemoryStore : public Store {
     }
 
     folly::Future<std::vector<RemoveKeyResultType>> remove_keys(
-        std::vector<entity::VariantKey>&& keys, storage::RemoveOpts opts
+        std::vector<entity::VariantKey>&& keys,
+        storage::RemoveOpts opts
     ) override {
         std::vector<RemoveKeyResultType> output;
         for (const auto& key : keys) {
@@ -321,7 +325,8 @@ class InMemoryStore : public Store {
     }
 
     std::vector<RemoveKeyResultType> remove_keys_sync(
-        const std::vector<entity::VariantKey>& keys, storage::RemoveOpts opts
+        const std::vector<entity::VariantKey>& keys,
+        storage::RemoveOpts opts
     ) override {
         std::vector<RemoveKeyResultType> output;
         for (const auto& key : keys) {

@@ -173,7 +173,9 @@ class Storage {
     // Stop iteration and return true upon the first key k for which visitor(k) is true, return false if no key matches
     // the predicate.
     virtual bool do_iterate_type_until_match(
-        KeyType key_type, const IterateTypePredicate& visitor, const std::string& prefix
+        KeyType key_type,
+        const IterateTypePredicate& visitor,
+        const std::string& prefix
     ) = 0;
 
     virtual std::string do_key_path(const VariantKey& key) const = 0;

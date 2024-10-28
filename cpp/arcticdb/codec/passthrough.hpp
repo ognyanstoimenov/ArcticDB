@@ -36,7 +36,11 @@ struct PassthroughEncoderV1 {
 
     template<typename EncodedFieldType>
     static void encode(
-        const Opts&, const BlockType<TD>& block, EncodedFieldType& field, Buffer& out, std::ptrdiff_t& pos
+        const Opts&,
+        const BlockType<TD>& block,
+        EncodedFieldType& field,
+        Buffer& out,
+        std::ptrdiff_t& pos
     ) {
         using namespace arcticdb::entity;
         using Helper = CodecHelper<TD>;
@@ -97,7 +101,11 @@ struct PassthroughEncoderV1 {
   private:
     template<class T>
     static void encode_block(
-        const T* in, BlockDataHelper& block_utils, HashAccum& hasher, T* out, std::ptrdiff_t& pos
+        const T* in,
+        BlockDataHelper& block_utils,
+        HashAccum& hasher,
+        T* out,
+        std::ptrdiff_t& pos
     ) {
         memcpy(out, in, block_utils.bytes_);
         hasher(in, block_utils.bytes_ / sizeof(T));
@@ -117,7 +125,11 @@ struct PassthroughEncoderV2 {
 
     template<typename EncodedBlockType>
     static void encode(
-        const Opts&, const BlockType<TD>& block, Buffer& out, std::ptrdiff_t& pos, EncodedBlockType* encoded_block
+        const Opts&,
+        const BlockType<TD>& block,
+        Buffer& out,
+        std::ptrdiff_t& pos,
+        EncodedBlockType* encoded_block
     ) {
         using namespace arcticdb::entity;
         using Helper = CodecHelper<TD>;

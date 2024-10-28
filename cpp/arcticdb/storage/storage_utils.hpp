@@ -21,7 +21,9 @@ inline auto stream_id_prefix_matcher(const std::string& prefix) {
 }
 
 inline std::vector<VariantKey> filter_keys_on_existence(
-    const std::vector<VariantKey>& keys, const std::shared_ptr<Store>& store, bool pred
+    const std::vector<VariantKey>& keys,
+    const std::shared_ptr<Store>& store,
+    bool pred
 ) {
     auto key_existence = folly::collect(store->batch_key_exists(keys)).get();
     std::vector<VariantKey> res;

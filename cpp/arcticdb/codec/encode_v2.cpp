@@ -15,7 +15,9 @@
 
 namespace arcticdb {
 void add_bitmagic_compressed_size(
-    const ColumnData& column_data, size_t& max_compressed_bytes, size_t& uncompressed_bytes
+    const ColumnData& column_data,
+    size_t& max_compressed_bytes,
+    size_t& uncompressed_bytes
 );
 
 void encode_sparse_map(ColumnData& column_data, EncodedFieldImpl& field, Buffer& out, std::ptrdiff_t& pos);
@@ -57,12 +59,16 @@ struct ColumnEncoderV2 {
     );
 
     static std::pair<size_t, size_t> max_compressed_size(
-        const arcticdb::proto::encoding::VariantCodec& codec_opts, ColumnData& column_data
+        const arcticdb::proto::encoding::VariantCodec& codec_opts,
+        ColumnData& column_data
     );
 
   private:
     static void encode_shapes(
-        const ColumnData& column_data, EncodedFieldImpl& field, Buffer& out, std::ptrdiff_t& pos_in_buffer
+        const ColumnData& column_data,
+        EncodedFieldImpl& field,
+        Buffer& out,
+        std::ptrdiff_t& pos_in_buffer
     );
 
     static void encode_blocks(
@@ -99,7 +105,10 @@ void ColumnEncoderV2::encode(
 }
 
 void ColumnEncoderV2::encode_shapes(
-    const ColumnData& column_data, EncodedFieldImpl& field, Buffer& out, std::ptrdiff_t& pos_in_buffer
+    const ColumnData& column_data,
+    EncodedFieldImpl& field,
+    Buffer& out,
+    std::ptrdiff_t& pos_in_buffer
 ) {
     // There is no need to store the shapes for a column of empty type as they will be all 0. The type handler will
     // assign 0 for the shape upon reading. There is one edge case - when we have None in the column, as it should not
@@ -135,7 +144,8 @@ void ColumnEncoderV2::encode_blocks(
 }
 
 std::pair<size_t, size_t> ColumnEncoderV2::max_compressed_size(
-    const arcticdb::proto::encoding::VariantCodec& codec_opts, ColumnData& column_data
+    const arcticdb::proto::encoding::VariantCodec& codec_opts,
+    ColumnData& column_data
 ) {
     return column_data.type().visit_tag([&codec_opts, &column_data](auto type_desc_tag) {
         size_t max_compressed_bytes = 0;
@@ -239,7 +249,9 @@ static void encode_index_descriptors(
 }
 
 static void calc_encoded_blocks_size(
-    const SegmentInMemory& in_mem_seg, const arcticdb::proto::encoding::VariantCodec& codec_opts, SizeResult& result
+    const SegmentInMemory& in_mem_seg,
+    const arcticdb::proto::encoding::VariantCodec& codec_opts,
+    SizeResult& result
 ) {
     result.encoded_blocks_bytes_ = static_cast<shape_t>(encoded_blocks_size(in_mem_seg));
     result.uncompressed_bytes_ += result.encoded_blocks_bytes_;
@@ -256,7 +268,9 @@ static void add_stream_descriptor_data_size(SizeResult& result, const StreamId& 
 }
 
 static void calc_stream_descriptor_fields_size(
-    const SegmentInMemory& in_mem_seg, const arcticdb::proto::encoding::VariantCodec& codec_opts, SizeResult& result
+    const SegmentInMemory& in_mem_seg,
+    const arcticdb::proto::encoding::VariantCodec& codec_opts,
+    SizeResult& result
 ) {
     auto segment_fields = in_mem_seg.descriptor().fields().column_data();
     const auto [uncompressed, required] = ColumnEncoderV2::max_compressed_size(codec_opts, segment_fields);
@@ -276,7 +290,8 @@ static void calc_stream_descriptor_fields_size(
 }
 
 [[nodiscard]] SizeResult max_compressed_size_v2(
-    const SegmentInMemory& in_mem_seg, const arcticdb::proto::encoding::VariantCodec& codec_opts
+    const SegmentInMemory& in_mem_seg,
+    const arcticdb::proto::encoding::VariantCodec& codec_opts
 ) {
     ARCTICDB_SAMPLE(GetSegmentCompressedSize, 0)
     SizeResult result{};

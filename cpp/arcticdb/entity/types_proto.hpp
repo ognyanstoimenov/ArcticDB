@@ -34,7 +34,9 @@ TypeDescriptor type_desc_from_proto(const arcticdb::proto::descriptors::TypeDesc
 DataType data_type_from_proto(const arcticdb::proto::descriptors::TypeDescriptor& type_desc);
 
 arcticdb::proto::descriptors::StreamDescriptor_FieldDescriptor field_proto(
-    DataType dt, Dimension dim, std::string_view name
+    DataType dt,
+    Dimension dim,
+    std::string_view name
 );
 
 DataType get_data_type(const arcticdb::proto::descriptors::TypeDescriptor& type_desc);
@@ -42,7 +44,9 @@ DataType get_data_type(const arcticdb::proto::descriptors::TypeDescriptor& type_
 DataType data_type_from_proto(const arcticdb::proto::descriptors::TypeDescriptor& type_desc);
 
 arcticdb::proto::descriptors::StreamDescriptor_FieldDescriptor field_proto(
-    DataType dt, Dimension dim, std::string_view name
+    DataType dt,
+    Dimension dim,
+    std::string_view name
 );
 
 const char* index_type_to_str(IndexDescriptor::Type type);

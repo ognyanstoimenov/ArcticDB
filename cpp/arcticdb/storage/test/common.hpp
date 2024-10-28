@@ -32,21 +32,27 @@ inline void write_in_store(Storage& store, std::string symbol, entity::KeyType k
 }
 
 inline void update_in_store(
-    Storage& store, std::string symbol, entity::KeyType key_type = entity::KeyType::TABLE_DATA
+    Storage& store,
+    std::string symbol,
+    entity::KeyType key_type = entity::KeyType::TABLE_DATA
 ) {
     auto variant_key = get_test_key(symbol, key_type);
     store.update(KeySegmentPair(std::move(variant_key), get_test_segment()), arcticdb::storage::UpdateOpts{});
 }
 
 inline bool exists_in_store(
-    Storage& store, std::string symbol, entity::KeyType key_type = entity::KeyType::TABLE_DATA
+    Storage& store,
+    std::string symbol,
+    entity::KeyType key_type = entity::KeyType::TABLE_DATA
 ) {
     auto variant_key = get_test_key(symbol, key_type);
     return store.key_exists(variant_key);
 }
 
 inline std::string read_in_store(
-    Storage& store, std::string symbol, entity::KeyType key_type = entity::KeyType::TABLE_DATA
+    Storage& store,
+    std::string symbol,
+    entity::KeyType key_type = entity::KeyType::TABLE_DATA
 ) {
     auto variant_key = get_test_key(symbol, key_type);
     auto opts = ReadKeyOpts{};
@@ -55,7 +61,9 @@ inline std::string read_in_store(
 }
 
 inline void remove_in_store(
-    Storage& store, const std::vector<std::string>& symbols, entity::KeyType key_type = entity::KeyType::TABLE_DATA
+    Storage& store,
+    const std::vector<std::string>& symbols,
+    entity::KeyType key_type = entity::KeyType::TABLE_DATA
 ) {
     auto to_remove = std::vector<VariantKey>();
     for (auto& symbol : symbols) {

@@ -41,10 +41,12 @@ namespace as = arcticdb::stream;
 using namespace arcticdb::storage;
 
 template PythonVersionStore::PythonVersionStore(
-    const std::shared_ptr<storage::Library>& library, const util::SysClock& ct
+    const std::shared_ptr<storage::Library>& library,
+    const util::SysClock& ct
 );
 template PythonVersionStore::PythonVersionStore(
-    const std::shared_ptr<storage::Library>& library, const util::ManualClock& ct
+    const std::shared_ptr<storage::Library>& library,
+    const util::ManualClock& ct
 );
 
 VersionedItem PythonVersionStore::write_dataframe_specific_version(
@@ -317,7 +319,8 @@ py::object get_metadata_for_snapshot(const std::shared_ptr<Store>& store, const 
 }
 
 std::pair<std::vector<AtomKey>, py::object> get_versions_and_metadata_from_snapshot(
-    const std::shared_ptr<Store>& store, const VariantKey& vk
+    const std::shared_ptr<Store>& store,
+    const VariantKey& vk
 ) {
     auto snapshot_segment = store->read_sync(vk).second;
     return {get_versions_from_segment(snapshot_segment), get_metadata_from_segment(snapshot_segment)};
@@ -402,7 +405,9 @@ void PythonVersionStore::add_to_snapshot(
 }
 
 void PythonVersionStore::remove_from_snapshot(
-    const SnapshotId& snap_name, const std::vector<StreamId>& stream_ids, const std::vector<VersionId>& version_ids
+    const SnapshotId& snap_name,
+    const std::vector<StreamId>& stream_ids,
+    const std::vector<VersionId>& version_ids
 ) {
     util::check(
         stream_ids.size() == version_ids.size(),
@@ -700,7 +705,10 @@ VersionedItem PythonVersionStore::update(
 }
 
 VersionedItem PythonVersionStore::delete_range(
-    const StreamId& stream_id, const UpdateQuery& query, bool dynamic_schema, bool prune_previous_versions
+    const StreamId& stream_id,
+    const UpdateQuery& query,
+    bool dynamic_schema,
+    bool prune_previous_versions
 ) {
     return delete_range_internal(stream_id, query, DeleteRangeOptions{dynamic_schema, prune_previous_versions});
 }
@@ -723,7 +731,9 @@ void PythonVersionStore::append_incomplete(
 }
 
 VersionedItem PythonVersionStore::write_metadata(
-    const StreamId& stream_id, const py::object& user_meta, bool prune_previous_versions
+    const StreamId& stream_id,
+    const py::object& user_meta,
+    bool prune_previous_versions
 ) {
     arcticdb::proto::descriptors::UserDefinedMetadata user_meta_proto;
     python_util::pb_from_python(user_meta, user_meta_proto);
@@ -731,7 +741,9 @@ VersionedItem PythonVersionStore::write_metadata(
 }
 
 void PythonVersionStore::create_column_stats_version(
-    const StreamId& stream_id, ColumnStats& column_stats, const VersionQuery& version_query
+    const StreamId& stream_id,
+    ColumnStats& column_stats,
+    const VersionQuery& version_query
 ) {
     ReadOptions read_options;
     read_options.set_dynamic_schema(cfg().write_options().dynamic_schema());
@@ -739,7 +751,9 @@ void PythonVersionStore::create_column_stats_version(
 }
 
 void PythonVersionStore::drop_column_stats_version(
-    const StreamId& stream_id, const std::optional<ColumnStats>& column_stats_to_drop, const VersionQuery& version_query
+    const StreamId& stream_id,
+    const std::optional<ColumnStats>& column_stats_to_drop,
+    const VersionQuery& version_query
 ) {
     drop_column_stats_version_internal(stream_id, column_stats_to_drop, version_query);
 }
@@ -751,7 +765,8 @@ ReadResult PythonVersionStore::read_column_stats_version(const StreamId& stream_
 }
 
 ColumnStats PythonVersionStore::get_column_stats_info_version(
-    const StreamId& stream_id, const VersionQuery& version_query
+    const StreamId& stream_id,
+    const VersionQuery& version_query
 ) {
     ARCTICDB_SAMPLE(GetColumnStatsInfo, 0)
     return get_column_stats_info_version_internal(stream_id, version_query);
@@ -908,7 +923,9 @@ ReadResult PythonVersionStore::read_dataframe_version(
 namespace {
 
 std::vector<SnapshotVariantKey> ARCTICDB_UNUSED iterate_snapshot_tombstones(
-    const std::string& limit_stream_id, std::set<IndexTypeKey>& candidates, const std::shared_ptr<Store>& store
+    const std::string& limit_stream_id,
+    std::set<IndexTypeKey>& candidates,
+    const std::shared_ptr<Store>& store
 ) {
 
     std::vector<SnapshotVariantKey> snap_tomb_keys;
@@ -1038,7 +1055,8 @@ void PythonVersionStore::delete_all_versions(const StreamId& stream_id) {
 }
 
 std::vector<timestamp> PythonVersionStore::get_update_times(
-    const std::vector<StreamId>& stream_ids, const std::vector<VersionQuery>& version_queries
+    const std::vector<StreamId>& stream_ids,
+    const std::vector<VersionQuery>& version_queries
 ) {
     return batch_get_update_times(stream_ids, version_queries);
 }
@@ -1068,7 +1086,8 @@ py::object metadata_protobuf_to_pyobject(const std::optional<google::protobuf::A
 } // namespace
 
 std::pair<VersionedItem, py::object> PythonVersionStore::read_metadata(
-    const StreamId& stream_id, const VersionQuery& version_query
+    const StreamId& stream_id,
+    const VersionQuery& version_query
 ) {
     ARCTICDB_RUNTIME_DEBUG(log::version(), "Command: read_metadata");
     ARCTICDB_SAMPLE(ReadMetadata, 0)
@@ -1102,7 +1121,8 @@ std::vector<std::variant<VersionedItem, DataError>> PythonVersionStore::batch_wr
 }
 
 std::vector<std::pair<VersionedItem, TimeseriesDescriptor>> PythonVersionStore::batch_restore_version(
-    const std::vector<StreamId>& stream_ids, const std::vector<VersionQuery>& version_queries
+    const std::vector<StreamId>& stream_ids,
+    const std::vector<VersionQuery>& version_queries
 ) {
     return batch_restore_version_internal(stream_ids, version_queries);
 }

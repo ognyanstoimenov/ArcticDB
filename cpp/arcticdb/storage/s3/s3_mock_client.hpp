@@ -63,15 +63,20 @@ class MockS3Client : public S3ClientWrapper {
     S3Result<Segment> get_object(const std::string& s3_object_name, const std::string& bucket_name) const override;
 
     S3Result<std::monostate> put_object(
-        const std::string& s3_object_name, Segment&& segment, const std::string& bucket_name
+        const std::string& s3_object_name,
+        Segment&& segment,
+        const std::string& bucket_name
     ) override;
 
     S3Result<DeleteOutput> delete_objects(
-        const std::vector<std::string>& s3_object_names, const std::string& bucket_name
+        const std::vector<std::string>& s3_object_names,
+        const std::string& bucket_name
     ) override;
 
     S3Result<ListObjectsOutput> list_objects(
-        const std::string& prefix, const std::string& bucket_name, const std::optional<std::string> continuation_token
+        const std::string& prefix,
+        const std::string& bucket_name,
+        const std::optional<std::string> continuation_token
     ) const override;
 
   private:

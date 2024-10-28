@@ -285,7 +285,8 @@ class SegmentInMemory {
     }
 
     [[nodiscard]] std::vector<SegmentInMemory> partition(
-        const std::vector<uint8_t>& row_to_segment, const std::vector<uint64_t>& segment_counts
+        const std::vector<uint8_t>& row_to_segment,
+        const std::vector<uint64_t>& segment_counts
     ) const {
         std::vector<SegmentInMemory> res;
         auto impls = impl_->partition(row_to_segment, segment_counts);

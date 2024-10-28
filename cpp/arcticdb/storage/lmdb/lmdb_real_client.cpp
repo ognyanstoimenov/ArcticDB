@@ -73,7 +73,11 @@ bool RealLmdbClient::remove(const std::string&, std::string& path, ::lmdb::txn& 
 }
 
 std::vector<VariantKey> RealLmdbClient::list(
-    const std::string&, const std::string& prefix, ::lmdb::txn& txn, ::lmdb::dbi& dbi, KeyType key_type
+    const std::string&,
+    const std::string& prefix,
+    ::lmdb::txn& txn,
+    ::lmdb::dbi& dbi,
+    KeyType key_type
 ) const {
     ARCTICDB_SUBSAMPLE(LmdbStorageOpenCursor, 0)
     auto db_cursor = ::lmdb::cursor::open(txn, dbi);

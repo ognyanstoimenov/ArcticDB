@@ -90,7 +90,11 @@ void SegmentInMemoryImpl::generate_column_map() const {
 }
 
 void SegmentInMemoryImpl::create_columns(
-    size_t old_size, size_t expected_column_size, AllocationType presize, Sparsity allow_sparse, DataTypeMode mode
+    size_t old_size,
+    size_t expected_column_size,
+    AllocationType presize,
+    Sparsity allow_sparse,
+    DataTypeMode mode
 ) {
     columns_.reserve(descriptor_->field_count());
     for (size_t i = old_size; i < size_t(descriptor_->field_count()); ++i) {
@@ -198,7 +202,9 @@ void SegmentInMemoryImpl::drop_column(std::string_view name) {
 }
 
 std::shared_ptr<SegmentInMemoryImpl> SegmentInMemoryImpl::filter(
-    util::BitSet&& filter_bitset, bool filter_down_stringpool, bool validate
+    util::BitSet&& filter_bitset,
+    bool filter_down_stringpool,
+    bool validate
 ) const {
     filter_bitset.resize(row_count());
     bool is_input_sparse = is_sparse();
@@ -384,7 +390,8 @@ std::shared_ptr<SegmentInMemoryImpl> SegmentInMemoryImpl::get_output_segment(siz
 }
 
 std::vector<std::shared_ptr<SegmentInMemoryImpl>> SegmentInMemoryImpl::partition(
-    const std::vector<uint8_t>& row_to_segment, const std::vector<uint64_t>& segment_counts
+    const std::vector<uint8_t>& row_to_segment,
+    const std::vector<uint64_t>& segment_counts
 ) const {
     internal::check<ErrorCode::E_ASSERTION_FAILURE>(
         row_count() == row_to_segment.size(),
@@ -504,7 +511,9 @@ bool operator==(const SegmentInMemoryImpl& left, const SegmentInMemoryImpl& righ
 }
 
 std::shared_ptr<SegmentInMemoryImpl> SegmentInMemoryImpl::truncate(
-    size_t start_row, size_t end_row, bool reconstruct_string_pool
+    size_t start_row,
+    size_t end_row,
+    bool reconstruct_string_pool
 ) const {
     auto num_values = end_row - start_row;
     internal::check<ErrorCode::E_ASSERTION_FAILURE>(

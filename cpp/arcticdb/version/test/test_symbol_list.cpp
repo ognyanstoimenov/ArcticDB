@@ -932,7 +932,9 @@ struct WriteSymbolsTask {
     std::shared_ptr<ReferenceVersionMap> versions_;
 
     WriteSymbolsTask(
-        const std::shared_ptr<Store>& store, size_t offset, const std::shared_ptr<ReferenceVersionMap>& versions
+        const std::shared_ptr<Store>& store,
+        size_t offset,
+        const std::shared_ptr<ReferenceVersionMap>& versions
     )
         : store_(store),
           symbol_list_(std::make_shared<SymbolList>(version_map_)),

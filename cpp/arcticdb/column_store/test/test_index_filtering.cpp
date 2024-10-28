@@ -20,7 +20,10 @@ namespace arcticdb {
 using namespace arcticdb::pipelines;
 
 std::pair<TimeseriesDescriptor, std::vector<SliceAndKey>> get_sample_slice_and_key(
-    StreamId stream_id, VersionId version_id, size_t col_slices = 1, size_t row_slices = 10
+    StreamId stream_id,
+    VersionId version_id,
+    size_t col_slices = 1,
+    size_t row_slices = 10
 ) {
     StreamDescriptor stream_desc{stream_id, IndexDescriptorImpl{1, IndexDescriptorImpl::Type::TIMESTAMP}};
 

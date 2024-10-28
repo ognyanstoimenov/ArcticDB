@@ -57,7 +57,9 @@ struct StreamSink {
     ) = 0;
 
     [[nodiscard]] virtual folly::Future<entity::VariantKey> write(
-        KeyType key_type, const StreamId& stream_id, SegmentInMemory&& segment
+        KeyType key_type,
+        const StreamId& stream_id,
+        SegmentInMemory&& segment
     ) = 0;
 
     virtual entity::VariantKey write_sync(
@@ -70,7 +72,9 @@ struct StreamSink {
     ) = 0;
 
     [[nodiscard]] virtual folly::Future<entity::VariantKey> update(
-        const VariantKey& key, SegmentInMemory&& segment, storage::UpdateOpts = storage::UpdateOpts{}
+        const VariantKey& key,
+        SegmentInMemory&& segment,
+        storage::UpdateOpts = storage::UpdateOpts{}
     ) = 0;
 
     struct PartialKey {
@@ -112,27 +116,33 @@ struct StreamSink {
     ) = 0;
 
     [[nodiscard]] virtual folly::Future<RemoveKeyResultType> remove_key(
-        const entity::VariantKey& key, storage::RemoveOpts opts = storage::RemoveOpts{}
+        const entity::VariantKey& key,
+        storage::RemoveOpts opts = storage::RemoveOpts{}
     ) = 0;
 
     virtual RemoveKeyResultType remove_key_sync(
-        const entity::VariantKey& key, storage::RemoveOpts opts = storage::RemoveOpts{}
+        const entity::VariantKey& key,
+        storage::RemoveOpts opts = storage::RemoveOpts{}
     ) = 0;
 
     [[nodiscard]] virtual folly::Future<std::vector<RemoveKeyResultType>> remove_keys(
-        const std::vector<entity::VariantKey>& keys, storage::RemoveOpts opts = storage::RemoveOpts{}
+        const std::vector<entity::VariantKey>& keys,
+        storage::RemoveOpts opts = storage::RemoveOpts{}
     ) = 0;
 
     [[nodiscard]] virtual folly::Future<std::vector<RemoveKeyResultType>> remove_keys(
-        std::vector<entity::VariantKey>&& keys, storage::RemoveOpts opts = storage::RemoveOpts{}
+        std::vector<entity::VariantKey>&& keys,
+        storage::RemoveOpts opts = storage::RemoveOpts{}
     ) = 0;
 
     virtual std::vector<RemoveKeyResultType> remove_keys_sync(
-        const std::vector<entity::VariantKey>& keys, storage::RemoveOpts opts = storage::RemoveOpts{}
+        const std::vector<entity::VariantKey>& keys,
+        storage::RemoveOpts opts = storage::RemoveOpts{}
     ) = 0;
 
     virtual std::vector<RemoveKeyResultType> remove_keys_sync(
-        std::vector<entity::VariantKey>&& keys, storage::RemoveOpts opts = storage::RemoveOpts{}
+        std::vector<entity::VariantKey>&& keys,
+        storage::RemoveOpts opts = storage::RemoveOpts{}
     ) = 0;
 
     virtual timestamp current_timestamp() = 0;

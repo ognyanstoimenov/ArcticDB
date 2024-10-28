@@ -142,7 +142,9 @@ AggregatorDataBase& AggregatorDataBase::operator=(const AggregatorDataBase&) {
 void SumAggregatorData::add_data_type(DataType data_type) { add_data_type_impl(data_type, data_type_); }
 
 void SumAggregatorData::aggregate(
-    const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+    const std::optional<ColumnWithStrings>& input_column,
+    const std::vector<size_t>& groups,
+    size_t unique_values
 ) {
     // If data_type_ has no value, it means there is no data for this aggregation
     // For sums, we want this to display as zero rather than NaN
@@ -368,13 +370,17 @@ inline SegmentInMemory finalize_impl(
 void MaxAggregatorData::add_data_type(DataType data_type) { add_data_type_impl(data_type, data_type_); }
 
 void MaxAggregatorData::aggregate(
-    const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+    const std::optional<ColumnWithStrings>& input_column,
+    const std::vector<size_t>& groups,
+    size_t unique_values
 ) {
     aggregate_impl<Extremum::MAX>(input_column, groups, unique_values, aggregated_, data_type_);
 }
 
 SegmentInMemory MaxAggregatorData::finalize(
-    const ColumnName& output_column_name, bool dynamic_schema, size_t unique_values
+    const ColumnName& output_column_name,
+    bool dynamic_schema,
+    size_t unique_values
 ) {
     return finalize_impl<Extremum::MAX>(output_column_name, dynamic_schema, unique_values, aggregated_, data_type_);
 }
@@ -386,13 +392,17 @@ SegmentInMemory MaxAggregatorData::finalize(
 void MinAggregatorData::add_data_type(DataType data_type) { add_data_type_impl(data_type, data_type_); }
 
 void MinAggregatorData::aggregate(
-    const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+    const std::optional<ColumnWithStrings>& input_column,
+    const std::vector<size_t>& groups,
+    size_t unique_values
 ) {
     aggregate_impl<Extremum::MIN>(input_column, groups, unique_values, aggregated_, data_type_);
 }
 
 SegmentInMemory MinAggregatorData::finalize(
-    const ColumnName& output_column_name, bool dynamic_schema, size_t unique_values
+    const ColumnName& output_column_name,
+    bool dynamic_schema,
+    size_t unique_values
 ) {
     return finalize_impl<Extremum::MIN>(output_column_name, dynamic_schema, unique_values, aggregated_, data_type_);
 }
@@ -402,7 +412,9 @@ SegmentInMemory MinAggregatorData::finalize(
  **********************/
 
 void MeanAggregatorData::aggregate(
-    const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+    const std::optional<ColumnWithStrings>& input_column,
+    const std::vector<size_t>& groups,
+    size_t unique_values
 ) {
     if (input_column.has_value()) {
         fractions_.resize(unique_values);
@@ -461,7 +473,9 @@ double MeanAggregatorData::Fraction::to_double() const {
  ***********************/
 
 void CountAggregatorData::aggregate(
-    const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+    const std::optional<ColumnWithStrings>& input_column,
+    const std::vector<size_t>& groups,
+    size_t unique_values
 ) {
     if (input_column.has_value()) {
         aggregated_.resize(unique_values);
@@ -507,7 +521,9 @@ SegmentInMemory CountAggregatorData::finalize(const ColumnName& output_column_na
 void FirstAggregatorData::add_data_type(DataType data_type) { add_data_type_impl(data_type, data_type_); }
 
 void FirstAggregatorData::aggregate(
-    const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+    const std::optional<ColumnWithStrings>& input_column,
+    const std::vector<size_t>& groups,
+    size_t unique_values
 ) {
     if (data_type_.has_value() && *data_type_ != DataType::EMPTYVAL && input_column.has_value()) {
         details::visit_type(*data_type_, [&input_column, unique_values, &groups, this](auto global_tag) {
@@ -576,7 +592,9 @@ SegmentInMemory FirstAggregatorData::finalize(const ColumnName& output_column_na
 void LastAggregatorData::add_data_type(DataType data_type) { add_data_type_impl(data_type, data_type_); }
 
 void LastAggregatorData::aggregate(
-    const std::optional<ColumnWithStrings>& input_column, const std::vector<size_t>& groups, size_t unique_values
+    const std::optional<ColumnWithStrings>& input_column,
+    const std::vector<size_t>& groups,
+    size_t unique_values
 ) {
     if (data_type_.has_value() && *data_type_ != DataType::EMPTYVAL && input_column.has_value()) {
         details::visit_type(*data_type_, [&input_column, unique_values, &groups, this](auto global_tag) {

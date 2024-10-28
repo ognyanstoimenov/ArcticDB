@@ -19,7 +19,8 @@ namespace arcticdb {
 
 template<typename InnerFunction, typename FieldType = google::protobuf::FieldDescriptor*>
 auto get_pandas_common_via_reflection(
-    proto::descriptors::NormalizationMetadata norm_meta, InnerFunction&& inner_function
+    proto::descriptors::NormalizationMetadata norm_meta,
+    InnerFunction&& inner_function
 ) -> decltype(inner_function(norm_meta, std::declval<FieldType>(), std::declval<FieldType>())) {
     try {
         if (norm_meta.input_type_case() != proto::descriptors::NormalizationMetadata::INPUT_TYPE_NOT_SET) {
@@ -147,7 +148,8 @@ void update_rowcount_normalization_data(
 }
 
 bool check_pandas_like(
-    const proto::descriptors::NormalizationMetadata& old_norm, proto::descriptors::NormalizationMetadata& new_norm
+    const proto::descriptors::NormalizationMetadata& old_norm,
+    proto::descriptors::NormalizationMetadata& new_norm
 ) {
     auto old_pandas = get_common_pandas(old_norm);
     auto new_pandas = get_common_pandas(new_norm);

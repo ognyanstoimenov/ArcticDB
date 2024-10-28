@@ -81,7 +81,9 @@ class FilterProjectSparse : public testing::Test {
     }
 
     std::shared_ptr<Column> binary_projection(
-        std::string_view left_column_name, const std::variant<std::string_view, double>& right_input, OperationType op
+        std::string_view left_column_name,
+        const std::variant<std::string_view, double>& right_input,
+        OperationType op
     ) {
         const std::string output_column("binary filter");
         const std::string value_name("value");

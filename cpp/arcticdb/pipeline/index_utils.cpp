@@ -68,7 +68,8 @@ folly::Future<entity::AtomKey> write_index(
 }
 
 std::pair<index::IndexSegmentReader, std::vector<SliceAndKey>> read_index_to_vector(
-    const std::shared_ptr<Store>& store, const AtomKey& index_key
+    const std::shared_ptr<Store>& store,
+    const AtomKey& index_key
 ) {
     auto [_, index_seg] = store->read_sync(index_key);
     index::IndexSegmentReader index_segment_reader(std::move(index_seg));

@@ -92,7 +92,9 @@ constexpr auto check = internal::check<code>;
 #else
 template<ErrorCode code, typename... Args>
 inline void check(
-    ARCTICDB_UNUSED bool cond, ARCTICDB_UNUSED fmt::format_string<Args...> format, ARCTICDB_UNUSED Args&&... args
+    ARCTICDB_UNUSED bool cond,
+    ARCTICDB_UNUSED fmt::format_string<Args...> format,
+    ARCTICDB_UNUSED Args&&... args
 ) {}
 
 template<ErrorCode code, typename FormatString, typename... Args>

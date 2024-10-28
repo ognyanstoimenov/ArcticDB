@@ -276,7 +276,9 @@ bool LmdbStorage::do_fast_delete() {
 }
 
 bool LmdbStorage::do_iterate_type_until_match(
-    KeyType key_type, const IterateTypePredicate& visitor, const std::string& prefix
+    KeyType key_type,
+    const IterateTypePredicate& visitor,
+    const std::string& prefix
 ) {
     ARCTICDB_SAMPLE(LmdbStorageItType, 0);
     auto txn = ::lmdb::txn::begin(env(), nullptr, MDB_RDONLY); // scoped abort on

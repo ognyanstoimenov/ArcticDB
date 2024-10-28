@@ -17,7 +17,9 @@
 namespace arcticdb::storage::mongo {
 
 std::string MockMongoClient::get_failure_trigger(
-    const std::string& key, StorageOperation operation_to_fail, MongoError error_code
+    const std::string& key,
+    StorageOperation operation_to_fail,
+    MongoError error_code
 ) {
     return fmt::format("{}#Failure_{}_{}", key, operation_to_string(operation_to_fail), static_cast<int>(error_code));
 }
@@ -80,7 +82,10 @@ std::optional<MongoFailure> has_failure_trigger(const MongoKey& key, StorageOper
 }
 
 bool matches_prefix(
-    const MongoKey& key, const std::string& database_name, const std::string& collection_name, const std::string& prefix
+    const MongoKey& key,
+    const std::string& database_name,
+    const std::string& collection_name,
+    const std::string& prefix
 ) {
 
     return key.database_name_ == database_name && key.collection_name_ == collection_name &&
@@ -96,7 +101,9 @@ void throw_if_exception(MongoFailure& failure) {
 bool MockMongoClient::has_key(const MongoKey& key) { return mongo_contents.find(key) != mongo_contents.end(); }
 
 bool MockMongoClient::write_segment(
-    const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv
+    const std::string& database_name,
+    const std::string& collection_name,
+    storage::KeySegmentPair&& kv
 ) {
     auto key = MongoKey(database_name, collection_name, kv.variant_key());
 
@@ -111,7 +118,10 @@ bool MockMongoClient::write_segment(
 }
 
 UpdateResult MockMongoClient::update_segment(
-    const std::string& database_name, const std::string& collection_name, storage::KeySegmentPair&& kv, bool upsert
+    const std::string& database_name,
+    const std::string& collection_name,
+    storage::KeySegmentPair&& kv,
+    bool upsert
 ) {
     auto key = MongoKey(database_name, collection_name, kv.variant_key());
 
@@ -131,7 +141,9 @@ UpdateResult MockMongoClient::update_segment(
 }
 
 std::optional<KeySegmentPair> MockMongoClient::read_segment(
-    const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+    const std::string& database_name,
+    const std::string& collection_name,
+    const entity::VariantKey& key
 ) {
     auto mongo_key = MongoKey(database_name, collection_name, key);
     auto failure = has_failure_trigger(mongo_key, StorageOperation::READ);
@@ -149,7 +161,9 @@ std::optional<KeySegmentPair> MockMongoClient::read_segment(
 }
 
 DeleteResult MockMongoClient::remove_keyvalue(
-    const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+    const std::string& database_name,
+    const std::string& collection_name,
+    const entity::VariantKey& key
 ) {
     auto mongo_key = MongoKey(database_name, collection_name, key);
     auto failure = has_failure_trigger(mongo_key, StorageOperation::DELETE);
@@ -168,7 +182,9 @@ DeleteResult MockMongoClient::remove_keyvalue(
 }
 
 bool MockMongoClient::key_exists(
-    const std::string& database_name, const std::string& collection_name, const entity::VariantKey& key
+    const std::string& database_name,
+    const std::string& collection_name,
+    const entity::VariantKey& key
 ) {
     auto mongo_key = MongoKey(database_name, collection_name, key);
     auto failure = has_failure_trigger(mongo_key, StorageOperation::EXISTS);

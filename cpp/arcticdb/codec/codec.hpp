@@ -50,13 +50,18 @@ SizeResult max_compressed_size_dispatch(
 );
 
 EncodedFieldCollection decode_encoded_fields(
-    const SegmentHeader& hdr, const uint8_t* data, const uint8_t* begin ARCTICDB_UNUSED
+    const SegmentHeader& hdr,
+    const uint8_t* data,
+    const uint8_t* begin ARCTICDB_UNUSED
 );
 
 SegmentInMemory decode_segment(Segment&& segment);
 
 void decode_into_memory_segment(
-    const Segment& segment, SegmentHeader& hdr, SegmentInMemory& res, const entity::StreamDescriptor& desc
+    const Segment& segment,
+    SegmentHeader& hdr,
+    SegmentInMemory& res,
+    const entity::StreamDescriptor& desc
 );
 
 template<class DataSink>

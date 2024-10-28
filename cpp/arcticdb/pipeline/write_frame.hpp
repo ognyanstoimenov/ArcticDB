@@ -107,7 +107,8 @@ std::optional<SliceAndKey> rewrite_partial_segment(
 /// * Segments after the update range which do not intersect with it and are not affected by the
 ///   update
 std::vector<SliceAndKey> flatten_and_fix_rows(
-    const std::array<std::vector<SliceAndKey>, 5>& groups, size_t& global_count
+    const std::array<std::vector<SliceAndKey>, 5>& groups,
+    size_t& global_count
 );
 
 std::vector<std::pair<FrameSlice, size_t>> get_slice_and_rowcount(const std::vector<FrameSlice>& slices);

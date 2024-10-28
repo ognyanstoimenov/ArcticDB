@@ -454,7 +454,8 @@ struct DecodeSliceTask : BaseTask {
     std::shared_ptr<std::unordered_set<std::string>> columns_to_decode_;
 
     explicit DecodeSliceTask(
-        pipelines::RangesAndKey&& ranges_and_key, std::shared_ptr<std::unordered_set<std::string>> columns_to_decode
+        pipelines::RangesAndKey&& ranges_and_key,
+        std::shared_ptr<std::unordered_set<std::string>> columns_to_decode
     )
         : ranges_and_key_(std::move(ranges_and_key)),
           columns_to_decode_(columns_to_decode) {}

@@ -64,7 +64,8 @@ bool is_new_style_key(const AtomKey& key) {
 }
 
 std::vector<SymbolListEntry> load_previous_from_version_keys(
-    const std::shared_ptr<Store>& store, SymbolListData& data
+    const std::shared_ptr<Store>& store,
+    SymbolListData& data
 ) {
     std::vector<StreamId> stream_ids;
     store->iterate_type(KeyType::VERSION_REF, [&data, &stream_ids](const auto& key) {
@@ -361,7 +362,9 @@ ProblematicResult is_problematic(const std::vector<SymbolEntryData>& updated, ti
 }
 
 ProblematicResult is_problematic(
-    const SymbolListEntry& existing, const std::vector<SymbolEntryData>& updated, timestamp min_allowed_interval
+    const SymbolListEntry& existing,
+    const std::vector<SymbolEntryData>& updated,
+    timestamp min_allowed_interval
 ) {
     ARCTICDB_DEBUG(
         log::symbol(), "{} {} {}", existing.stream_id_, static_cast<const SymbolEntryData&>(existing), updated
@@ -518,7 +521,9 @@ CollectionType load_from_version_keys(
 }
 
 LoadResult attempt_load(
-    const std::shared_ptr<VersionMap>& version_map, const std::shared_ptr<Store>& store, SymbolListData& data
+    const std::shared_ptr<VersionMap>& version_map,
+    const std::shared_ptr<Store>& store,
+    SymbolListData& data
 ) {
     ARCTICDB_RUNTIME_DEBUG(log::symbol(), "Symbol list load attempt");
     LoadResult load_result;
@@ -564,7 +569,10 @@ inline StreamDescriptor journal_stream_descriptor(ActionType action, const Strea
 }
 
 void write_journal(
-    const std::shared_ptr<Store>& store, const StreamId& symbol, ActionType action, VersionId reference_id
+    const std::shared_ptr<Store>& store,
+    const StreamId& symbol,
+    ActionType action,
+    VersionId reference_id
 ) {
     SegmentInMemory seg{journal_stream_descriptor(action, symbol)};
 
@@ -671,7 +679,10 @@ bool SymbolList::needs_compaction(const LoadResult& load_result) const {
 }
 
 void write_symbol_at(
-    const StreamId& type_holder, SegmentInMemory& list_segment, const SymbolListEntry& entry, position_t column
+    const StreamId& type_holder,
+    SegmentInMemory& list_segment,
+    const SymbolListEntry& entry,
+    position_t column
 ) {
     util::variant_match(
         type_holder,
@@ -700,7 +711,9 @@ void write_entry(const StreamId& type_holder, SegmentInMemory& segment, const Sy
 }
 
 SegmentInMemory write_entries_to_symbol_segment(
-    const StreamId& stream_id, const StreamId& type_holder, const CollectionType& symbols
+    const StreamId& stream_id,
+    const StreamId& type_holder,
+    const CollectionType& symbols
 ) {
     SegmentInMemory added_segment{add_symbol_stream_descriptor(stream_id, type_holder)};
     SegmentInMemory deleted_segment{delete_symbol_stream_descriptor(stream_id, type_holder)};
@@ -770,7 +783,9 @@ VariantKey write_symbols(
 }
 
 std::vector<Store::RemoveKeyResultType> delete_keys(
-    const std::shared_ptr<Store>& store, std::vector<AtomKey>&& remove, const AtomKey& exclude
+    const std::shared_ptr<Store>& store,
+    std::vector<AtomKey>&& remove,
+    const AtomKey& exclude
 ) {
     auto to_remove = std::move(remove);
     std::vector<VariantKey> variant_keys;
@@ -819,7 +834,9 @@ bool has_recent_compaction(
 }
 
 std::set<StreamId> SymbolList::load(
-    const std::shared_ptr<VersionMap>& version_map, const std::shared_ptr<Store>& store, bool no_compaction
+    const std::shared_ptr<VersionMap>& version_map,
+    const std::shared_ptr<Store>& store,
+    bool no_compaction
 ) {
     LoadResult load_result = ExponentialBackoff<StorageException>(100, 2000).go([this, &version_map, &store]() {
         return attempt_load(version_map, store, data_);

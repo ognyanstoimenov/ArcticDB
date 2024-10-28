@@ -13,7 +13,9 @@
 
 namespace arcticdb {
 void add_bitmagic_compressed_size(
-    const ColumnData& column_data, size_t& max_compressed_bytes, size_t& uncompressed_bytes
+    const ColumnData& column_data,
+    size_t& max_compressed_bytes,
+    size_t& uncompressed_bytes
 );
 
 void encode_sparse_map(ColumnData& column_data, EncodedFieldImpl& variant_field, Buffer& out, std::ptrdiff_t& pos);
@@ -21,7 +23,8 @@ void encode_sparse_map(ColumnData& column_data, EncodedFieldImpl& variant_field,
 /// @brief Utility class used to encode and compute the max encoding size for regular data columns for V1 encoding
 struct ColumnEncoderV1 {
     static std::pair<size_t, size_t> max_compressed_size(
-        const arcticdb::proto::encoding::VariantCodec& codec_opts, ColumnData& column_data
+        const arcticdb::proto::encoding::VariantCodec& codec_opts,
+        ColumnData& column_data
     );
 
     static void encode(
@@ -34,7 +37,8 @@ struct ColumnEncoderV1 {
 };
 
 std::pair<size_t, size_t> ColumnEncoderV1::max_compressed_size(
-    const arcticdb::proto::encoding::VariantCodec& codec_opts, ColumnData& column_data
+    const arcticdb::proto::encoding::VariantCodec& codec_opts,
+    ColumnData& column_data
 ) {
     return column_data.type().visit_tag([&codec_opts, &column_data](auto type_desc_tag) {
         size_t max_compressed_bytes = 0;
@@ -82,7 +86,8 @@ void ColumnEncoderV1::encode(
 using EncodingPolicyV1 = EncodingPolicyType<EncodingVersion::V1, ColumnEncoderV1>;
 
 [[nodiscard]] SizeResult max_compressed_size_v1(
-    const SegmentInMemory& in_mem_seg, const arcticdb::proto::encoding::VariantCodec& codec_opts
+    const SegmentInMemory& in_mem_seg,
+    const arcticdb::proto::encoding::VariantCodec& codec_opts
 ) {
     ARCTICDB_SAMPLE(GetSegmentCompressedSize, 0)
     SizeResult result{};

@@ -89,7 +89,9 @@ S3Result<Segment> MockS3Client::get_object(const std::string& s3_object_name, co
 }
 
 S3Result<std::monostate> MockS3Client::put_object(
-    const std::string& s3_object_name, Segment&& segment, const std::string& bucket_name
+    const std::string& s3_object_name,
+    Segment&& segment,
+    const std::string& bucket_name
 ) {
     auto maybe_error = has_failure_trigger(s3_object_name, StorageOperation::WRITE);
     if (maybe_error.has_value()) {
@@ -102,7 +104,8 @@ S3Result<std::monostate> MockS3Client::put_object(
 }
 
 S3Result<DeleteOutput> MockS3Client::delete_objects(
-    const std::vector<std::string>& s3_object_names, const std::string& bucket_name
+    const std::vector<std::string>& s3_object_names,
+    const std::string& bucket_name
 ) {
     for (auto& s3_object_name : s3_object_names) {
         auto maybe_error = has_failure_trigger(s3_object_name, StorageOperation::DELETE);
@@ -127,7 +130,9 @@ S3Result<DeleteOutput> MockS3Client::delete_objects(
 // If we ever need to configure it we should move it to the s3 proto config instead.
 constexpr auto page_size = 10;
 S3Result<ListObjectsOutput> MockS3Client::list_objects(
-    const std::string& name_prefix, const std::string& bucket_name, const std::optional<std::string> continuation_token
+    const std::string& name_prefix,
+    const std::string& bucket_name,
+    const std::optional<std::string> continuation_token
 ) const {
     // Terribly inefficient but fine for tests.
     auto matching_names = std::vector<std::string>();

@@ -63,7 +63,10 @@ inline void DynamicStringReducer::process_string_views(
 }
 
 DynamicStringReducer::DynamicStringReducer(
-    DecodePathData shared_data, PythonHandlerData& handler_data, PyObject** ptr_dest, size_t total_rows
+    DecodePathData shared_data,
+    PythonHandlerData& handler_data,
+    PyObject** ptr_dest,
+    size_t total_rows
 )
     : shared_data_(std::move(shared_data)),
       handler_data_(handler_data),

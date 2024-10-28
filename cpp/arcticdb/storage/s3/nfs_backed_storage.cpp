@@ -193,7 +193,9 @@ void NfsBackedStorage::do_remove(Composite<VariantKey>&& ks, RemoveOpts) {
 }
 
 bool NfsBackedStorage::do_iterate_type_until_match(
-    KeyType key_type, const IterateTypePredicate& visitor, const std::string& prefix
+    KeyType key_type,
+    const IterateTypePredicate& visitor,
+    const std::string& prefix
 ) {
     const IterateTypePredicate func = [&v = visitor, prefix = prefix](VariantKey&& k) {
         auto key = unencode_object_id(k);

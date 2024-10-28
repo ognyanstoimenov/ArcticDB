@@ -21,7 +21,8 @@
 namespace arcticdb {
 struct ColumnEncoderV1 {
     static std::pair<size_t, size_t> max_compressed_size(
-        const arcticdb::proto::encoding::VariantCodec& codec_opts, ColumnData& column_data
+        const arcticdb::proto::encoding::VariantCodec& codec_opts,
+        ColumnData& column_data
     );
 
     static void encode(
@@ -43,12 +44,16 @@ struct ColumnEncoderV2 {
         std::ptrdiff_t& pos
     );
     static std::pair<size_t, size_t> max_compressed_size(
-        const arcticdb::proto::encoding::VariantCodec& codec_opts, ColumnData& column_data
+        const arcticdb::proto::encoding::VariantCodec& codec_opts,
+        ColumnData& column_data
     );
 
   private:
     static void encode_shapes(
-        const ColumnData& column_data, EncodedFieldImpl& variant_field, Buffer& out, std::ptrdiff_t& pos_in_buffer
+        const ColumnData& column_data,
+        EncodedFieldImpl& variant_field,
+        Buffer& out,
+        std::ptrdiff_t& pos_in_buffer
     );
 
     static void encode_blocks(

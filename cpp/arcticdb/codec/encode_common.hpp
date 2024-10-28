@@ -107,7 +107,9 @@ struct SizeResult {
 
 template<typename EncodingPolicyType>
 void calc_metadata_size(
-    const SegmentInMemory& in_mem_seg, const arcticdb::proto::encoding::VariantCodec& codec_opts, SizeResult& result
+    const SegmentInMemory& in_mem_seg,
+    const arcticdb::proto::encoding::VariantCodec& codec_opts,
+    SizeResult& result
 ) {
     if (in_mem_seg.metadata()) {
         const auto metadata_bytes = static_cast<shape_t>(in_mem_seg.metadata()->ByteSizeLong());
@@ -120,7 +122,9 @@ void calc_metadata_size(
 
 template<typename EncodingPolicyType>
 void calc_columns_size(
-    const SegmentInMemory& in_mem_seg, const arcticdb::proto::encoding::VariantCodec& codec_opts, SizeResult& result
+    const SegmentInMemory& in_mem_seg,
+    const arcticdb::proto::encoding::VariantCodec& codec_opts,
+    SizeResult& result
 ) {
     for (std::size_t c = 0; c < in_mem_seg.num_columns(); ++c) {
         auto column_data = in_mem_seg.column_data(c);
@@ -140,7 +144,9 @@ void calc_columns_size(
 
 template<typename EncodingPolicyType>
 void calc_string_pool_size(
-    const SegmentInMemory& in_mem_seg, const arcticdb::proto::encoding::VariantCodec& codec_opts, SizeResult& result
+    const SegmentInMemory& in_mem_seg,
+    const arcticdb::proto::encoding::VariantCodec& codec_opts,
+    SizeResult& result
 ) {
     if (in_mem_seg.has_string_pool()) {
         auto string_col = in_mem_seg.string_pool_data();
@@ -211,11 +217,13 @@ void encode_string_pool(
 }
 
 [[nodiscard]] SizeResult max_compressed_size_v1(
-    const SegmentInMemory& in_mem_seg, const arcticdb::proto::encoding::VariantCodec& codec_opts
+    const SegmentInMemory& in_mem_seg,
+    const arcticdb::proto::encoding::VariantCodec& codec_opts
 );
 
 [[nodiscard]] SizeResult max_compressed_size_v2(
-    const SegmentInMemory& in_mem_seg, const arcticdb::proto::encoding::VariantCodec& codec_opts
+    const SegmentInMemory& in_mem_seg,
+    const arcticdb::proto::encoding::VariantCodec& codec_opts
 );
 
 } // namespace arcticdb

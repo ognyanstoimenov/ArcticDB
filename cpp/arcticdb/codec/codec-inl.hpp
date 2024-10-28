@@ -51,7 +51,11 @@ void decode_block(const BlockType& block, const std::uint8_t* input, T* output) 
 
 template<typename FieldType, class DataSink>
 inline void read_shapes(
-    FieldType& encoded_field, DataSink& data_sink, uint8_t const*& data_in, int shapes_block, shape_t*& shapes_out
+    FieldType& encoded_field,
+    DataSink& data_sink,
+    uint8_t const*& data_in,
+    int shapes_block,
+    shape_t*& shapes_out
 ) {
     const auto& shape = encoded_field.shapes(shapes_block);
     decode_block<shape_t>(shape, data_in, shapes_out);

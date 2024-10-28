@@ -51,7 +51,10 @@ class StringReducer {
 
   public:
     StringReducer(
-        Column& column, std::shared_ptr<pipelines::PipelineContext> context, SegmentInMemory frame, size_t alloc_width
+        Column& column,
+        std::shared_ptr<pipelines::PipelineContext> context,
+        SegmentInMemory frame,
+        size_t alloc_width
     )
         : context_(std::move(context)),
           frame_(std::move(frame)),
@@ -75,7 +78,10 @@ class StringReducer {
 class FixedStringReducer : public StringReducer {
   public:
     FixedStringReducer(
-        Column& column, std::shared_ptr<pipelines::PipelineContext>& context, SegmentInMemory frame, size_t alloc_width
+        Column& column,
+        std::shared_ptr<pipelines::PipelineContext>& context,
+        SegmentInMemory frame,
+        size_t alloc_width
     )
         : StringReducer(column, context, std::move(frame), alloc_width) {}
 
@@ -100,7 +106,10 @@ class UnicodeConvertingStringReducer : public StringReducer {
 
   public:
     UnicodeConvertingStringReducer(
-        Column& column, std::shared_ptr<pipelines::PipelineContext> context, SegmentInMemory frame, size_t alloc_width
+        Column& column,
+        std::shared_ptr<pipelines::PipelineContext> context,
+        SegmentInMemory frame,
+        size_t alloc_width
     )
         : StringReducer(column, std::move(context), std::move(frame), alloc_width * UNICODE_WIDTH),
           conv_("UTF32", "UTF8"),

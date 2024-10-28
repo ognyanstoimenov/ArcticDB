@@ -170,7 +170,9 @@ struct ProjectClause {
     std::shared_ptr<ExpressionContext> expression_context_;
 
     explicit ProjectClause(
-        std::unordered_set<std::string> input_columns, std::string output_column, ExpressionContext expression_context
+        std::unordered_set<std::string> input_columns,
+        std::string output_column,
+        ExpressionContext expression_context
     )
         : output_column_(output_column),
           expression_context_(std::make_shared<ExpressionContext>(std::move(expression_context))) {
@@ -382,11 +384,14 @@ struct ResampleClause {
     }
 
     std::vector<timestamp> generate_bucket_boundaries(
-        timestamp first_ts, timestamp last_ts, bool responsible_for_first_overlapping_bucket
+        timestamp first_ts,
+        timestamp last_ts,
+        bool responsible_for_first_overlapping_bucket
     ) const;
 
     std::shared_ptr<Column> generate_output_index_column(
-        const std::vector<std::shared_ptr<Column>>& input_index_columns, const std::vector<timestamp>& bucket_boundaries
+        const std::vector<std::shared_ptr<Column>>& input_index_columns,
+        const std::vector<timestamp>& bucket_boundaries
     ) const;
 };
 
