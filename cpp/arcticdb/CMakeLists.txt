@@ -1078,11 +1078,8 @@ if(${TEST})
             util/test/rapidcheck_string_pool.cpp
             util/test/rapidcheck_main.cpp
             util/test/rapidcheck_lru_cache.cpp
-<<<<<<< HEAD
-            version/test/rapidcheck_version_map.cpp)
-=======
-            version/test/rapidcheck_version_map.cpp codec/test/rapidcheck_frequency_encoding.cpp)
->>>>>>> fa89cf49 (Add some lightweight encodings)
+            version/test/rapidcheck_version_map.cpp
+            codec/test/rapidcheck_frequency_encoding.cpp)
 
     add_executable(arcticdb_rapidcheck_tests ${rapidcheck_srcs})
     install(TARGETS arcticdb_rapidcheck_tests RUNTIME
