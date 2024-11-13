@@ -519,7 +519,7 @@ set(arcticdb_srcs
         codec/delta.hpp codec/ffor.hpp
         codec/bitpack_fused.hpp
         codec/adaptive_encoder.hpp
-        codec/adaptive_encoder.hpp)
+        codec/adaptive_encoder.hpp codec/scanner.hpp)
 
 add_library(arcticdb_core_object OBJECT ${arcticdb_srcs})
 

@@ -877,7 +877,9 @@ TEST(VersionStore, TestWriteAppendMapHead) {
 
 TEST(VersionStore, AdaptiveEncoding) {
     using namespace arcticdb;
-    auto version_store = get_local_versioned_engine_adaptive_encoding();
+    arcticdb::proto::storage::VersionStoreConfig cfg;
+    cfg.set_encoding_version(1);
+    auto version_store = get_local_versioned_engine_adaptive_encoding(cfg);
 
     size_t num_rows{100};
     size_t start_val{0};

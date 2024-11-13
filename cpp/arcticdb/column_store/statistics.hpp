@@ -55,13 +55,13 @@ public:
 
     template<typename T>
     void set_min(const void* t) const {
-        util::check(impl_->type() != typeid(T), "Bad type case in statistics set_min");
+        util::check(impl_->type() == typeid(T), "Bad type case in statistics set_min {} != {}", impl_->type().name(), typeid(T).name());
         impl_->set_min(t);
     }
 
     template<typename T>
     void set_max(const void* t) const {
-        util::check(impl_->type() != typeid(T), "Bad type case in statistics get_max");
+        util::check(impl_->type() == typeid(T), "Bad type case in statistics get_max {} != {}", impl_->type().name(), typeid(T).name());
         impl_->set_max(t);
     }
 
