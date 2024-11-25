@@ -61,7 +61,7 @@ SSL_TESTS_MARK = pytest.mark.skipif(
 
 VENV_COMPAT_TESTS_MARK = pytest.mark.skipif(
     MACOS_CONDA_BUILD or
-    sys.version.startswith("3.12"), # Waiting for https://github.com/man-group/ArcticDB/issues/2008
+    sys.version.startswith("3.12") or sys.version.startswith("3.13"), # Waiting for https://github.com/man-group/ArcticDB/issues/2008
     reason="Skipping compatibility tests because macOS conda builds don't have an available PyPi arcticdb version"
 )
 
