@@ -49,17 +49,25 @@ namespace arcticdb {
     return std::nullopt;
 }
 
+ExpressionNode::ExpressionNode(VariantNode condition, VariantNode left, VariantNode right, OperationType op) :
+        condition_(std::move(condition)),
+        left_(std::move(left)),
+        right_(std::move(right)),
+        operation_type_(op) {
+    util::check(is_ternary_operation(op), "Non-ternary expression provided with three arguments");
+}
+
 ExpressionNode::ExpressionNode(VariantNode left, VariantNode right, OperationType op) :
     left_(std::move(left)),
     right_(std::move(right)),
     operation_type_(op) {
-    util::check(is_binary_operation(op), "Left and right expressions supplied to non-binary operator");
+    util::check(is_binary_operation(op), "Non-binary expression provided with two arguments");
 }
 
 ExpressionNode::ExpressionNode(VariantNode left, OperationType op) :
     left_(std::move(left)),
     operation_type_(op) {
-    util::check(!is_binary_operation(op), "Binary expression expects both left and right children");
+    util::check(is_unary_operation(op), "Non-unary expression provided with single argument");
 }
 
 VariantData ExpressionNode::compute(ProcessingUnit& seg) const {

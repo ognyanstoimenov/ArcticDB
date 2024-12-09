@@ -1111,6 +1111,21 @@ def test_float32_binary_comparison(lmdb_version_store_v1):
             generic_filter_test(lib, symbol, q, expected)
 
 
+def test_filter_ternary_basic(lmdb_version_store_v1):
+    lib = lmdb_version_store_v1
+    symbol = "test_filter_ternary_basic"
+    df = pd.DataFrame({
+        "conditional": [True, False, False, True, False, True],
+        "col1": np.arange(6),
+        "col2": np.arange(6),
+    })
+    lib.write(symbol, df)
+    q = QueryBuilder()
+    q = q[q["conditional"].if_else(q["col1"] < 4, q["col2"] == 4)]
+    received = lib.read(symbol, query_builder=q).data
+    print(received)
+
+
 ################################
 # MIXED SCHEMA TESTS FROM HERE #
 ################################

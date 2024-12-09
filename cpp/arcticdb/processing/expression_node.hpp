@@ -77,9 +77,12 @@ using VariantData = std::variant<FullResult, EmptyResult, std::shared_ptr<Value>
  * Basic AST node.
  */
 struct ExpressionNode {
+    VariantNode condition_;
     VariantNode left_;
     VariantNode right_;
     OperationType operation_type_;
+
+    ExpressionNode(VariantNode condition, VariantNode left, VariantNode right, OperationType op);
 
     ExpressionNode(VariantNode left, VariantNode right, OperationType op);
 

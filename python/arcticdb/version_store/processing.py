@@ -68,6 +68,8 @@ class ExpressionNode:
     def __init__(self):
         self.left = self.right = self.operator = None
         self.name = None
+        # Used only for ternary operator
+        self.condition = None
 
     @classmethod
     def compose(cls, left, operator, right):
@@ -208,6 +210,15 @@ class ExpressionNode:
             " please use the bitwise equivalents '&', '|', and '~' respectively"
         )
 
+    def if_else(self, left, right):
+        condition = ExpressionNode.compose(self.left, self.operator, self.right)
+        self = ExpressionNode()
+        self.condition = condition
+        self.left = left
+        self.operator = _OperationType.TERNARY
+        self.right = right
+        return self
+
     def isin(self, *args):
         value_list = value_list_from_args(*args)
         return self._apply(value_list, _OperationType.ISIN)
@@ -237,6 +248,8 @@ class ExpressionNode:
                 self.name = 'Column["{}"]'.format(self.left)
             elif self.operator in [_OperationType.ABS, _OperationType.NEG, _OperationType.NOT]:
                 self.name = "{}({})".format(self.operator.name, self.left)
+            elif self.operator == _OperationType.TERNARY:
+                self.name = f"{self.left} if {self.condition} else {self.right}"
             else:
                 if isinstance(self.left, ExpressionNode):
                     left = str(self.left)
@@ -1057,7 +1070,12 @@ def visit_expression(expr):
             raise ArcticNativeException("Query is trivially {}".format(node))
 
         left = _visit_child(node.left)
-        if node.right is not None:
+        if node.condition is not None:
+            check(node.right is not None, "Ternary operator requires three inputs")
+            condition = _visit_child(node.condition)
+            right = _visit_child(node.right)
+            expression_node = _ExpressionNode(condition, left, right, node.operator)
+        elif node.right is not None:
             right = _visit_child(node.right)
             expression_node = _ExpressionNode(left, right, node.operator)
         else:
