@@ -1124,11 +1124,9 @@ def test_filter_ternary_basic(lmdb_version_store_v1):
     )
     lib.write(symbol, df)
 
-    mask = np.where(df["conditional"].to_numpy(), (df["col1"] < 4).to_numpy(), (df["col2"] == 4).to_numpy())
-    expected = df[mask]
+    expected = df[np.where(df["conditional"].to_numpy(), (df["col1"] < 4).to_numpy(), (df["col2"] == 4).to_numpy())]
     q = QueryBuilder()
     q = q[where(q["conditional"], q["col1"] < 4, q["col2"] == 4)]
-    # q = q[q["conditional"].if_else(q["col1"] < 4, q["col2"] == 4)]
     received = lib.read(symbol, query_builder=q).data
     assert_frame_equal(expected, received)
 
