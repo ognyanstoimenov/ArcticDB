@@ -12,6 +12,7 @@
 #include <arcticdb/processing/processing_unit.hpp>
 #include <arcticdb/processing/operation_types.hpp>
 #include <arcticdb/processing/operation_dispatch_binary.hpp>
+#include <arcticdb/processing/operation_dispatch_ternary.hpp>
 #include <arcticdb/processing/operation_dispatch_unary.hpp>
 
 namespace arcticdb {
@@ -71,7 +72,9 @@ ExpressionNode::ExpressionNode(VariantNode left, OperationType op) :
 }
 
 VariantData ExpressionNode::compute(ProcessingUnit& seg) const {
-    if (is_binary_operation(operation_type_)) {
+    if (is_ternary_operation(operation_type_)) {
+        return dispatch_ternary(seg.get(condition_), seg.get(left_), seg.get(right_), operation_type_);
+    } else if (is_binary_operation(operation_type_)) {
         return dispatch_binary(seg.get(left_), seg.get(right_), operation_type_);
     } else {
         return dispatch_unary(seg.get(left_), operation_type_);

@@ -535,6 +535,13 @@ bool operator()(T t, const ankerl::unordered_dense::set<U>& u) const {
 #endif
 };
 
+struct TernaryOperator {
+    template<typename T>
+    bool operator()(bool cond, T left, T right) const {
+        return cond ? left : right;
+    }
+};
+
 } //namespace arcticdb
 
 namespace fmt {
