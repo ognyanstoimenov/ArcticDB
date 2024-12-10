@@ -6,7 +6,6 @@
  */
 
 #include <arcticdb/storage/s3/s3_api.hpp>
-#include "arcticdb/storage/s3/http/http_client_factory.hpp"
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/logging/DefaultLogSystem.h>
 #include <aws/core/utils/logging/AWSLogging.h>

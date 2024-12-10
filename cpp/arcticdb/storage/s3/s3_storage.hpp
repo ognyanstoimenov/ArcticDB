@@ -39,7 +39,7 @@ class S3Storage final : public Storage, AsyncStorage {
     std::string name() const final;
 
     bool has_async_api() const final {
-        return false;
+        return ConfigsMap::instance()->get_int("S3.Async", 0) == 1;
     }
 
     AsyncStorage* async_api() {
