@@ -210,15 +210,6 @@ class ExpressionNode:
             " please use the bitwise equivalents '&', '|', and '~' respectively"
         )
 
-    def if_else(self, left, right):
-        condition = ExpressionNode.compose(self.left, self.operator, self.right)
-        self = ExpressionNode()
-        self.condition = condition
-        self.left = left
-        self.operator = _OperationType.TERNARY
-        self.right = right
-        return self
-
     def isin(self, *args):
         value_list = value_list_from_args(*args)
         return self._apply(value_list, _OperationType.ISIN)
@@ -261,6 +252,15 @@ class ExpressionNode:
                     right = to_string(self.right)
                 self.name = "({} {} {})".format(left, self.operator.name, right)
         return self.name
+
+
+def where(condition, left, right):
+    expression_node = ExpressionNode()
+    expression_node.condition = condition
+    expression_node.left = left
+    expression_node.operator = _OperationType.TERNARY
+    expression_node.right = right
+    return expression_node
 
 
 def is_supported_sequence(obj):

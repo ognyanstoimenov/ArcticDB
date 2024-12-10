@@ -18,7 +18,7 @@ import string
 import sys
 
 from arcticdb.exceptions import ArcticNativeException
-from arcticdb.version_store.processing import QueryBuilder
+from arcticdb.version_store.processing import QueryBuilder, where
 from arcticdb_ext.exceptions import InternalException, UserInputException
 from arcticdb.util.test import (
     assert_frame_equal,
@@ -1127,7 +1127,8 @@ def test_filter_ternary_basic(lmdb_version_store_v1):
     mask = np.where(df["conditional"].to_numpy(), (df["col1"] < 4).to_numpy(), (df["col2"] == 4).to_numpy())
     expected = df[mask]
     q = QueryBuilder()
-    q = q[q["conditional"].if_else(q["col1"] < 4, q["col2"] == 4)]
+    q = q[where(q["conditional"], q["col1"] < 4, q["col2"] == 4)]
+    # q = q[q["conditional"].if_else(q["col1"] < 4, q["col2"] == 4)]
     received = lib.read(symbol, query_builder=q).data
     assert_frame_equal(expected, received)
 
