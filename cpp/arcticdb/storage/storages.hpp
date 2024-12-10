@@ -83,7 +83,7 @@ class Storages {
         for (const auto &storage : storages_) {
             try {
                 return storage->read(VariantKey{variant_key}, visitor, opts);
-            } catch (typename storage::KeyNotFoundException &ex) {
+            } catch (typename storage::KeyNotFoundException&) {
                 ARCTICDB_DEBUG(log::version(), "Keys not found in storage, continuing to next storage");
             }
         }
@@ -94,7 +94,7 @@ class Storages {
         for(const auto& storage : storages_) {
             try {
                 return storage->read(VariantKey{variant_key}, ReadKeyOpts{});
-            } catch (typename storage::KeyNotFoundException& ex) {
+            } catch (typename storage::KeyNotFoundException&) {
                 ARCTICDB_DEBUG(log::version(), "Keys not found in storage, continuing to next storage");
             }
         }
