@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 
 from arcticdb_ext.exceptions import InternalException, UserInputException
-from arcticdb.version_store.processing import QueryBuilder
+from arcticdb.version_store.processing import QueryBuilder, where
 from arcticdb.util.test import assert_frame_equal, make_dynamic, regularize_dataframe
 
 
@@ -69,6 +69,27 @@ def test_project_string_unary_arithmetic(lmdb_version_store_v1):
     q = q.apply("b", -q["a"])
     with pytest.raises(UserInputException):
         lib.read(symbol, query_builder=q)
+
+
+def test_project_ternary_basic(lmdb_version_store_v1):
+    lib = lmdb_version_store_v1
+    symbol = "test_project_ternary_basic"
+    df = pd.DataFrame(
+        {
+            "conditional": [True, False, False, True, False, True],
+            "col1": np.arange(6),
+            "col2": np.arange(10, 16),
+        },
+        index=pd.date_range("2024-01-01", periods=6)
+    )
+    lib.write(symbol, df)
+
+    expected = df
+    expected["new_col"] = np.where(df["conditional"].to_numpy(), df["col1"].to_numpy(), df["col2"].to_numpy())
+    q = QueryBuilder()
+    q = q.apply("new_col", where(q["conditional"], q["col1"], q["col2"]))
+    received = lib.read(symbol, query_builder=q).data
+    assert_frame_equal(expected, received)
 
 
 def test_docstring_example_query_builder_apply(lmdb_version_store_v1):

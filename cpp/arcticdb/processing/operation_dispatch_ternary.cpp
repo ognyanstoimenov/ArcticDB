@@ -23,6 +23,44 @@ VariantData ternary_operator(const util::BitSet& condition, const util::BitSet& 
     return VariantData{std::move(output_bitset)};
 }
 
+VariantData ternary_operator(const util::BitSet& condition, const ColumnWithStrings& left, const ColumnWithStrings& right) {
+    schema::check<ErrorCode::E_UNSUPPORTED_COLUMN_TYPE>(
+            !is_empty_type(left.column_->type().data_type()) && !is_empty_type(right.column_->type().data_type()),
+            "Empty column provided to ternary operator");
+    std::unique_ptr<Column> output_column;
+
+    details::visit_type(left.column_->type().data_type(), [&](auto left_tag) {
+        using left_type_info = ScalarTypeInfo<decltype(left_tag)>;
+        details::visit_type(right.column_->type().data_type(), [&](auto right_tag) {
+            using right_type_info = ScalarTypeInfo<decltype(right_tag)>;
+            if constexpr(is_sequence_type(left_type_info::data_type) && is_sequence_type(right_type_info::data_type)) {
+                // TODO
+                internal::raise<ErrorCode::E_ASSERTION_FAILURE>("Not implemented");
+            } else if constexpr ((is_numeric_type(left_type_info::data_type) && is_numeric_type(right_type_info::data_type)) ||
+                                 (is_bool_type(left_type_info::data_type) && is_bool_type(right_type_info::data_type))) {
+                // TODO: Hacky to reuse type_arithmetic_promoted_type with IsInOperator, and incorrect when there is a uint64_t
+                using TargetType = typename type_arithmetic_promoted_type<typename left_type_info::RawType, typename right_type_info::RawType, IsInOperator>::type;
+                constexpr auto output_data_type = data_type_from_raw_type<TargetType>();
+                output_column = std::make_unique<Column>(make_scalar_type(output_data_type), Sparsity::PERMITTED);
+                // TODO: Could this be more efficient?
+                size_t idx{0};
+                Column::transform<typename left_type_info::TDT, typename right_type_info::TDT, ScalarTagType<DataTypeTag<output_data_type>>>(
+                        *(left.column_),
+                        *(right.column_),
+                        *output_column,
+                        [&condition, &idx](auto left_value, auto right_value) -> TargetType {
+                            return condition[idx++] ? left_value : right_value;
+                        });
+            } else {
+                // TODO: Add equivalent of binary_operation_with_types_to_string for ternary
+                user_input::raise<ErrorCode::E_INVALID_USER_ARGUMENT>("Invalid comparison");
+            }
+        });
+    });
+    // TODO: add equivalent of binary_operation_column_name for ternary operator
+    return {ColumnWithStrings(std::move(output_column), "some string")};
+}
+
 VariantData visit_ternary_operator(const VariantData& condition, const VariantData& left, const VariantData& right) {
     if(std::holds_alternative<EmptyResult>(left) || std::holds_alternative<EmptyResult>(right))
         return EmptyResult{};
@@ -31,6 +69,10 @@ VariantData visit_ternary_operator(const VariantData& condition, const VariantDa
 
     return std::visit(util::overload {
             [] (const util::BitSet& c, const util::BitSet& l, const util::BitSet& r) -> VariantData {
+                auto result = ternary_operator(c, l, r);
+                return transform_to_placeholder(result);
+            },
+            [] (const util::BitSet& c, const ColumnWithStrings& l, const ColumnWithStrings& r) -> VariantData {
                 auto result = ternary_operator(c, l, r);
                 return transform_to_placeholder(result);
             },
