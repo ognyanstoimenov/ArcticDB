@@ -244,11 +244,13 @@ std::vector<EntityId> push_entities(ComponentManager& component_manager, Process
 
 std::vector<EntityId> flatten_entities(std::vector<std::vector<EntityId>>&& entity_ids_vec);
 
-std::vector<folly::FutureSplitter<pipelines::SegmentAndSlice>> split_futures(
-        std::vector<folly::Future<pipelines::SegmentAndSlice>>&& segment_and_slice_futures);
+std::vector<std::variant<folly::Future<pipelines::SegmentAndSlice>, folly::FutureSplitter<pipelines::SegmentAndSlice>>> split_futures(
+    std::vector<folly::Future<pipelines::SegmentAndSlice>>&& segment_and_slice_futures, std::vector<EntityFetchCount>& segment_fetch_counts);
 
 std::shared_ptr<std::vector<EntityFetchCount>> generate_segment_fetch_counts(
         const std::vector<std::vector<size_t>>& processing_unit_indexes,
         size_t num_segments);
 
-}//namespace arcticdb
+using FutureOrSplitter = std::variant<folly::Future<pipelines::SegmentAndSlice>, folly::FutureSplitter<pipelines::SegmentAndSlice>>;
+
+} //namespace arcticdb
