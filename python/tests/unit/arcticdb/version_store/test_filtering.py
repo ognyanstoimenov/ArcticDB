@@ -1131,6 +1131,32 @@ def test_filter_ternary_basic(lmdb_version_store_v1):
     assert_frame_equal(expected, received)
 
 
+def test_filter_ternary_bitset_with_bool_column(lmdb_version_store_v1):
+    lib = lmdb_version_store_v1
+    symbol = "test_filter_ternary_bitset_with_bool_column"
+    df = pd.DataFrame(
+        {
+            "conditional": [True, False, False, True, False, True],
+            "col1": np.arange(6),
+            "col2": [True, False, True, False, True, False],
+        },
+        index=pd.date_range("2024-01-01", periods=6)
+    )
+    lib.write(symbol, df)
+
+    expected = df[np.where(df["conditional"].to_numpy(), (df["col1"] < 4).to_numpy(), df["col2"].to_numpy())]
+    q = QueryBuilder()
+    q = q[where(q["conditional"], q["col1"] < 4, q["col2"])]
+    received = lib.read(symbol, query_builder=q).data
+    assert_frame_equal(expected, received)
+
+    expected = df[np.where(df["conditional"].to_numpy(), df["col2"].to_numpy(), (df["col1"] < 4).to_numpy())]
+    q = QueryBuilder()
+    q = q[where(q["conditional"], q["col2"], q["col1"] < 4)]
+    received = lib.read(symbol, query_builder=q).data
+    assert_frame_equal(expected, received)
+
+
 ################################
 # MIXED SCHEMA TESTS FROM HERE #
 ################################
