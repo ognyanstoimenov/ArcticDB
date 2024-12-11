@@ -10,6 +10,7 @@
 
 namespace arcticdb {
 
+// TODO: See how many of these combinations can be combined
 VariantData ternary_operator(const util::BitSet& condition, const util::BitSet& left, const util::BitSet& right) {
     util::BitSet output_bitset;
     // TODO: relax condition when adding sparse support
@@ -86,6 +87,32 @@ VariantData ternary_operator(const util::BitSet& condition, const ColumnWithStri
     return {ColumnWithStrings(std::move(output_column), string_pool, "some string")};
 }
 
+VariantData ternary_operator(const util::BitSet& condition, const util::BitSet& left, bool right) {
+    util::BitSet output_bitset;
+    // TODO: relax condition when adding sparse support
+    auto output_size = condition.size();
+    internal::check<ErrorCode::E_ASSERTION_FAILURE>(left.size() == output_size, "Mismatching bitset sizes");
+    if (right) {
+        output_bitset = ~condition | left;
+    } else {
+        output_bitset = condition & left;
+    }
+    return VariantData{std::move(output_bitset)};
+}
+
+VariantData ternary_operator(const util::BitSet& condition, bool left, const util::BitSet& right) {
+    util::BitSet output_bitset;
+    // TODO: relax condition when adding sparse support
+    auto output_size = condition.size();
+    internal::check<ErrorCode::E_ASSERTION_FAILURE>(right.size() == output_size, "Mismatching bitset sizes");
+    if (left) {
+        output_bitset = condition | right;
+    } else {
+        output_bitset = ~condition & right;
+    }
+    return VariantData{std::move(output_bitset)};
+}
+
 VariantData visit_ternary_operator(const VariantData& condition, const VariantData& left, const VariantData& right) {
     if(std::holds_alternative<EmptyResult>(left) || std::holds_alternative<EmptyResult>(right))
         return EmptyResult{};
@@ -105,6 +132,18 @@ VariantData visit_ternary_operator(const VariantData& condition, const VariantDa
             [] (const util::BitSet& c, const ColumnWithStrings& l, const util::BitSet& r) -> VariantData {
                 auto bitset = std::get<util::BitSet>(transform_to_bitset(l));
                 auto result = ternary_operator(c, bitset, r);
+                return transform_to_placeholder(result);
+            },
+            [] (const util::BitSet& c, const util::BitSet& l, const std::shared_ptr<Value>& r) -> VariantData {
+                user_input::check<ErrorCode::E_INVALID_USER_ARGUMENT>(is_bool_type(r->data_type_), "Invalid input types to ternary operator");
+                auto value = r->get<bool>();
+                auto result = ternary_operator(c, l, value);
+                return transform_to_placeholder(result);
+            },
+            [] (const util::BitSet& c, const std::shared_ptr<Value>& l, const util::BitSet& r) -> VariantData {
+                user_input::check<ErrorCode::E_INVALID_USER_ARGUMENT>(is_bool_type(l->data_type_), "Invalid input types to ternary operator");
+                auto value = l->get<bool>();
+                auto result = ternary_operator(c, value, r);
                 return transform_to_placeholder(result);
             },
             [] (const util::BitSet& c, const ColumnWithStrings& l, const ColumnWithStrings& r) -> VariantData {

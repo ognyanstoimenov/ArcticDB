@@ -1157,6 +1157,43 @@ def test_filter_ternary_bitset_with_bool_column(lmdb_version_store_v1):
     assert_frame_equal(expected, received)
 
 
+def test_filter_ternary_bitset_with_bool_value(lmdb_version_store_v1):
+    lib = lmdb_version_store_v1
+    symbol = "test_filter_ternary_bitset_with_bool_value"
+    df = pd.DataFrame(
+        {
+            "conditional": [True, False, False, True, False, True],
+            "col1": np.arange(6),
+        },
+        index=pd.date_range("2024-01-01", periods=6)
+    )
+    lib.write(symbol, df)
+
+    expected = df[np.where(df["conditional"].to_numpy(), (df["col1"] < 4).to_numpy(), False)]
+    q = QueryBuilder()
+    q = q[where(q["conditional"], q["col1"] < 4, False)]
+    received = lib.read(symbol, query_builder=q).data
+    assert_frame_equal(expected, received)
+
+    expected = df[np.where(df["conditional"].to_numpy(), (df["col1"] < 4).to_numpy(), True)]
+    q = QueryBuilder()
+    q = q[where(q["conditional"], q["col1"] < 4, True)]
+    received = lib.read(symbol, query_builder=q).data
+    assert_frame_equal(expected, received)
+
+    expected = df[np.where(df["conditional"].to_numpy(), False, (df["col1"] < 4).to_numpy())]
+    q = QueryBuilder()
+    q = q[where(q["conditional"], False, q["col1"] < 4)]
+    received = lib.read(symbol, query_builder=q).data
+    assert_frame_equal(expected, received)
+
+    expected = df[np.where(df["conditional"].to_numpy(), True, (df["col1"] < 4).to_numpy())]
+    q = QueryBuilder()
+    q = q[where(q["conditional"], True, q["col1"] < 4)]
+    received = lib.read(symbol, query_builder=q).data
+    assert_frame_equal(expected, received)
+
+
 ################################
 # MIXED SCHEMA TESTS FROM HERE #
 ################################
