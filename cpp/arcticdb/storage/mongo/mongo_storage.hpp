@@ -61,7 +61,7 @@ class MongoStorage final : public Storage {
 
     std::string do_key_path(const VariantKey&) const final { return {}; };
 
-    bool do_is_path_valid(const std::string_view path) const final;
+    bool do_is_path_valid(std::string_view path) const final;
 
     std::string collection_name(KeyType k);
 

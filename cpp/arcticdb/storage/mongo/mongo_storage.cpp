@@ -210,7 +210,7 @@ bool MongoStorage::do_iterate_type_until_match(KeyType key_type,
     return false;
 }
 
-bool MongoStorage::do_is_path_valid(const std::string_view path) const {
+bool MongoStorage::do_is_path_valid(std::string_view path) const {
     return std::none_of(path.cbegin(), path.cend(), [](auto c) {
         return UNSUPPORTED_MONGO_CHARS.contains(c);
     });

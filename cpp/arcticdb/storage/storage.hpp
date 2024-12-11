@@ -102,7 +102,7 @@ public:
         return do_key_path(key);
     }
 
-    [[nodiscard]] bool is_path_valid(const std::string_view path) const {
+    [[nodiscard]] bool is_path_valid(std::string_view path) const {
         return do_is_path_valid(path);
     }
 
@@ -140,7 +140,7 @@ private:
 
     [[nodiscard]] virtual std::string do_key_path(const VariantKey& key) const = 0;
 
-    [[nodiscard]] virtual bool do_is_path_valid(const std::string_view) const { return true; }
+    [[nodiscard]] virtual bool do_is_path_valid(std::string_view) const { return true; }
 
     LibraryPath lib_path_;
     OpenMode mode_;

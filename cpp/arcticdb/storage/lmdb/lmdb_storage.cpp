@@ -323,18 +323,18 @@ bool LmdbStorage::do_iterate_type_until_match(KeyType key_type,
     return false;
 }
 
-bool LmdbStorage::do_is_path_valid(const std::string_view pathString ARCTICDB_UNUSED) const {
+bool LmdbStorage::do_is_path_valid(std::string_view path ARCTICDB_UNUSED) const {
 #ifdef _WIN32
     // Note that \ and / are valid characters as they will create subdirectories which are expected to work.
     // The filenames such as COM1, LPT1, AUX, CON etc. are reserved but not strictly disallowed by Windows as directory names.
     // Therefore, paths with these names are allowed.
     std::string_view invalid_win32_chars = "<>:\"|?*";
-    auto found = pathString.find_first_of(invalid_win32_chars);
+    auto found = path.find_first_of(invalid_win32_chars);
     if (found != std::string::npos) {
         return false;
     }
 
-    if (!pathString.empty() && (pathString.back() == '.' || std::isspace(pathString.back()))) {
+    if (!path.empty() && (path.back() == '.' || std::isspace(path.back()))) {
         return false;
     }
 #endif
