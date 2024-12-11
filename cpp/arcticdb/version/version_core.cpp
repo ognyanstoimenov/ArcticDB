@@ -698,7 +698,7 @@ std::vector<RangesAndKey> generate_ranges_and_keys(PipelineContext& pipeline_con
 
 util::BitSet get_incompletes_bitset(const std::vector<RangesAndKey>& all_ranges) {
     util::BitSet output(all_ranges.size());
-    util::BitSet::bulk_insert_iterator it;
+    util::BitSet::bulk_insert_iterator it(output);
     for(auto&& [index, range] : folly::enumerate(all_ranges)) {
         if(range.is_incomplete())
             it = index;
