@@ -16,10 +16,11 @@
 #include <arcticdb/util/pybind_mutex.hpp>
 #include <arcticdb/util/storage_lock.hpp>
 #include <arcticdb/toolbox/storage_mover.hpp>
+#include <arcticdb/util/reliable_storage_lock.hpp>
 
 namespace arcticdb::toolbox::apy {
 
-void register_bindings(py::module &m) {
+void register_bindings(py::module &m, py::exception<arcticdb::ArcticException>& base_exception) {
     auto tools = m.def_submodule("tools", "Library management tool hooks");
     using namespace arcticdb::toolbox::apy;
     using namespace arcticdb::storage;
@@ -68,6 +69,7 @@ void register_bindings(py::module &m) {
              .def("inspect_env_variable", &LibraryTool::inspect_env_variable)
              .def_static("read_unaltered_lib_cfg", &LibraryTool::read_unaltered_lib_cfg);
 
+
     py::class_<StorageMover>(tools, "StorageMover")
     .def(py::init<std::shared_ptr<storage::Library>, std::shared_ptr<storage::Library>>())
     .def("go",
@@ -94,6 +96,25 @@ void register_bindings(py::module &m) {
     .def("clone_all_keys_for_symbol_for_type",
     &StorageMover::clone_all_keys_for_symbol_for_type,
     "Clone all the keys that have this symbol and type to the dest library.");
+
+    // Reliable storage lock exposed for integration testing. It is intended for use in C++
+    using namespace arcticdb::lock;
+
+    py::register_exception<LostReliableLock>(tools, "LostReliableLock", base_exception.ptr());
+
+    py::class_<ReliableStorageLock<>>(tools, "ReliableStorageLock")
+            .def(py::init<>([](std::string base_name, std::shared_ptr<Library> lib, timestamp timeout){
+                auto store = version_store::LocalVersionedEngine(lib)._test_get_store();
+                return ReliableStorageLock<>(base_name, store, timeout);
+            }));
+
+    py::class_<ReliableStorageLockManager>(tools, "ReliableStorageLockManager")
+            .def(py::init<>([](){
+                return ReliableStorageLockManager();
+            }))
+            .def("take_lock_guard", &ReliableStorageLockManager::take_lock_guard)
+            .def("free_lock_guard", &ReliableStorageLockManager::free_lock_guard);
+
     // S3 Storage tool
     using namespace arcticdb::storage::s3;
     py::class_<S3StorageTool, std::shared_ptr<S3StorageTool>>(tools, "S3Tool")
