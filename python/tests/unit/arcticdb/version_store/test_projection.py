@@ -71,14 +71,35 @@ def test_project_string_unary_arithmetic(lmdb_version_store_v1):
         lib.read(symbol, query_builder=q)
 
 
-def test_project_ternary_basic(lmdb_version_store_v1):
+def test_project_ternary_numeric_basic(lmdb_version_store_v1):
     lib = lmdb_version_store_v1
-    symbol = "test_project_ternary_basic"
+    symbol = "test_project_ternary_numeric_basic"
     df = pd.DataFrame(
         {
             "conditional": [True, False, False, True, False, True],
             "col1": np.arange(6),
             "col2": np.arange(10, 16),
+        },
+        index=pd.date_range("2024-01-01", periods=6)
+    )
+    lib.write(symbol, df)
+
+    expected = df
+    expected["new_col"] = np.where(df["conditional"].to_numpy(), df["col1"].to_numpy(), df["col2"].to_numpy())
+    q = QueryBuilder()
+    q = q.apply("new_col", where(q["conditional"], q["col1"], q["col2"]))
+    received = lib.read(symbol, query_builder=q).data
+    assert_frame_equal(expected, received)
+
+
+def test_project_ternary_strings_basic(lmdb_version_store_v1):
+    lib = lmdb_version_store_v1
+    symbol = "test_project_ternary_strings_basic"
+    df = pd.DataFrame(
+        {
+            "conditional": [True, False, False, True, False, True],
+            "col1": ["a", "b", "c", "d", "e", "f"],
+            "col2": ["g", "h", "i", "j", "k", "l"],
         },
         index=pd.date_range("2024-01-01", periods=6)
     )

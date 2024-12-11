@@ -28,17 +28,42 @@ VariantData ternary_operator(const util::BitSet& condition, const ColumnWithStri
             !is_empty_type(left.column_->type().data_type()) && !is_empty_type(right.column_->type().data_type()),
             "Empty column provided to ternary operator");
     std::unique_ptr<Column> output_column;
+    std::shared_ptr<StringPool> string_pool;
 
     details::visit_type(left.column_->type().data_type(), [&](auto left_tag) {
         using left_type_info = ScalarTypeInfo<decltype(left_tag)>;
         details::visit_type(right.column_->type().data_type(), [&](auto right_tag) {
             using right_type_info = ScalarTypeInfo<decltype(right_tag)>;
             if constexpr(is_sequence_type(left_type_info::data_type) && is_sequence_type(right_type_info::data_type)) {
-                // TODO
-                internal::raise<ErrorCode::E_ASSERTION_FAILURE>("Not implemented");
+                if constexpr(left_type_info::data_type == right_type_info::data_type && is_dynamic_string_type(left_type_info::data_type)) {
+                    output_column = std::make_unique<Column>(make_scalar_type(left_type_info::data_type), Sparsity::PERMITTED);
+                    string_pool = std::make_shared<StringPool>();
+                    // TODO: Could this be more efficient?
+                    size_t idx{0};
+                    Column::transform<typename left_type_info::TDT, typename right_type_info::TDT, typename left_type_info::TDT>(
+                            *(left.column_),
+                            *(right.column_),
+                            *output_column,
+                            [&condition, &idx, &string_pool, &left, &right](auto left_value, auto right_value) -> typename left_type_info::RawType {
+                                std::optional<std::string_view> string_at_offset;
+                                if (condition[idx]) {
+                                    string_at_offset = left.string_at_offset(left_value);
+                                } else {
+                                    string_at_offset = right.string_at_offset(right_value);
+                                }
+                                if (string_at_offset.has_value()) {
+                                    ++idx;
+                                    auto offset_string = string_pool->get(*string_at_offset);
+                                    return offset_string.offset();
+                                } else {
+                                    return condition[idx++] ? left_value : right_value;
+                                }
+                            });
+                }
+                // TODO: Handle else?
             } else if constexpr ((is_numeric_type(left_type_info::data_type) && is_numeric_type(right_type_info::data_type)) ||
                                  (is_bool_type(left_type_info::data_type) && is_bool_type(right_type_info::data_type))) {
-                // TODO: Hacky to reuse type_arithmetic_promoted_type with IsInOperator, and incorrect when there is a uint64_t
+                // TODO: Hacky to reuse type_arithmetic_promoted_type with IsInOperator, and incorrect when there is a uint64_t and an int64_t column
                 using TargetType = typename type_arithmetic_promoted_type<typename left_type_info::RawType, typename right_type_info::RawType, IsInOperator>::type;
                 constexpr auto output_data_type = data_type_from_raw_type<TargetType>();
                 output_column = std::make_unique<Column>(make_scalar_type(output_data_type), Sparsity::PERMITTED);
@@ -58,7 +83,7 @@ VariantData ternary_operator(const util::BitSet& condition, const ColumnWithStri
         });
     });
     // TODO: add equivalent of binary_operation_column_name for ternary operator
-    return {ColumnWithStrings(std::move(output_column), "some string")};
+    return {ColumnWithStrings(std::move(output_column), string_pool, "some string")};
 }
 
 VariantData visit_ternary_operator(const VariantData& condition, const VariantData& left, const VariantData& right) {

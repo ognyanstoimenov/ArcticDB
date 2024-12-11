@@ -164,7 +164,6 @@ std::vector<EntityId> ProjectClause::process(std::vector<EntityId>&& entity_ids)
                                 proc.segments_->back()->add_column(last_segment.field(idx), last_segment.column_ptr(idx));
                             }
 
-
                             proc.segments_->back()->add_column(scalar_field(data_type, name), col.column_);
                             proc.segments_->back()->set_row_data(row_count - 1);
                             proc.segments_->back()->set_string_pool(col.string_pool_);
