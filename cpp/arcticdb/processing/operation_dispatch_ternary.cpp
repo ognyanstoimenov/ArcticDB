@@ -146,6 +146,22 @@ VariantData visit_ternary_operator(const VariantData& condition, const VariantDa
                 auto result = ternary_operator(c, value, r);
                 return transform_to_placeholder(result);
             },
+            [] (const util::BitSet& c, const util::BitSet& l, FullResult) -> VariantData {
+                auto result = ternary_operator(c, l, true);
+                return transform_to_placeholder(result);
+            },
+            [] (const util::BitSet& c, FullResult, const util::BitSet& r) -> VariantData {
+                auto result = ternary_operator(c, true, r);
+                return transform_to_placeholder(result);
+            },
+            [] (const util::BitSet& c, const util::BitSet& l, EmptyResult) -> VariantData {
+                auto result = ternary_operator(c, l, false);
+                return transform_to_placeholder(result);
+            },
+            [] (const util::BitSet& c, EmptyResult, const util::BitSet& r) -> VariantData {
+                auto result = ternary_operator(c, false, r);
+                return transform_to_placeholder(result);
+            },
             [] (const util::BitSet& c, const ColumnWithStrings& l, const ColumnWithStrings& r) -> VariantData {
                 auto result = ternary_operator(c, l, r);
                 return transform_to_placeholder(result);
