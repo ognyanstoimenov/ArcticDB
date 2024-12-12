@@ -476,18 +476,23 @@ struct SegmentFunctionTask : BaseTask {
 struct MemSegmentProcessingTask : BaseTask {
     std::vector<std::shared_ptr<Clause>> clauses_;
     std::vector<EntityId> entity_ids_;
+    timestamp creation_time_;
 
     explicit MemSegmentProcessingTask(
            std::vector<std::shared_ptr<Clause>> clauses,
            std::vector<EntityId>&& entity_ids) :
         clauses_(std::move(clauses)),
-        entity_ids_(std::move(entity_ids)) {
+        entity_ids_(std::move(entity_ids)),
+        creation_time_(util::SysClock::coarse_nanos_since_epoch()){
     }
 
     ARCTICDB_MOVE_ONLY_DEFAULT(MemSegmentProcessingTask)
 
     std::vector<EntityId> operator()() {
         ARCTICDB_DEBUG_THROW(5)
+        auto nanos = util::SysClock::coarse_nanos_since_epoch() - creation_time_;
+        auto time_taken = double(nanos) / BILLION;
+        ARCTICDB_RUNTIME_DEBUG(log::inmem(), "Segment processing task running after {}s queue time", time_taken);
         for (auto it = clauses_.cbegin(); it != clauses_.cend(); ++it) {
             entity_ids_ = (*it)->process(std::move(entity_ids_));
 

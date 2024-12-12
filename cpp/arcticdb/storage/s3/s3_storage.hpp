@@ -257,7 +257,7 @@ auto get_s3_config(const ConfigType& conf) {
         client_configuration.caPath = conf.ca_cert_dir();
     }
 
-    client_configuration.maxConnections = async::TaskScheduler::instance()->io_thread_count() * 2;
+    client_configuration.maxConnections = ConfigsMap::instance()->get_int("S3Storage.MaxConnections", async::TaskScheduler::instance()->io_thread_count());
     client_configuration.connectTimeoutMs = ConfigsMap::instance()->get_int("S3Storage.ConnectTimeoutMs",
                                                 conf.connect_timeout() == 0 ? 30000 : conf.connect_timeout());
     client_configuration.httpRequestTimeoutMs = ConfigsMap::instance()->get_int("S3Storage.HttpRequestTimeoutMs", 0);

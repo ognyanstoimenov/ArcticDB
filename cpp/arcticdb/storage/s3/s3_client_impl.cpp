@@ -115,6 +115,7 @@ S3Result<Segment> S3ClientImpl::get_object(
         const std::string &s3_object_name,
         const std::string &bucket_name) const {
     ARCTICDB_RUNTIME_DEBUG(log::storage(), "Looking for object {}", s3_object_name);
+    auto start = util::SysClock::coarse_nanos_since_epoch();
     Aws::S3::Model::GetObjectRequest request;
     request.WithBucket(bucket_name.c_str()).WithKey(s3_object_name.c_str());
     request.SetResponseStreamFactory(S3StreamFactory());
@@ -125,7 +126,9 @@ S3Result<Segment> S3ClientImpl::get_object(
     }
 
     auto &retrieved = dynamic_cast<S3IOStream &>(outcome.GetResult().GetBody());
-    ARCTICDB_RUNTIME_DEBUG(log::storage(), "Returning object {}", s3_object_name);
+    auto nanos = util::SysClock::coarse_nanos_since_epoch() - start;
+    auto time_taken = double(nanos) / BILLION;
+    ARCTICDB_RUNTIME_DEBUG(log::storage(), "Returning object {} in {}s", s3_object_name, time_taken);
     return {Segment::from_buffer(retrieved.get_buffer())};
 }
 

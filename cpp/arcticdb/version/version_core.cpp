@@ -720,8 +720,7 @@ std::vector<folly::Future<pipelines::SegmentAndSlice>> add_schema_check(
         if (is_incomplete) {
             res.push_back(
                 std::move(fut)
-                    .via(&async::cpu_executor())
-                    .thenValue([pipeline_desc=pipeline_context->descriptor(), processing_config](SegmentAndSlice &&read_result) {
+                    .thenValueInline([pipeline_desc=pipeline_context->descriptor(), processing_config](SegmentAndSlice &&read_result) {
                         if (!processing_config.dynamic_schema_) {
                             auto check = check_schema_matches_incomplete(read_result.segment_in_memory_.descriptor(), pipeline_desc);
                             if (std::holds_alternative<Error>(check)) {
