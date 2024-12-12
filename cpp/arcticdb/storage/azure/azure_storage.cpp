@@ -206,7 +206,7 @@ KeySegmentPair do_read_impl(
                        blob_name,
                        static_cast<int>(e.StatusCode),
                        e.ReasonPhrase));
-    } catch(const std::exception& ex) {
+    } catch(const std::exception&) {
         throw KeyNotFoundException(variant_key);
     }
     return KeySegmentPair{};
