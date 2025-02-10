@@ -18,6 +18,8 @@ jobs:
       contents: write
       pull-requests: write
       repository-projects: write
+    outputs:
+      new_branch: ${{ steps.new-branch.outputs.new_branch }}
     steps:
       - name: Get latest release number
         if: ${{ inputs.target == '' }}
@@ -137,6 +139,7 @@ jobs:
           echo "Next version should be $next_version"
           echo "next_version=$next_version" >> $GITHUB_OUTPUT
       - name: Create and push new branch
+        id: new-branch
         run: |
           NEW_BRANCH="${{ steps.calculate_next_version.outputs.next_version }}"
           if git ls-remote --exit-code --heads origin "$NEW_BRANCH"; then
@@ -147,3 +150,9 @@ jobs:
           echo "Will create $NEW_BRANCH..."
           git checkout -b $NEW_BRANCH $BASE
           git push origin $NEW_BRANCH
+          echo "new_branch=$NEW_BRANCH" >> $GITHUB_OUTPUT
+  rc_release:
+    uses: ./.github/workflows/rc_release.yml
+    needs: get-prs
+    with:
+      branch_name: ${{ needs.get-prs.outputs.new_branch }}
