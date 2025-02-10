@@ -3,6 +3,11 @@
 
 #### What does this implement or fix?
 
+## Change Type (Required)
+- [ ] **Patch** (Bug fix or non-breaking improvement)
+- [ ] **Minor** (New feature, but backward compatible)
+- [ ] **Major** (Breaking changes)
+
 #### Any other comments?
 
 #### Checklist
