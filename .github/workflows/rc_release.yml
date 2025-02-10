@@ -4,10 +4,18 @@ on:
   push:
     branches:
       - '[0-9]+.[0-9]+.[0-9]'
+  workflow_call:
+    inputs:
+      branch_name: 
+        type: string
+        required: true
+      
 
 jobs:
   get_tag_name:
     name: Calculate next RC number
+    env:
+      CURRENT_BRACH: ${{ inputs.branch_name || github.ref_name }}
     runs-on: ubuntu-latest
     outputs:
       next_version: ${{ steps.latest_tag.outputs.next_version }}
@@ -20,8 +28,7 @@ jobs:
       - name: Find latest RC tag and increment
         id: latest_tag
         run: |
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          TAG=v$BRANCH_NAME
+          TAG=v${{ env.CURRENT_BRACH }}
           echo "Getting tag for $TAG"
           LATEST_TAG=$(git tag -l "${TAG}rc*" | sort -V | tail -n 1)
           if [[ -z "$LATEST_TAG" ]]; then
