@@ -10,9 +10,6 @@ env:
   BASE: remotes/origin/master
   TARGET_NAME: ${{ github.event.inputs.target }}
   GH_TOKEN: ${{ github.token }}
-  MAJOR_LABEL: major
-  MINOR_LABEL: minor
-  PATCH_LABEL: patch
 jobs:
   get-prs:
     name: Parse PRs for major/minor/patch labels
@@ -43,9 +40,9 @@ jobs:
       - name: Get PRs between commits
         id: get_increment_and_version
         env:
-          MAJOR_LABEL: ${{ vars.MAJOR_LABEL_NAME }}
-          MINOR_LABEL: ${{ vars.MINOR_LABEL_NAME }}
-          PATCH_LABEL: ${{ vars.PATCH_LABEL_NAME }}
+          MAJOR_LABEL: major
+          MINOR_LABEL: minor
+          PATCH_LABEL: patch
         run: |
           TARGET_BRANCH=remotes/origin/${TARGET_NAME#v}
           echo "version_number=${TARGET_NAME#v}" >> $GITHUB_OUTPUT
