@@ -37,9 +37,9 @@ jobs:
         id: set-label
         uses: actions/github-script@v7
         env:
-          MAJOR_LABEL: major
-          MINOR_LABEL: minor
-          PATCH_LABEL: patch
+          MAJOR_LABEL_NAME: major
+          MINOR_LABEL_NAME: minor
+          PATCH_LABEL_NAME: patch
         with:
           script: |
             const changeType = "${{ steps.detect-change.outputs.change_type }}";
