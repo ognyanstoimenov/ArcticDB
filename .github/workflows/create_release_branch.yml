@@ -10,6 +10,9 @@ env:
   BASE: remotes/origin/master
   TARGET_NAME: ${{ github.event.inputs.target }}
   GH_TOKEN: ${{ github.token }}
+  MAJOR_LABEL: major
+  MINOR_LABEL: minor
+  PATCH_LABEL: patch
 jobs:
   get-prs:
     name: Parse PRs for major/minor/patch labels
