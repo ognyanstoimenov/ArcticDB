@@ -7,6 +7,7 @@ on:
 
 jobs:
   get_tag_name:
+    name: Calculate next RC number
     runs-on: ubuntu-latest
     outputs:
       next_version: ${{ steps.latest_tag.outputs.next_version }}
