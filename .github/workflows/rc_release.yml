@@ -1,0 +1,40 @@
+name: "On Push in Release Branch: Release RC"
+
+on:
+  push:
+    branches:
+      - '[0-9]+.[0-9]+.[0-9]'
+
+jobs:
+  get_tag_name:
+    runs-on: ubuntu-latest
+    outputs:
+      next_version: ${{ steps.latest_tag.outputs.next_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Find latest RC tag and increment
+        id: latest_tag
+        run: |
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          TAG=v$BRANCH_NAME
+          echo "Getting tag for $TAG"
+          LATEST_TAG=$(git tag -l "${TAG}rc*" | sort -V | tail -n 1)
+          if [[ -z "$LATEST_TAG" ]]; then
+            NEXT_RC=0
+          else
+            NEXT_RC=$(( ${LATEST_TAG##*rc} + 1 ))
+          fi
+          NEXT_TAG=${TAG}rc${NEXT_RC}
+          echo "Latest tag is $LATEST_TAG"
+          echo "Next tag is $NEXT_TAG"
+          echo "next_version=${NEXT_TAG#v}" >> $GITHUB_OUTPUT
+
+  tag_and_release:
+    uses: ./.github/workflows/tag.yml
+    needs: get_tag_name
+    with:
+      version: ${{ needs.get_tag_name.outputs.next_version }}  
