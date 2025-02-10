@@ -5,7 +5,7 @@
 ---
 
 <div align="center">
-  <p><b>Three minute ArcticDB demo from PyQuantNews</b></p>
+  <p><b>Three minute ArcticD B demo from PyQuantNews</b></p>
   <a href="https://www.youtube.com/watch?v=5_AjD7aVEEM">
     <img src="static/pqn_video_thumbnail.png" alt="Options data in ArcticDB" width="33%">
   </a>
