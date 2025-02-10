@@ -1,0 +1,144 @@
+name: Create next release branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target version to compare. If omitted, the latest release from github will be used. Exmaple: v1.2.3'
+        required: false
+env:
+  BASE: remotes/origin/master
+  TARGET_NAME: ${{ github.event.inputs.target }}
+  GH_TOKEN: ${{ github.token }}
+jobs:
+  get-prs:
+    name: Parse PRs for major/minor/patch labels
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    steps:
+      - name: Get latest release number
+        if: ${{ inputs.target == '' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: latestRelease } = await github.rest.repos.getRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: "latest",
+            });
+
+            const fs = require('fs');
+            const tagname = latestRelease.tag_name
+            fs.appendFileSync(process.env.GITHUB_ENV, `TARGET_NAME=${tagname}`);
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get PRs between commits
+        id: get_increment_and_version
+        env:
+          MAJOR_LABEL: ${{ vars.MAJOR_LABEL_NAME }}
+          MINOR_LABEL: ${{ vars.MINOR_LABEL_NAME }}
+          PATCH_LABEL: ${{ vars.PATCH_LABEL_NAME }}
+        run: |
+          TARGET_BRANCH=remotes/origin/${TARGET_NAME#v}
+          echo "version_number=${TARGET_NAME#v}" >> $GITHUB_OUTPUT
+          echo "Major label: $MAJOR_LABEL, minor_label: $MINOR_LABEL, patch_label: $PATCH_LABEL"
+          if [[ -z "$MAJOR_LABEL" || -z "$MINOR_LABEL" || -z "$PATCH_LABEL" ]]; then
+            echo "Error: One or more label name variables are empty."
+            exit 1
+          fi
+          echo "Fetching commits between $TARGET_BRANCH and $BASE..."
+          commits=$(git log --pretty=format:"%H" $TARGET_BRANCH..$BASE)
+          echo $commits
+          if [[ -z "$commits" ]]; then
+            echo "No commits found. Aborting"
+            exit 1
+          fi
+          echo "Fetching PRs associated with these commits..."
+          all_prs=""
+          patch_prs=""
+          minor_prs=""
+          major_prs=""
+          append_if_non_empty() {
+            if [[ -n "$2" ]]; then
+                if [[ -n "${!1}" ]]; then
+                    eval "$1=\"${!1}, $2\"" 
+                else
+                    eval "$1=\"$2\""
+                fi
+            fi
+          }
+          for commit in $commits; do
+            search_str="gh pr list --state merged --search $commit --json number --jq .[].number"
+            append_if_non_empty all_prs "$($search_str)"
+            append_if_non_empty patch_prs "$($search_str --label $PATCH_LABEL)"
+            append_if_non_empty minor_prs "$($search_str --label $MINOR_LABEL)"
+            append_if_non_empty major_prs "$($search_str --label $MAJOR_LABEL)"
+          done
+          echo "All PRs: $all_prs"
+          echo "Patch PRs: $patch_prs"
+          echo "Minor PRs: $minor_prs"
+          echo "Major PRs: $major_prs"
+
+          increment_type=""
+          if [[ -n "$major_prs" ]]; then
+            echo "Major changes found! Should increase major version."
+            increment_type="major"
+          elif [[ -n "$minor_prs" ]]; then
+            echo "Minor changes found! Should increase minor version."
+            increment_type="minor"
+          elif [[ -n "$patch_prs" ]]; then
+            echo "Patch changes found! Should increase patch version."
+            increment_type="patch"
+          else
+            echo "No PRs labeled patch, minor or major found! Defaulting to 'patch'."
+            increment_type="patch"
+          fi
+          echo "increment_type=$increment_type" >> "$GITHUB_OUTPUT"
+      - name: Calculate next version
+        id: calculate_next_version
+        env:
+          INCREMENT: ${{ steps.get_increment_and_version.outputs.increment_type }}
+          VERSION_NUMBER: ${{ steps.get_increment_and_version.outputs.version_number }}
+        run: | 
+          echo "Previous version is $VERSION_NUMBER"
+          echo "Desired increment is $INCREMENT"
+          
+          # Split the version into major, minor, and patch
+          IFS='.' read -r -a version_parts <<< "$VERSION_NUMBER"
+          
+          MAJOR=${version_parts[0]}
+          MINOR=${version_parts[1]}
+          PATCH=${version_parts[2]}
+          # Increment the version based on the input type
+          case $INCREMENT in
+            "major")
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            "minor")
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            "patch")
+              PATCH=$((PATCH + 1))
+              ;;
+            *)
+              echo "Invalid increment type! Use major, minor, or patch."
+              exit 1
+              ;;
+          esac
+          next_version=$MAJOR.$MINOR.$PATCH
+          echo "Next version should be $next_version"
+          echo "next_version=$next_version" >> $GITHUB_OUTPUT
+      - name: Create and push new branch
+        run: |
+          NEW_BRANCH="${{ steps.calculate_next_version.outputs.next_version }}"
+          echo "Will create $NEW_BRANCH..."
+          git checkout -b $NEW_BRANCH $BASE
+          git push origin $NEW_BRANCH
