@@ -1,4 +1,4 @@
-name: "On Push in Release Branch: Release RC"
+name: "Release next RC from release branch"
 
 on:
   push:
