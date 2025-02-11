@@ -9,6 +9,9 @@ on:
       branch_name: 
         type: string
         required: true
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight UTC
+    
       
 
 jobs:
@@ -18,7 +21,7 @@ jobs:
       CURRENT_BRACH: ${{ inputs.branch_name || github.ref_name }}
     runs-on: ubuntu-latest
     outputs:
-      next_version: ${{ steps.latest_tag.outputs.next_version }}
+      next_version: ${{ steps.latest_rc_tag.outputs.next_version || steps.latest_tag.outputs.next_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,7 +29,8 @@ jobs:
           fetch-depth: 0 
 
       - name: Find latest RC tag and increment
-        id: latest_tag
+        id: latest_rc_tag
+        if: ${{ github.event_name != 'schedule' }}
         run: |
           TAG=v${{ env.CURRENT_BRACH }}
           echo "Getting tag for $TAG"
@@ -40,6 +44,18 @@ jobs:
           echo "Latest tag is $LATEST_TAG"
           echo "Next tag is $NEXT_TAG"
           echo "next_version=${NEXT_TAG#v}" >> $GITHUB_OUTPUT
+      - uses: InsonusK/get-latest-release@v1.0.1
+        id: get-latest-release
+        with:
+          myToken: ${{ github.token }}
+          exclude_types: "prerelease|draft"
+          view_top: 10 
+      - name: Find tag name for release
+        id: latest_tag
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
+          echo "created_at: ${{ steps.last_release.outputs.created_at }}"
+          echo "next_version=v${{ env.CURRENT_BRACH }}" >> $GITHUB_OUTPUT
 
   tag_and_release:
     uses: ./.github/workflows/tag.yml
