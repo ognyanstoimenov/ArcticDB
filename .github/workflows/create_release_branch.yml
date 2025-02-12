@@ -6,6 +6,11 @@ on:
       target:
         description: 'Target version to compare. If omitted, the latest release from github will be used. Exmaple: v1.2.3'
         required: false
+  workflow_call:
+    inputs:
+      target:
+        type: string
+        required: false
 env:
   VERSION_REGEX: ^v\d+\.\d+\.\d+$
 jobs:
