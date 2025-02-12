@@ -9,6 +9,12 @@ on:
         description: Force push tag
         type: boolean
         default: false
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+
 
 run-name: Tagging ${{github.ref_name}} as v${{inputs.version}}${{inputs.overwrite && ' [Overwrite]' || ''}}
 jobs:
