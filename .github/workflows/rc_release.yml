@@ -9,53 +9,41 @@ on:
       branch_name: 
         type: string
         required: true
-  schedule:
-    - cron: '0 0 * * *'  # Runs every day at midnight UTC
-    
-      
-
+run-name: Release next RC from '${{ inputs.branch_name || github.ref_name }}' 
 jobs:
   get_tag_name:
     name: Calculate next RC number
     env:
-      CURRENT_BRACH: ${{ inputs.branch_name || github.ref_name }}
+      CURRENT_BRANCH: ${{ inputs.branch_name || github.ref_name }}
     runs-on: ubuntu-latest
     outputs:
-      next_version: ${{ steps.latest_rc_tag.outputs.next_version || steps.latest_tag.outputs.next_version }}
+      next_version: ${{ steps.calculate-next-version.outputs.next_version }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 
-
-      - name: Find latest RC tag and increment
+      - name: Get latest RC tag
         id: latest_rc_tag
-        if: ${{ github.event_name != 'schedule' }}
-        run: |
-          TAG=v${{ env.CURRENT_BRACH }}
-          echo "Getting tag for $TAG"
-          LATEST_TAG=$(git tag -l "${TAG}rc*" | sort -V | tail -n 1)
-          if [[ -z "$LATEST_TAG" ]]; then
-            NEXT_RC=0
-          else
-            NEXT_RC=$(( ${LATEST_TAG##*rc} + 1 ))
-          fi
-          NEXT_TAG=${TAG}rc${NEXT_RC}
-          echo "Latest tag is $LATEST_TAG"
-          echo "Next tag is $NEXT_TAG"
-          echo "next_version=${NEXT_TAG#v}" >> $GITHUB_OUTPUT
-      - uses: InsonusK/get-latest-release@v1.0.1
-        id: get-latest-release
+        uses: oprypin/find-latest-tag@v1
         with:
-          myToken: ${{ github.token }}
-          exclude_types: "prerelease|draft"
-          view_top: 10 
-      - name: Find tag name for release
-        id: latest_tag
-        if: ${{ github.event_name == 'schedule' }}
+          repository: man-group/ArcticDB
+          prefix: v${{ env.CURRENT_BRANCH }}rc
+        continue-on-error: true
+      
+      - name: Calculate next_version
+        id: calculate-next-version
         run: |
-          echo "created_at: ${{ steps.last_release.outputs.created_at }}"
-          echo "next_version=v${{ env.CURRENT_BRACH }}" >> $GITHUB_OUTPUT
+          CURRENT_BRANCH="${{ github.ref_name }}"
+          LATEST_OUTCOME="${{ steps.latest_rc_tag.outcome }}"
+          LATEST_TAG="${{ steps.latest_rc_tag.outputs.tag }}"
+          LATEST_TAG="${LATEST_TAG#v}"
+          if [ "$LATEST_OUTCOME" != "success" ]; then
+            next_version="${CURRENT_BRANCH}rc0"
+          else
+            # Split version by 'rc' and increment the last number
+            base="${LATEST_TAG%rc*}"
+            rc_number="${LATEST_TAG##*rc}"
+            next_rc_number=$((rc_number + 1))
+            next_version="${base}rc${next_rc_number}"
+          fi
+          echo "next_version=$next_version" >> $GITHUB_OUTPUT
 
   tag_and_release:
     uses: ./.github/workflows/tag.yml
