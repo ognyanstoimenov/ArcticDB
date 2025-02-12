@@ -1,4 +1,4 @@
-name: Parse PR Change Type
+name: "Automated Release: Parse PR Change Type"
 
 on:
   pull_request:

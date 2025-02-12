@@ -1,4 +1,4 @@
-name: Create next release branch
+name: "Automated Release: Create next release branch"
 
 on:
   workflow_dispatch:
