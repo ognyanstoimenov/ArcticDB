@@ -19,7 +19,7 @@ jobs:
     outputs:
       next_version: ${{ steps.calculate-next-version.outputs.next_version }}
     steps:
-      - name: Get latest RC tag.
+      - name: Get latest RC tag
         id: latest_rc_tag
         uses: oprypin/find-latest-tag@v1
         with:
