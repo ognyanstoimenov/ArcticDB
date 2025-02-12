@@ -9,7 +9,7 @@ on:
 
 jobs:
   get-prs:
-    name: Parse PRs for major/minor/patch labels
+    name: Parse PRs labels and create next release branch
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -20,9 +20,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
+      
+      - name: "Get default branch sha"
+        id: get_sha
+        run: |
+           BASE_SHA=$(git rev-parse ${{ github.event.repository.default_branch }})
+           echo "BASE_SHA=$BASE_SHA" >> $GITHUB_ENV
+           echo "Release branch will be cut from $BASE_SHA"
+      
       - name: "Get latest release"
         if: ${{ inputs.target == '' }}
         id: get_latest_release
@@ -31,28 +36,27 @@ jobs:
           myToken: ${{ github.token }}
           exclude_types: "draft|prerelease"
 
-      - name: Verify branch format using git
+      - name: Verify branch format
         id: verify_branch
         uses: actions/github-script@v7
         with:
           script: |
             const target = '${{ inputs.target || steps.get_latest_release.outputs.tag_name }}';
             const targetPattern = /^v(\d+)\.(\d+)\.(\d+)$/;
-
             if (targetPattern.test(target)) {
               const targetBranch = target.slice(1);
               core.setOutput('target_branch', targetBranch);
             } else {
-              core.setFailed('Error: Target branch is not in the valid vX.Y.Z format');
+              core.setFailed('Error: Target tag is not in the valid vX.Y.Z format');
             }
 
-      - name: "Get prs between"
+      - name: Get prs between
         uses: VanOns/get-merged-pull-requests-action@v1
         id: pull_requests
         with:
           repo: ognyanstoimenov/ArcticDB
           github_token: ${{ github.token }}
-          current_tag: master
+          current_tag: ${{ env.BASE_SHA }}
           previous_tag: ${{ steps.verify_branch.outputs.target_branch }}
           return_type: "all"
 
@@ -66,9 +70,12 @@ jobs:
           PATCH_LABEL: patch
         with:
           script: |
+            if (!process.env.PULL_REQUESTS) {
+              core.setFailed('Error: No PRs found between branches');
+              process.exit();
+            }
             const labels = JSON.parse(process.env.PULL_REQUESTS).flatMap(pr => pr.labels.map(label => label.name));
             core.info(`Labels: ${labels.join(', ')}`);
-
             let incrementType = 'patch';
             if (labels.includes(process.env.MAJOR_LABEL)) {
               console.log("Major changes found! Should increase major version.");
@@ -81,31 +88,24 @@ jobs:
             } else {
               console.log("No PRs labeled patch, minor or major found! Defaulting to 'patch'.");
             }
-
             core.setOutput('increment_type', incrementType);
 
-      - name: Next SemVers
+      - name: Calculate next version
         id: get-next-version
         uses: WyriHaximus/github-action-next-semvers@v1.2.1
         with:
           version: ${{ steps.verify_branch.outputs.target_branch }}
       
-      - name: Create and push new branch
-        id: new-branch
-        run: |
-          NEW_BRANCH="${{ steps.get-next-version.outputs[steps.get_increment_type.outputs.increment_type] }}"
-          if git ls-remote --exit-code --heads origin "$NEW_BRANCH"; then
-            echo "Branch $NEW_BRANCH already exists on remote. Exiting..."
-            exit 1
-          fi
+      - name: Create branch
+        uses: peterjgrainger/action-create-branch@v2.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: ${{ steps.get-next-version.outputs[steps.get_increment_type.outputs.increment_type] }}
+          sha: ${{ env.BASE_SHA }}
 
-          echo "Will create $NEW_BRANCH..."
-          # git checkout -b $NEW_BRANCH $BASE
-          # git push origin $NEW_BRANCH
-          echo "new_branch=$NEW_BRANCH" >> $GITHUB_OUTPUT
-
-  # rc_release:
-  #   uses: ./.github/workflows/rc_release.yml
-  #   needs: get-prs
-  #   with:
-  #     branch_name: ${{ needs.get-prs.outputs.new_branch }}
+  rc_release:
+    uses: ./.github/workflows/rc_release.yml
+    needs: get-prs
+    with:
+      branch_name: ${{ needs.get-prs.outputs.new_branch }}
