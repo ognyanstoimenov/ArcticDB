@@ -4,17 +4,13 @@ on:
   push:
     branches:
       - '[0-9]+.[0-9]+.[0-9]'
-  workflow_call:
-    inputs:
-      branch_name: 
-        type: string
-        required: true
-run-name: Release next RC from '${{ inputs.branch_name || github.ref_name }}' 
+
+run-name: Release next RC from '${{ github.ref_name }}' 
 jobs:
   get_tag_name:
     name: Calculate next RC number
     env:
-      CURRENT_BRANCH: ${{ inputs.branch_name || github.ref_name }}
+      CURRENT_BRANCH: ${{ github.ref_name }}
     runs-on: ubuntu-latest
     outputs:
       next_version: ${{ steps.calculate-next-version.outputs.next_version }}
@@ -25,24 +21,18 @@ jobs:
         with:
           repository: man-group/ArcticDB
           prefix: v${{ env.CURRENT_BRANCH }}rc
-        continue-on-error: true
       
       - name: Calculate next_version
         id: calculate-next-version
         run: |
           CURRENT_BRANCH="${{ github.ref_name }}"
-          LATEST_OUTCOME="${{ steps.latest_rc_tag.outcome }}"
           LATEST_TAG="${{ steps.latest_rc_tag.outputs.tag }}"
           LATEST_TAG="${LATEST_TAG#v}"
-          if [ "$LATEST_OUTCOME" != "success" ]; then
-            next_version="${CURRENT_BRANCH}rc0"
-          else
-            # Split version by 'rc' and increment the last number
-            base="${LATEST_TAG%rc*}"
-            rc_number="${LATEST_TAG##*rc}"
-            next_rc_number=$((rc_number + 1))
-            next_version="${base}rc${next_rc_number}"
-          fi
+          # Split version by 'rc' and increment the last number
+          base="${LATEST_TAG%rc*}"
+          rc_number="${LATEST_TAG##*rc}"
+          next_rc_number=$((rc_number + 1))
+          next_version="${base}rc${next_rc_number}"
           echo "next_version=$next_version" >> $GITHUB_OUTPUT
 
   tag_and_release:
@@ -51,3 +41,4 @@ jobs:
     needs: get_tag_name
     with:
       version: ${{ needs.get_tag_name.outputs.next_version }}  
+      from_branch: ${{ github.ref_name }}
