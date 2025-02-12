@@ -6,10 +6,15 @@ on:
       target:
         description: 'Target version to compare. If omitted, the latest release from github will be used. Exmaple: v1.2.3'
         required: false
+  workflow_call:
+    inputs:
+      target:
+        type: string
+        required: false
 env:
   VERSION_REGEX: ^v\d+\.\d+\.\d+$
 jobs:
-  get-prs:
+  create-next-release-branch:
     name: Parse PRs labels and create next release branch
     runs-on: ubuntu-latest
     permissions:
@@ -76,7 +81,7 @@ jobs:
         with:
           version: ${{ inputs.target || steps.latest_tag.outputs.tag }}
       
-      - name: Create branch  ${{ steps.get-next-version.outputs[steps.get_increment_type.outputs.increment_type] }}
+      - name: Create branch ${{ steps.get-next-version.outputs[steps.get_increment_type.outputs.increment_type] }} from ${{ env.BASE_SHA }}
         uses: peterjgrainger/action-create-branch@v2.2.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,8 +90,9 @@ jobs:
           sha: ${{ env.BASE_SHA }}
 
   rc_release:
-    name: Release rc0 from ${{ needs.get-prs.outputs.new_branch }} 
-    uses: ./.github/workflows/rc_release.yml
-    needs: get-prs
+    name: Tag and Release rc0 from ${{ needs.create-next-release-branch.outputs.new_branch }} 
+    uses: ./.github/workflows/tag.yml
+    needs: create-next-release-branch
     with:
-      branch_name: ${{ needs.get-prs.outputs.new_branch }}
+      version: v${{ needs.create-next-release-branch.outputs.new_branch }}rc0
+      from_branch: ${{ needs.create-next-release-branch.outputs.new_branch }}

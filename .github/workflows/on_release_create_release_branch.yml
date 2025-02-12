@@ -1,0 +1,12 @@
+name: On Latest Release - Create Release Branch
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  create_release_branch:
+    name: Creating next release branch becasue ${{ github.event.release.tag_name }} was released
+    uses: ./.github/workflows/create_release_branch.yml
+    with:
+      target: ${{ github.event.release.tag_name }}

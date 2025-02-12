@@ -8,7 +8,7 @@ on:
 
 jobs:
   parse-pr:
-    name: Parse PR and add labels
+    name: Parse PR and Add labels
     permissions: 
       pull-requests: write
     runs-on: ubuntu-latest
