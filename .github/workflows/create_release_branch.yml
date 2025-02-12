@@ -85,6 +85,7 @@ jobs:
           sha: ${{ env.BASE_SHA }}
 
   rc_release:
+    name: Release rc0 from ${{ needs.get-prs.outputs.new_branch }} 
     uses: ./.github/workflows/rc_release.yml
     needs: get-prs
     with:
