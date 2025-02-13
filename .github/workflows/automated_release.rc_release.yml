@@ -3,7 +3,7 @@ name: "Automated Release: Release next RC from release branch"
 on:
   push:
     branches:
-      - '[0-9]+.[0-9]+.[0-9]'
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 run-name: Release next RC from '${{ github.ref_name }}' 
 jobs:
