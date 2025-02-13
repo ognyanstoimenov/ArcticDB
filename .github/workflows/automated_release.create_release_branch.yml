@@ -1,9 +1,8 @@
 name: "Automated Release: Create next release branch"
 
 on:
-  # release:
-  #   types: [released]
-  workflow_dispatch: # For testing only
+  release:
+    types: [released]
 env:
   VERSION_REGEX: ^v\d+\.\d+\.\d+$
 jobs:
