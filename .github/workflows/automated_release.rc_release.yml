@@ -19,7 +19,7 @@ jobs:
         id: latest_rc_tag
         uses: oprypin/find-latest-tag@v1
         with:
-          repository: man-group/ArcticDB
+          repository: ${{ github.repository }}
           prefix: v${{ env.CURRENT_BRANCH }}rc
       
       - name: Calculate next_version
