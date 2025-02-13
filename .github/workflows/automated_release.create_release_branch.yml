@@ -1,11 +1,11 @@
 name: "Automated Release: Create next release branch"
 
 on:
-  # release:
-  #   types: [released]
-  workflow_dispatch: # For testing only
+  release:
+    types: [released]
 env:
   VERSION_REGEX: ^v\d+\.\d+\.\d+$
+run-name: ${{ github.event.release.tag_name }} released. Cutting the branch for the next version
 jobs:
   create-next-release-branch:
     name: Parse PRs labels and create next release branch
@@ -23,7 +23,7 @@ jobs:
       - name: Get default branch sha
         id: get_sha
         run: |
-          BASE_SHA=$(git rev-parse master)
+          BASE_SHA=$(git rev-parse origin/master)
           echo "BASE_SHA=$BASE_SHA" >> $GITHUB_ENV
           echo "Release branch will be cut from master at $BASE_SHA"
       
