@@ -1,11 +1,11 @@
 name: "Automated Release: Create next release branch"
 
 on:
-  release:
-    types: [released]
+  # release:
+  #   types: [released]
+  workflow_dispatch: # For testing only
 env:
   VERSION_REGEX: ^v\d+\.\d+\.\d+$
-run-name: Creating next release branch because ${{ github.event.release.tag_name }} was released
 jobs:
   create-next-release-branch:
     name: Parse PRs labels and create next release branch
