@@ -1,11 +1,11 @@
 name: "Automated Release: Release next full version from release branch"
 
 on:
-  schedule:
-    - cron: '0 0 * * 1'
-  workflow_dispatch: # For debugging only
+  # schedule:
+  #   - cron: '0 0 * * 1' # Every Monday at midnight UTC
+  workflow_dispatch:
 
-run-name: Release next full version to pypi and github
+run-name: Release latest Rc tag as full version to pypi and github
 jobs:
   get_tag_name:
     name: Calculate next RC number
@@ -25,16 +25,15 @@ jobs:
       - name: Calculate next version
         id: calculate-next-version
         run: |
-          CURRENT_BRANCH="${{ github.ref_name }}"
           LATEST_TAG="${{ steps.latest_rc_tag.outputs.tag }}"
           LATEST_TAG="${LATEST_TAG#v}"
           base="${LATEST_TAG%rc*}"
           echo "next_version=$base" >> $GITHUB_OUTPUT
 
   tag_and_release:
-    name: Tag and release version ${{ needs.get_tag_name.outputs.next_version }} 
+    name: Tag and release version ${{ needs.get_tag_name.outputs.next_version }} from ${{ needs.get_tag_name.outputs.next_version }}
     uses: ./.github/workflows/tag.yml
     needs: get_tag_name
     with:
       version: ${{ needs.get_tag_name.outputs.next_version }}  
-      from_branch: ${{ github.ref_name }}
+      from_branch: ${{ needs.get_tag_name.outputs.next_version }}

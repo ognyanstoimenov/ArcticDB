@@ -1,18 +1,11 @@
 name: "Automated Release: Create next release branch"
 
 on:
-  workflow_dispatch:
-    inputs:
-      target:
-        description: 'Target version to compare. If omitted, the latest release from github will be used. Exmaple: v1.2.3'
-        required: false
-  workflow_call:
-    inputs:
-      target:
-        type: string
-        required: false
+  release:
+    types: [released]
 env:
   VERSION_REGEX: ^v\d+\.\d+\.\d+$
+run-name: Creating next release branch because ${{ github.event.release.tag_name }} was released
 jobs:
   create-next-release-branch:
     name: Parse PRs labels and create next release branch
@@ -36,7 +29,6 @@ jobs:
       
       - name: Get latest released tag
         id: latest_tag
-        if: ${{ inputs.target == '' }}
         uses: oprypin/find-latest-tag@v1
         with:
           repository: man-group/ArcticDB
@@ -44,13 +36,13 @@ jobs:
           sort-tags: true
           releases-only: true
 
-      - name: Get PRs between master (${{ env.BASE_SHA }}) and ${{ inputs.target || steps.latest_tag.outputs.tag }}
+      - name: Get PRs between master (${{ env.BASE_SHA }}) and ${{ steps.latest_tag.outputs.tag }}
         uses: VanOns/get-merged-pull-requests-action@master
         id: pull_requests
         with:
           github_token: ${{ github.token }}
           current_tag: ${{ env.BASE_SHA }}
-          previous_tag: ${{ inputs.target || steps.latest_tag.outputs.tag }}
+          previous_tag: ${{ steps.latest_tag.outputs.tag }}
           return_type: "all"
 
       - name: Get labels of PRs and determine increment type
@@ -79,7 +71,7 @@ jobs:
         id: get-next-version
         uses: WyriHaximus/github-action-next-semvers@v1.2.1
         with:
-          version: ${{ inputs.target || steps.latest_tag.outputs.tag }}
+          version: ${{ steps.latest_tag.outputs.tag }}
       
       - name: Create branch ${{ steps.get-next-version.outputs[steps.get_increment_type.outputs.increment_type] }} from ${{ env.BASE_SHA }}
         uses: peterjgrainger/action-create-branch@v2.2.0
@@ -94,5 +86,5 @@ jobs:
     uses: ./.github/workflows/tag.yml
     needs: create-next-release-branch
     with:
-      version: v${{ needs.create-next-release-branch.outputs.new_branch }}rc0
+      version: ${{ needs.create-next-release-branch.outputs.new_branch }}rc0
       from_branch: ${{ needs.create-next-release-branch.outputs.new_branch }}
