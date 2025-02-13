@@ -1,4 +1,4 @@
- <p align="center ">
+<p align="center">
   <img src="static/ArcticDB Logo Purple Horizontal.svg">
 </p>
 
@@ -117,7 +117,7 @@ Create a test dataframe:
 >>> df = pd.DataFrame(np.random.randint(0,100,size=(NUM_ROWS, NUM_COLUMNS)), columns=[f"COL_{i}" for i in range(NUM_COLUMNS)], index=pd.date_range('2000', periods=NUM_ROWS, freq='h'))
 ```
 
-Get the library, write some data to it, and read it back :
+Get the library, write some data to it, and read it back:
 
 ```Python
 >>> lib = ac['travel_data']
