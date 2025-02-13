@@ -31,7 +31,7 @@ jobs:
         id: latest_tag
         uses: oprypin/find-latest-tag@v1
         with:
-          repository: man-group/ArcticDB
+          repository: ${{ github.repository }}
           regex: ${{ env.VERSION_REGEX }}
           sort-tags: true
           releases-only: true
@@ -82,7 +82,7 @@ jobs:
           sha: ${{ env.BASE_SHA }}
 
   rc_release:
-    name: Tag and Release rc0 from ${{ needs.create-next-release-branch.outputs.new_branch }} 
+    name: Tag and Release version ${{ needs.create-next-release-branch.outputs.new_branch }}rc0 from branch ${{ needs.create-next-release-branch.outputs.new_branch }} 
     uses: ./.github/workflows/tag.yml
     needs: create-next-release-branch
     with:
