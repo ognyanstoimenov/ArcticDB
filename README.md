@@ -1,4 +1,4 @@
-<p align="center">
+<p align="cent er">
   <img src="static/ArcticDB Logo Purple Horizontal.svg">
 </p>
 
