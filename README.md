@@ -20,7 +20,7 @@
 
 ---
 
-**ArcticDB** is a high performance, serverless **DataFrame database** built for the Python Data Science ecosystem.
+**ArcticDB** is a h igh performance, serverless **DataFrame database** built for the Python Data Science ecosystem.
 Launched in March 2023, it is the successor to [Arctic](https://github.com/man-group/arctic).
 
 Use of ArcticDB in production (including business or commercial environments) or for a Database Service requires a paid for license from ArcticDB Limited . Please contact info@arcticdb.io for further details.
