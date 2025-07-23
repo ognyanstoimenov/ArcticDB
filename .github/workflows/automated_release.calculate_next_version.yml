@@ -68,6 +68,7 @@ jobs:
           MAJOR_LABEL: "major"
           MINOR_LABEL: "minor"
           PATCH_LABEL: "patch"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -z "$PULL_REQUESTS" ] || [ ! -f "$PULL_REQUESTS" ]; then
             echo "Error: No PRs found between branches" && exit 1
