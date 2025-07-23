@@ -75,7 +75,7 @@ jobs:
           fi
           pr_numbers=$(jq -r '.[].number' "$PULL_REQUESTS")
           for pr in $pr_numbers; do
-            pr_json=$(gh api /repos/man-group/arcticdb/pulls/$pr)
+            pr_json=$(gh api /repos/$GITHUB_REPOSITORY/pulls/$pr)
             base_ref=$(echo "$pr_json" | jq -r '.base.ref')
             if [ "$base_ref" != "master" ]; then
               echo "Skipping PR #$pr (base.ref=$base_ref) as it is not merged into master"
