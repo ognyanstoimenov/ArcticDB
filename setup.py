@@ -31,9 +31,9 @@ def _log_and_run(*cmd, **kwargs):
     print("Running " + " ".join(cmd))
     subprocess.check_call(cmd, **kwargs)
 
-def cleanup_vcpkg_artifacts():
+def cleanup_vcpkg_artifacts() :
     cpp_dir = Path("cpp")
-    if not cpp_dir.exists():
+    if not cpp_dir.exists() :
         return
     
     vcpkg_dir = cpp_dir / "vcpkg"
